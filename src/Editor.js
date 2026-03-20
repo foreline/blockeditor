@@ -1462,6 +1462,56 @@ export class Editor
     }
 
     /**
+     * Insert a new default (paragraph) block BEFORE the current block.
+     * Focus remains on the current block; the new empty block appears above.
+     * @return HTMLElement
+     */
+    addDefaultBlockBefore()
+    {
+        log('addDefaultBlockBefore()', 'Editor.');
+
+        this._stateMachine.startCreating();
+
+        const block = new Block(BlockType.PARAGRAPH);
+        const htmlBlock = Parser.html(block);
+
+        // Link block instance to its DOM element
+        const typedBlock = block.getBlockInstance ? block.getBlockInstance() : block;
+        if (typedBlock && typedBlock.element !== undefined) {
+            typedBlock.element = htmlBlock;
+        }
+        this._blockMap.set(htmlBlock, typedBlock);
+
+        // Generate unique block ID
+        const blockId = 'block-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        htmlBlock.setAttribute('data-block-id', blockId);
+        htmlBlock.setAttribute('data-timestamp', Date.now().toString());
+
+        const currentBlock = this.currentBlock;
+
+        if (!currentBlock) {
+            this.instance.insertBefore(htmlBlock, this.instance.firstChild);
+        } else {
+            currentBlock.parentNode.insertBefore(htmlBlock, currentBlock);
+        }
+
+        // Emit block creation event
+        this.eventEmitter.emit(EVENTS.BLOCK_CREATED, {
+            blockId: blockId,
+            blockType: BlockType.PARAGRAPH,
+            position: Array.from(this.instance.querySelectorAll('.block')).indexOf(htmlBlock),
+            timestamp: Date.now()
+        }, { source: 'editor.create' });
+
+        // Keep focus on the current block — the user's cursor stays where it was
+        requestAnimationFrame(() => {
+            this._stateMachine.finishCreating();
+        });
+
+        return htmlBlock;
+    }
+
+    /**
      * Updates toolbar button states based on the current block
      */
     updateToolbarButtonStates()

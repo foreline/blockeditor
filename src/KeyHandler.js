@@ -183,12 +183,20 @@ export class KeyHandler
             }
         }
         
-        // If block didn't handle the Enter key, check if cursor is at the end for default behavior
+        // If block didn't handle the Enter key, check cursor position for default behavior
         const selection = window.getSelection();
         if (!selection.rangeCount) {
             return;
         }
         const range = selection.getRangeAt(0);
+
+        // Check if cursor is at the start of a non-empty block — insert preceding block
+        const isAtStart = KeyHandler.isCursorAtStartOfBlock(currentBlock, range);
+        if (isAtStart && currentBlock.textContent.trim().length > 0) {
+            e.preventDefault();
+            this.editorInstance.addDefaultBlockBefore();
+            return;
+        }
         
         // Use the block's isAtEnd method if available, otherwise use the generic method
         let isAtEnd = false;
@@ -256,6 +264,29 @@ export class KeyHandler
         // Consider cursor at end if it's within 2 characters of the end
         // (accounts for trailing spaces or formatting)
         return cursorPosition >= textLength - 2;
+    }
+
+    /**
+     * Check if cursor is at the very start of the current block (position 0)
+     * @param {HTMLElement} block
+     * @param {Range} range
+     * @returns {boolean}
+     */
+    static isCursorAtStartOfBlock(block, range) {
+        if (!range || !block) {
+            return false;
+        }
+
+        // Must be a collapsed cursor, not a selection
+        if (!range.collapsed) {
+            return false;
+        }
+
+        // Calculate the cursor position from the start of the block
+        const preRange = range.cloneRange();
+        preRange.selectNodeContents(block);
+        preRange.setEnd(range.startContainer, range.startOffset);
+        return preRange.toString().length === 0;
     }
 
     /**

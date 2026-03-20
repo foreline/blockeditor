@@ -2,8 +2,6 @@
 
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
-import {Toolbar} from "@/Toolbar";
-import {Editor} from "@/Editor";
 import {SyntaxHighlighter} from "@/utils/syntaxHighlighter";
 import {Utils} from "@/Utils";
 
@@ -84,22 +82,20 @@ export class CodeBlock extends BaseBlock
 
     /**
      * Apply code block transformation via toolbar
+     * @param {HTMLElement} targetElement - The block DOM element to transform
+     * @param {Object} editorInstance - The editor instance owning this block
      * @returns {void}
      */
-    applyTransformation() {
-        // Perform direct DOM transformation (similar to HeadingBlock)
-        // to avoid circular dependency with Toolbar.code()
-        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
-        const currentBlock = editorInstance?.currentBlock;
-        if (!currentBlock) return;
+    applyTransformation(targetElement, editorInstance) {
+        if (!targetElement) return;
         
         // Update block attributes
-        currentBlock.setAttribute('data-block-type', 'code');
-        currentBlock.className = 'block block-code';
-        currentBlock.setAttribute('contenteditable', 'false');
+        targetElement.setAttribute('data-block-type', 'code');
+        targetElement.className = 'block block-code';
+        targetElement.setAttribute('contenteditable', 'false');
         
         // Get existing content (markdown trigger already stripped by Editor.convertBlockType)
-        const existingContent = currentBlock.textContent || '';
+        const existingContent = targetElement.textContent || '';
         
         // Create code structure (pre > code)
         const pre = document.createElement('pre');
@@ -108,17 +104,17 @@ export class CodeBlock extends BaseBlock
         code.setAttribute('contenteditable', 'true');
         
         // Replace content with code structure
-        currentBlock.innerHTML = '';
+        targetElement.innerHTML = '';
         pre.appendChild(code);
-        currentBlock.appendChild(pre);
+        targetElement.appendChild(pre);
         
         // Create and append language selector
         const languageSelector = this.createLanguageSelector();
-        currentBlock.appendChild(languageSelector);
+        targetElement.appendChild(languageSelector);
         
         // Focus the code element if the block was focused
-        if (document.activeElement === currentBlock || 
-            currentBlock.contains(document.activeElement)) {
+        if (document.activeElement === targetElement || 
+            targetElement.contains(document.activeElement)) {
             requestAnimationFrame(() => {
                 code.focus();
                 // Place cursor at end

@@ -176,8 +176,10 @@ export class BaseBlock
     /**
      * Apply this block type transformation via toolbar
      * Should be overridden by subclasses to call appropriate Toolbar method
+     * @param {HTMLElement} targetElement - The block DOM element to transform
+     * @param {Object} editorInstance - The editor instance owning this block
      */
-    applyTransformation() {
+    applyTransformation(targetElement, editorInstance) {
         // Override in subclasses
     }
 

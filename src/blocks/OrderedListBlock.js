@@ -2,7 +2,6 @@
 
 import {ListBlock} from "@/blocks/ListBlock";
 import {BlockType} from "@/BlockType";
-import {Toolbar} from "@/Toolbar";
 import {Editor} from "@/Editor";
 
 /**
@@ -46,19 +45,17 @@ export class OrderedListBlock extends ListBlock
         return text.replace(/^\d+(?:[\.)])?\s/, '');
     }
 
-    applyTransformation() {
+    applyTransformation(targetElement, editorInstance) {
         // Transform current paragraph block into an ordered list block in-place
-        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
-        const currentBlock = editorInstance?.currentBlock;
-        if (!currentBlock) return;
+        if (!targetElement) return;
 
         // Update attributes/classes
-        currentBlock.setAttribute('data-block-type', 'ol');
-        currentBlock.className = 'block block-ol';
-        currentBlock.setAttribute('contenteditable', 'false');
+        targetElement.setAttribute('data-block-type', 'ol');
+        targetElement.className = 'block block-ol';
+        targetElement.setAttribute('contenteditable', 'false');
 
         // Existing text after trigger removal
-        const existingContent = (currentBlock.textContent || '').trim();
+        const existingContent = (targetElement.textContent || '').trim();
 
         // Build OL with a single editable LI
         const ol = document.createElement('ol');
@@ -67,8 +64,8 @@ export class OrderedListBlock extends ListBlock
         li.textContent = existingContent;
         ol.appendChild(li);
 
-        currentBlock.innerHTML = '';
-        currentBlock.appendChild(ol);
+        targetElement.innerHTML = '';
+        targetElement.appendChild(ol);
 
         requestAnimationFrame(() => {
             try {

@@ -2,7 +2,6 @@
 
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
-import {Editor} from "@/Editor";
 
 /**
  * Quote block
@@ -38,17 +37,15 @@ export class QuoteBlock extends BaseBlock
         return ['> '];
     }
 
-    applyTransformation() {
-        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
-        const currentBlock = editorInstance?.currentBlock;
-        if (!currentBlock) return;
+    applyTransformation(targetElement, editorInstance) {
+        if (!targetElement) return;
 
         // Update block attributes
-        currentBlock.setAttribute('data-block-type', 'quote');
-        currentBlock.className = 'block block-quote';
+        targetElement.setAttribute('data-block-type', 'quote');
+        targetElement.className = 'block block-quote';
 
         // Get existing content
-        const existingContent = currentBlock.textContent || '';
+        const existingContent = targetElement.textContent || '';
 
         // Create blockquote element
         const blockquote = document.createElement('blockquote');
@@ -56,13 +53,13 @@ export class QuoteBlock extends BaseBlock
         blockquote.textContent = existingContent;
 
         // Replace content with blockquote
-        currentBlock.setAttribute('contenteditable', 'false');
-        currentBlock.innerHTML = '';
-        currentBlock.appendChild(blockquote);
+        targetElement.setAttribute('contenteditable', 'false');
+        targetElement.innerHTML = '';
+        targetElement.appendChild(blockquote);
 
         // Focus the blockquote element
-        if (document.activeElement === currentBlock ||
-            currentBlock.contains(document.activeElement)) {
+        if (document.activeElement === targetElement ||
+            targetElement.contains(document.activeElement)) {
             requestAnimationFrame(() => {
                 blockquote.focus();
                 const range = document.createRange();

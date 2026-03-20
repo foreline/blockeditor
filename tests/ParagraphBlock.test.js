@@ -1,14 +1,30 @@
 import { ParagraphBlock } from '@/blocks/ParagraphBlock.js';
 import { BaseBlock } from '@/blocks/BaseBlock.js';
 import { BlockType } from '@/BlockType.js';
-import { Toolbar } from '@/Toolbar.js';
 
-// Mock the Toolbar module
-jest.mock('@/Toolbar.js', () => ({
-  Toolbar: {
-    paragraph: jest.fn()
-  }
-}));
+// Mock the Editor module
+jest.mock('@/Editor.js', () => {
+  const mockUpdate = jest.fn();
+  const mockCurrentBlock = {
+    setAttribute: jest.fn(),
+    textContent: 'existing content',
+    innerHTML: '',
+    className: '',
+    focus: jest.fn(),
+  };
+  return {
+    Editor: {
+      getInstanceFromElement: jest.fn(() => ({
+        currentBlock: mockCurrentBlock,
+        update: mockUpdate,
+      })),
+      _mockCurrentBlock: mockCurrentBlock,
+      _mockUpdate: mockUpdate,
+    }
+  };
+});
+
+import { Editor } from '@/Editor.js';
 
 describe('ParagraphBlock', () => {
   let paragraphBlock;
@@ -83,17 +99,27 @@ describe('ParagraphBlock', () => {
   });
 
   describe('applyTransformation', () => {
-    test('calls Toolbar.paragraph method', () => {
-      paragraphBlock.applyTransformation();
-      expect(Toolbar.paragraph).toHaveBeenCalledTimes(1);
-      expect(Toolbar.paragraph).toHaveBeenCalledWith();
+    test('performs direct DOM transformation', () => {
+      const mockBlock = Editor._mockCurrentBlock;
+      const mockEditor = { update: Editor._mockUpdate };
+      paragraphBlock.applyTransformation(mockBlock, mockEditor);
+      
+      expect(mockBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'p');
+      expect(mockBlock.className).toBe('block block-p');
+      expect(mockBlock.setAttribute).toHaveBeenCalledWith('contenteditable', 'true');
+      expect(mockBlock.innerHTML).toBe('existing content');
     });
 
-    test('can be called multiple times', () => {
-      paragraphBlock.applyTransformation();
-      paragraphBlock.applyTransformation();
-      
-      expect(Toolbar.paragraph).toHaveBeenCalledTimes(2);
+    test('calls editor update after transformation', () => {
+      const mockBlock = Editor._mockCurrentBlock;
+      const mockEditor = { update: Editor._mockUpdate };
+      paragraphBlock.applyTransformation(mockBlock, mockEditor);
+      expect(Editor._mockUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    test('does nothing when no target element exists', () => {
+      paragraphBlock.applyTransformation(null, null);
+      expect(Editor._mockUpdate).not.toHaveBeenCalled();
     });
   });
 

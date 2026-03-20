@@ -16,7 +16,7 @@
  * Instance Methods:
  * - handleKeyPress(event, text): boolean
  * - handleEnterKey(event): boolean
- * - applyTransformation(): void
+ * - applyTransformation(targetElement, editorInstance): void
  * - toMarkdown(): string
  * - toHtml(): string
  * - renderToElement(): HTMLElement

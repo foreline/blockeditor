@@ -1,14 +1,29 @@
 import { DelimiterBlock } from '@/blocks/DelimiterBlock.js';
 import { BaseBlock } from '@/blocks/BaseBlock.js';
 import { BlockType } from '@/BlockType.js';
-import { Toolbar } from '@/Toolbar.js';
 
-// Mock the Toolbar module
-jest.mock('@/Toolbar.js', () => ({
-  Toolbar: {
-    delimiter: jest.fn()
-  }
-}));
+// Mock the Editor module
+jest.mock('@/Editor.js', () => {
+  const mockUpdate = jest.fn();
+  const mockCurrentBlock = {
+    setAttribute: jest.fn(),
+    appendChild: jest.fn(),
+    innerHTML: '',
+    className: '',
+  };
+  return {
+    Editor: {
+      getInstanceFromElement: jest.fn(() => ({
+        currentBlock: mockCurrentBlock,
+        update: mockUpdate,
+      })),
+      _mockCurrentBlock: mockCurrentBlock,
+      _mockUpdate: mockUpdate,
+    }
+  };
+});
+
+import { Editor } from '@/Editor.js';
 
 // Mock document.createElement
 global.document.createElement = jest.fn(() => ({
@@ -93,17 +108,29 @@ describe('DelimiterBlock', () => {
   });
 
   describe('applyTransformation', () => {
-    test('calls Toolbar.delimiter method', () => {
-      delimiterBlock.applyTransformation();
-      expect(Toolbar.delimiter).toHaveBeenCalledTimes(1);
-      expect(Toolbar.delimiter).toHaveBeenCalledWith();
+    test('performs direct DOM transformation', () => {
+      const mockBlock = Editor._mockCurrentBlock;
+      const mockEditor = { update: Editor._mockUpdate };
+      delimiterBlock.applyTransformation(mockBlock, mockEditor);
+      
+      expect(mockBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'delimiter');
+      expect(mockBlock.className).toBe('block block-delimiter');
+      expect(mockBlock.setAttribute).toHaveBeenCalledWith('contenteditable', 'false');
+      expect(mockBlock.appendChild).toHaveBeenCalled();
     });
 
-    test('can be called multiple times', () => {
-      delimiterBlock.applyTransformation();
-      delimiterBlock.applyTransformation();
+    test('calls editor update after transformation', () => {
+      const mockBlock = Editor._mockCurrentBlock;
+      const mockEditor = { update: Editor._mockUpdate };
+      delimiterBlock.applyTransformation(mockBlock, mockEditor);
+      expect(Editor._mockUpdate).toHaveBeenCalledTimes(1);
+    });
+
+    test('does nothing when no target element exists', () => {
+      delimiterBlock.applyTransformation(null, null);
       
-      expect(Toolbar.delimiter).toHaveBeenCalledTimes(2);
+      // No calls should have been made
+      expect(Editor._mockUpdate).not.toHaveBeenCalled();
     });
   });
 

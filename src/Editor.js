@@ -196,7 +196,7 @@ export class Editor
                 debug: this.debug,
                 editorInstance: this
             };
-            Toolbar.init(toolbarOptions);
+            this.toolbar = new Toolbar(toolbarOptions);
         }
     }
     
@@ -268,6 +268,7 @@ export class Editor
         
         this.setCurrentBlock(this.instance.querySelectorAll('.block')[0]);
     
+        this.keyHandler = new KeyHandler(this);
         this.addListeners();
         
         // @fixme focus only if empty content
@@ -458,11 +459,11 @@ export class Editor
         log('addListeners()', 'Editor.');
         
         this.instance.addEventListener('keydown', (e) => {
-            KeyHandler.handleSpecialKeys(e, this);
+            this.keyHandler.handleSpecialKeys(e);
         });
     
         this.instance.addEventListener('keyup', (e) => {
-            KeyHandler.handleKeyPress(e, this);
+            this.keyHandler.handleKeyPress(e);
         });
         
         // BEFOREINPUT Event handler — intercept deletions that cross block boundaries.
@@ -1938,7 +1939,7 @@ export class Editor
             blockElement.textContent = remainingContent.trim();
             
             // Apply the transformation (this will call the appropriate Toolbar method)
-            newBlock.applyTransformation();
+            newBlock.applyTransformation(blockElement, this);
             
             // Link new block to its DOM element
             newBlock.element = blockElement;

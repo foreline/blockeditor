@@ -2,7 +2,6 @@
 
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
-import {Toolbar} from "@/Toolbar";
 import {Editor} from "@/Editor";
 
 /**
@@ -212,10 +211,8 @@ export class ImageBlock extends BaseBlock
     /**
      * Apply image transformation
      */
-    applyTransformation() {
-        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
-        const currentBlock = editorInstance?.currentBlock;
-        if (!currentBlock) return;
+    applyTransformation(targetElement, editorInstance) {
+        if (!targetElement) return;
         
         // Prompt for image URL or show file picker
         const url = prompt('Enter image URL or drag & drop an image file:');
@@ -224,20 +221,20 @@ export class ImageBlock extends BaseBlock
             this._alt = 'Image';
         }
         
-        currentBlock.setAttribute('data-block-type', 'image');
-        currentBlock.innerHTML = this.generateImageHTML();
+        targetElement.setAttribute('data-block-type', 'image');
+        targetElement.innerHTML = this.generateImageHTML();
         
         // Set up drag and drop
-        this.setupDragAndDrop(currentBlock);
+        this.setupDragAndDrop(targetElement);
         
         // Set up resizing for the image
-        const img = currentBlock.querySelector('img');
+        const img = targetElement.querySelector('img');
         if (img) {
             img.onload = () => this.setupImageResizing(img);
         }
         
         if (editorInstance) {
-            editorInstance.setCurrentBlock(currentBlock);
+            editorInstance.setCurrentBlock(targetElement);
             editorInstance.update();
         }
     }

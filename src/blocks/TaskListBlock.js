@@ -178,31 +178,29 @@ export class TaskListBlock extends ListBlock
      * Apply transformation to the current block
      * @returns {string} - markdown representation
      */
-    applyTransformation() {
+    applyTransformation(targetElement, editorInstance) {
         // Get current block and convert to task list
-        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
-        const currentBlock = editorInstance?.currentBlock;
-        if (!currentBlock) return;
+        if (!targetElement) return;
         
         // Set block type
-        currentBlock.setAttribute('data-block-type', 'sq');
+        targetElement.setAttribute('data-block-type', 'sq');
         
         // Clear existing content
-        const existingText = currentBlock.textContent.trim();
-        currentBlock.innerHTML = '';
+        const existingText = targetElement.textContent.trim();
+        targetElement.innerHTML = '';
         
         // Create checkbox
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.addEventListener('change', (e) => {
-            this.toggleCheckbox(currentBlock);
+            this.toggleCheckbox(targetElement);
         });
         
-        currentBlock.appendChild(checkbox);
-        currentBlock.appendChild(document.createTextNode(' ' + existingText));
+        targetElement.appendChild(checkbox);
+        targetElement.appendChild(document.createTextNode(' ' + existingText));
         
         if (editorInstance) {
-            editorInstance.setCurrentBlock(currentBlock);
+            editorInstance.setCurrentBlock(targetElement);
             editorInstance.update();
         }
     }

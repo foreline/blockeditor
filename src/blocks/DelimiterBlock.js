@@ -2,7 +2,6 @@
 
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
-import {Toolbar} from "@/Toolbar";
 
 /**
  * Delimiter block (horizontal rule)
@@ -38,8 +37,23 @@ export class DelimiterBlock extends BaseBlock
         return ['---', '***', '___'];
     }
 
-    applyTransformation() {
-        Toolbar.delimiter();
+    applyTransformation(targetElement, editorInstance) {
+        if (!targetElement) return;
+
+        // Update block attributes
+        targetElement.setAttribute('data-block-type', 'delimiter');
+        targetElement.className = 'block block-delimiter';
+        targetElement.setAttribute('contenteditable', 'false');
+
+        // Replace content with <hr>
+        const hr = document.createElement('hr');
+        targetElement.innerHTML = '';
+        targetElement.appendChild(hr);
+
+        // Update the editor
+        if (editorInstance) {
+            editorInstance.update();
+        }
     }
 
     /**

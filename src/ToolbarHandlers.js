@@ -1,6 +1,5 @@
 'use strict';
 
-import { Toolbar } from './Toolbar.js';
 import {eventEmitter, EVENTS} from "@/utils/eventEmitter.js";
 
 export const ToolbarHandlers = {
@@ -33,12 +32,10 @@ export const ToolbarHandlers = {
 
   /**
    * Handles the click event for the toolbar button.
-   * @param {Event} event - The click event.
-   * @param {Object} context - The context object containing necessary data.
+   * @param {Object} toolbar - The Toolbar instance to delegate actions to.
    * @return {void}
-   * @throws {Error} Throws an error if the context is not provided.
-   * */
-  init: () => {
+   */
+  init: (toolbar) => {
     // Clear existing event listeners before adding new ones
     ToolbarHandlers.cleanup();
     
@@ -52,7 +49,7 @@ export const ToolbarHandlers = {
     document
         .querySelectorAll('.editor-toolbar-undo')
         .forEach(btn => {
-            const handler = ToolbarHandlers.createToolbarHandler('undo', () => Toolbar.undo());
+            const handler = ToolbarHandlers.createToolbarHandler('undo', () => toolbar.undo());
             btn.addEventListener('click', handler);
             ToolbarHandlers.eventListeners.set(btn, { event: 'click', handler });
         });
@@ -60,7 +57,7 @@ export const ToolbarHandlers = {
     document
         .querySelectorAll('.editor-toolbar-redo')
         .forEach(btn => {
-            const handler = ToolbarHandlers.createToolbarHandler('redo', () => Toolbar.redo());
+            const handler = ToolbarHandlers.createToolbarHandler('redo', () => toolbar.redo());
             btn.addEventListener('click', handler);
             ToolbarHandlers.eventListeners.set(btn, { event: 'click', handler });
         });
@@ -74,7 +71,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.h1();
+                toolbar.h1();
             });
         });
 
@@ -83,7 +80,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.h2();
+                toolbar.h2();
             });
         });
 
@@ -92,7 +89,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.h3();
+                toolbar.h3();
             });
         });
 
@@ -101,7 +98,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.h4();
+                toolbar.h4();
             });
         });
 
@@ -110,7 +107,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.h5();
+                toolbar.h5();
             });
         });
 
@@ -119,7 +116,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.h6();
+                toolbar.h6();
             });
         });
 
@@ -128,7 +125,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.paragraph();
+                toolbar.paragraph();
             });
         });
 
@@ -141,7 +138,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.bold();
+                toolbar.bold();
             });
         });
 
@@ -150,7 +147,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.italic();
+                toolbar.italic();
             });
         });
 
@@ -159,7 +156,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.underline();
+                toolbar.underline();
             });
         });
 
@@ -168,7 +165,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.strikethrough();
+                toolbar.strikethrough();
             });
         });
 
@@ -181,7 +178,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.ul();
+                toolbar.ul();
             });
         });
 
@@ -190,7 +187,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.ol();
+                toolbar.ol();
             });
         });
 
@@ -199,7 +196,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.sq();
+                toolbar.sq();
             });
         });
 
@@ -212,7 +209,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.code();
+                toolbar.code();
             });
         });
 
@@ -225,7 +222,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.table();
+                toolbar.table();
             });
         });
 
@@ -238,7 +235,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.text();
+                toolbar.text();
             });
         });
 
@@ -247,7 +244,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
-                Toolbar.markdown();
+                toolbar.markdown();
             });
         });
 
@@ -256,7 +253,7 @@ export const ToolbarHandlers = {
         .forEach(btn => {
             const handler = (e) => {
                 e.preventDefault();
-                Toolbar.html();
+                toolbar.html();
             };
             btn.addEventListener('click', handler);
             ToolbarHandlers.eventListeners.set(btn, { event: 'click', handler });
@@ -268,7 +265,7 @@ export const ToolbarHandlers = {
     document
         .querySelectorAll('.editor-toolbar-debug')
         .forEach(btn => {
-            const handler = ToolbarHandlers.createToolbarHandler('debug', Toolbar.debug);
+            const handler = ToolbarHandlers.createToolbarHandler('debug', () => toolbar.debug());
             btn.addEventListener('click', handler);
             ToolbarHandlers.eventListeners.set(btn, { event: 'click', handler });
         });

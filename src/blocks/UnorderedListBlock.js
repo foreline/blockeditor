@@ -2,7 +2,6 @@
 
 import {ListBlock} from "@/blocks/ListBlock";
 import {BlockType} from "@/BlockType";
-import {Toolbar} from "@/Toolbar";
 import {Editor} from "@/Editor";
 
 /**
@@ -46,19 +45,17 @@ export class UnorderedListBlock extends ListBlock
         return text.replace(/^(\*|\-|\+)\s/, '');
     }
 
-    applyTransformation() {
+    applyTransformation(targetElement, editorInstance) {
         // Transform current paragraph block into an unordered list block in-place
-        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
-        const currentBlock = editorInstance?.currentBlock;
-        if (!currentBlock) return;
+        if (!targetElement) return;
 
         // Update block attributes/classes
-        currentBlock.setAttribute('data-block-type', 'ul');
-        currentBlock.className = 'block block-ul';
-        currentBlock.setAttribute('contenteditable', 'false');
+        targetElement.setAttribute('data-block-type', 'ul');
+        targetElement.className = 'block block-ul';
+        targetElement.setAttribute('contenteditable', 'false');
 
         // Capture existing text (Editor.convertBlockType already removed trigger)
-        const existingContent = (currentBlock.textContent || '').trim();
+        const existingContent = (targetElement.textContent || '').trim();
 
         // Build UL with a single editable LI
         const ul = document.createElement('ul');
@@ -68,8 +65,8 @@ export class UnorderedListBlock extends ListBlock
         ul.appendChild(li);
 
         // Replace inner content
-        currentBlock.innerHTML = '';
-        currentBlock.appendChild(ul);
+        targetElement.innerHTML = '';
+        targetElement.appendChild(ul);
 
         // Focus the LI
         requestAnimationFrame(() => {

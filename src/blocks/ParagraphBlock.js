@@ -2,7 +2,6 @@
 
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
-import {Toolbar} from "@/Toolbar";
 import showdown from "showdown";
 
 /**
@@ -44,10 +43,40 @@ export class ParagraphBlock extends BaseBlock
     }
 
     /**
-     * Apply paragraph transformation via toolbar
+     * Apply paragraph transformation via direct DOM manipulation
+     * @param {HTMLElement} targetElement - The block DOM element to transform
+     * @param {Object} editorInstance - The editor instance owning this block
      */
-    applyTransformation() {
-        Toolbar.paragraph();
+    applyTransformation(targetElement, editorInstance) {
+        if (!targetElement) return;
+
+        // Get existing text content before transformation
+        const existingContent = targetElement.textContent || '';
+
+        // Update block attributes
+        targetElement.setAttribute('data-block-type', 'p');
+        targetElement.className = 'block block-p';
+        targetElement.setAttribute('contenteditable', 'true');
+        targetElement.setAttribute('data-placeholder', 'Type "/" to insert block');
+
+        // Replace content with plain text
+        targetElement.innerHTML = existingContent;
+
+        // Focus the block
+        requestAnimationFrame(() => {
+            targetElement.focus();
+            const range = document.createRange();
+            const selection = window.getSelection();
+            range.selectNodeContents(targetElement);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        });
+
+        // Update the editor
+        if (editorInstance) {
+            editorInstance.update();
+        }
     }
 
     /**

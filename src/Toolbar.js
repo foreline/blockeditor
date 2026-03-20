@@ -2,31 +2,33 @@
 
 'use strict';
 
-import {Editor} from "./Editor.js";
 import { ToolbarHandlers } from "./ToolbarHandlers.js";
 import { BlockFactory } from "./blocks/BlockFactory.js";
 import {log} from "./utils/log.js";
 import {eventEmitter, EVENTS} from "@/utils/eventEmitter.js";
 
 /**
- * Toolbar module for text formatting and block management
+ * Toolbar class for text formatting and block management.
+ * Each Editor instance creates its own Toolbar instance.
  */
-export const Toolbar = {
-    
+export class Toolbar
+{
     /**
-     * 
-     * @param {*} options 
+     * @param {Object} options
+     * @param {HTMLElement} options.container - The container element for the toolbar
+     * @param {Array} options.config - Toolbar button configuration
+     * @param {boolean} [options.debug=false] - Whether debug mode is enabled
+     * @param {Object} options.editorInstance - The Editor instance this toolbar belongs to
      */
-    init: (options) =>
+    constructor(options)
     {
-        log('init()', 'Toolbar.'); console.log({options});
+        log('constructor()', 'Toolbar.'); console.log({options});
         const { container, config, debug, editorInstance } = options;
         
-        // Store editor instance reference for debug functionality
-        Toolbar.editorInstance = editorInstance;
+        this.editorInstance = editorInstance;
         
-        Toolbar.createToolbar(container, config, debug);
-        ToolbarHandlers.init();
+        this.createToolbar(container, config, debug);
+        ToolbarHandlers.init(this);
         
         // Emit toolbar initialization event
         eventEmitter.emit(EVENTS.EDITOR_INITIALIZED, {
@@ -34,292 +36,274 @@ export const Toolbar = {
             toolbarConfig: config,
             timestamp: Date.now()
         }, { source: 'toolbar.init' });
-    },
+    }
 
     /*
      * UNDO | REDO
      */
-    undo: () =>
+    undo()
     {
         log('undo()', 'Toolbar.');
         document.execCommand('undo');
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    redo: () =>
+    redo()
     {
         log('redo()', 'Toolbar.');
         document.execCommand('redo');
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /*
      * HEADERs | PARAGRAPH
      */
-    h1: () =>
+    h1()
     {
         log('h1()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('h1')) {
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('h1')) {
             document.execCommand('formatBlock', false, '<h1>');
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    h2: () =>
+    h2()
     {
         log('h2()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('h2')) {
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('h2')) {
             document.execCommand('formatBlock', false, '<h2>');
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    h3: () =>
+    h3()
     {
         log('h3()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('h3')) {
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('h3')) {
             document.execCommand('formatBlock', false, '<h3>');
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    h4: () =>
+    h4()
     {
         log('h4()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('h4')) {
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('h4')) {
             document.execCommand('formatBlock', false, '<h4>');
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    h5: () =>
+    h5()
     {
         log('h5()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('h5')) {
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('h5')) {
             document.execCommand('formatBlock', false, '<h5>');
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    h6: () =>
+    h6()
     {
         log('h6()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('h6')) {
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('h6')) {
             document.execCommand('formatBlock', false, '<h6>');
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    paragraph: () =>
+    paragraph()
     {
         log('paragraph()', 'Toolbar.');
         document.execCommand('formatBlock', false, '<p>');
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /*
      * BOLD | ITALIC | UNDERLINE | STRIKETHROUGH
      */
     
-    bold: () =>
+    bold()
     {
         log('bold()', 'Toolbar.');
         document.execCommand('bold');
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    italic: () =>
+    italic()
     {
         log('italic()', 'Toolbar.');
         document.execCommand('italic');
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    underline: () =>
+    underline()
     {
         log('underline()', 'Toolbar.');
         document.execCommand('underline');
-        Toolbar.after();
-    },
+        this.after();
+    }
     
-    strikethrough: () =>
+    strikethrough()
     {
         log('strikethrough()', 'Toolbar.');
         document.execCommand('strikeThrough');
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /**
      * Inserts unordered list
      */
-    ul: () =>
+    ul()
     {
         log('ul()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('ul')) {
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('ul')) {
             document.execCommand('insertUnorderedList');
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /**
      * Inserts ordered list
      */
-    ol: () =>
+    ol()
     {
         log('ol()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('ol')) {
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('ol')) {
             document.execCommand('insertOrderedList');
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /**
      * Inserts checkbox list
      */
-    sq: () =>
+    sq()
     {
         log('sq()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('sq')) {
-            const currentBlock = Toolbar.editorInstance?.currentBlock;
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('sq')) {
+            const currentBlock = this.editorInstance?.currentBlock;
             if (!currentBlock) return;
             
-            // Create task list block using BlockFactory
             const taskBlock = BlockFactory.createBlock('sq');
-            taskBlock.applyTransformation();
+            taskBlock.applyTransformation(currentBlock, this.editorInstance);
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /**
      * Inserts code block
      */
-    code: () =>
+    code()
     {
         log('code()', 'Toolbar.');
         
-        // Use the new block-based architecture
-        if (Toolbar.editorInstance) {
-            const result = Toolbar.editorInstance.convertCurrentBlockOrCreate('code');
+        if (this.editorInstance) {
+            const result = this.editorInstance.convertCurrentBlockOrCreate('code');
             if (result) {
-                Toolbar.after();
+                this.after();
                 return;
             }
         }
         
-        // Fallback for legacy usage (should not normally reach here)
         log('Warning: Falling back to legacy code block creation', 'Toolbar.');
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /**
      * Inserts inline block code
      */
-    inline: () =>
+    inline()
     {
         log('inline()', 'Toolbar.');
     
         document.execCommand('formatBlock', false, '<code>');
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /**
      * Inserts table
      */
-    table: () =>
+    table()
     {
         log('table()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('table')) {
-            const currentBlock = Toolbar.editorInstance?.currentBlock;
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('table')) {
+            const currentBlock = this.editorInstance?.currentBlock;
             if (!currentBlock) return;
             
-            // Create table block and apply transformation
             const tableBlock = BlockFactory.createBlock('table');
-            tableBlock.applyTransformation();
+            tableBlock.applyTransformation(currentBlock, this.editorInstance);
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /**
      * Inserts image
      */
-    image: () =>
+    image()
     {
         log('image()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('image')) {
-            const currentBlock = Toolbar.editorInstance?.currentBlock;
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('image')) {
+            const currentBlock = this.editorInstance?.currentBlock;
             if (!currentBlock) return;
             
-            // Create image block and apply transformation
             const imageBlock = BlockFactory.createBlock('image');
-            imageBlock.applyTransformation();
+            imageBlock.applyTransformation(currentBlock, this.editorInstance);
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
 
     /**
      * Inserts quote block
      */
-    quote: () =>
+    quote()
     {
         log('quote()', 'Toolbar.');
         
-        // Try to convert current block, fallback to legacy behavior
-        if (!Toolbar.editorInstance?.convertCurrentBlockOrCreate('quote')) {
-            const currentBlock = Toolbar.editorInstance?.currentBlock;
+        if (!this.editorInstance?.convertCurrentBlockOrCreate('quote')) {
+            const currentBlock = this.editorInstance?.currentBlock;
             if (!currentBlock) return;
             
-            // Create quote block and apply transformation
             const quoteBlock = BlockFactory.createBlock('quote');
-            quoteBlock.applyTransformation();
+            quoteBlock.applyTransformation(currentBlock, this.editorInstance);
         }
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /**
      * Inserts line break <br />
      */
-    br: () =>
+    br()
     {
         log('br()', 'Toolbar.');
         
-        let selection = window.getSelection(); // Get the current selection
+        let selection = window.getSelection();
         
-        if ( selection.rangeCount ) { // Check if there is a selection
+        if ( selection.rangeCount ) {
             let range = selection.getRangeAt(0);
             let preElement = range.commonAncestorContainer.parentNode;
         
@@ -329,25 +313,24 @@ export const Toolbar = {
         } else {
             console.warn({selection});
         }
-    },
+    }
     
     /**
      * Inserts tab (4 spaces)
      */
-    tab: () =>
+    tab()
     {
         log('tab()', 'Toolbar.');
     
-        //document.execCommand('insertHTML', false, '&#009');
         document.execCommand('insertText', false, '    ');
         
-        Toolbar.after();
-    },
+        this.after();
+    }
     
     /**
      * Switch to text (normal) view
      */
-    text: () =>
+    text()
     {
         log('text()', 'Toolbar.');
 
@@ -371,12 +354,12 @@ export const Toolbar = {
         if (btnHtml) {
             btnHtml.disabled = false;
         }
-    },
+    }
 
     /**
      * Switch to markdown view
      */
-    markdown: () =>
+    markdown()
     {
         log('markdown()', 'Toolbar.');
 
@@ -392,9 +375,8 @@ export const Toolbar = {
         textMd?.classList.remove('visually-hidden');
         textHtml?.classList.add('visually-hidden');
 
-        // Populate markdown content
-        if (textMd && Toolbar.editorInstance) {
-            textMd.textContent = Toolbar.editorInstance.getMarkdown();
+        if (textMd && this.editorInstance) {
+            textMd.textContent = this.editorInstance.getMarkdown();
         }
 
         if (btnText) {
@@ -406,12 +388,12 @@ export const Toolbar = {
         if (btnHtml) {
             btnHtml.disabled = false;
         }
-    },
+    }
 
     /**
      * Switch to html view
      */
-    html: () =>
+    html()
     {
         log('html()', 'Toolbar.');
 
@@ -426,9 +408,8 @@ export const Toolbar = {
         textMd?.classList.add('visually-hidden');
         textHtml?.classList.remove('visually-hidden');
 
-        // Populate HTML content
-        if (textHtml && Toolbar.editorInstance) {
-            textHtml.textContent = Toolbar.editorInstance.getHtml();
+        if (textHtml && this.editorInstance) {
+            textHtml.textContent = this.editorInstance.getHtml();
         }
 
         if (btnText) {
@@ -440,22 +421,21 @@ export const Toolbar = {
         if (btnHtml) {
             btnHtml.disabled = true;
         }
-    },
+    }
 
     /**
      * Toggle debug mode
      */
-    debug: () =>
+    debug()
     {
         log('debug()', 'Toolbar.');
         
-        if (Toolbar.editorInstance) {
-            Toolbar.editorInstance.toggleDebugMode();
+        if (this.editorInstance) {
+            this.editorInstance.toggleDebugMode();
             
-            // Update button state
             const debugBtn = document.querySelector('.editor-toolbar-debug');
             if (debugBtn) {
-                const isActive = Toolbar.editorInstance.debugMode;
+                const isActive = this.editorInstance.debugMode;
                 if (isActive) {
                     debugBtn.classList.add('active');
                     debugBtn.title = 'отключить режим отладки';
@@ -465,32 +445,30 @@ export const Toolbar = {
                 }
             }
         }
-    },
+    }
 
     /**
-     * @fixme refactor name
+     * Post-action hook: triggers editor update
      */
-    after: () =>
+    after()
     {
         log('after()', 'Toolbar.');
-        //eventEmitter.emit('EDITOR.UPDATED_EVENT');
-        Toolbar.editorInstance?.update();
-    },
+        this.editorInstance?.update();
+    }
 
     /**
-     * Create a toolbar
-     * @param {*} container 
-     * @param {*} config 
+     * Create toolbar DOM structure
+     * @param {HTMLElement} container 
+     * @param {Array|Object} config 
      * @param {boolean} debug - Whether debug mode is enabled
      */
-    createToolbar: (container, config, debug = false) =>
+    createToolbar(container, config, debug = false)
     {
         log('createToolbar()', 'Toolbar.'); console.log({container, config, debug});
 
         const toolbar = document.createElement('div');
         toolbar.className = 'editor-toolbar';
 
-        // Handle both config.config and direct config array formats
         const sections = config.config || config || [];
         
         sections.forEach((section) => {
@@ -551,5 +529,5 @@ export const Toolbar = {
         }
         
         container.insertBefore(toolbar, container.firstChild);
-    },
-};
+    }
+}

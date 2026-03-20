@@ -88,11 +88,7 @@ describe('QuoteBlock', () => {
       blockEl.textContent = 'Some text';
       document.body.appendChild(blockEl);
       
-      // Set up a fake editor instance so Editor.currentBlock returns blockEl
-      const fakeEditor = { currentBlock: blockEl };
-      Editor._instances.set('test', fakeEditor);
-      
-      quoteBlock.applyTransformation();
+      quoteBlock.applyTransformation(blockEl, null);
       
       expect(blockEl.getAttribute('data-block-type')).toBe('quote');
       expect(blockEl.className).toBe('block block-quote');
@@ -103,12 +99,10 @@ describe('QuoteBlock', () => {
       expect(bq.getAttribute('contenteditable')).toBe('true');
       
       document.body.removeChild(blockEl);
-      Editor._instances.clear();
     });
 
-    test('handles null currentBlock gracefully', () => {
-      // No editor instances means Editor.currentBlock returns null
-      expect(() => quoteBlock.applyTransformation()).not.toThrow();
+    test('handles null targetElement gracefully', () => {
+      expect(() => quoteBlock.applyTransformation(null, null)).not.toThrow();
     });
   });
 

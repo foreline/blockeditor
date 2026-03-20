@@ -2,7 +2,6 @@
 
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
-import {Toolbar} from "@/Toolbar";
 import {Editor} from "@/Editor";
 
 /**
@@ -186,10 +185,8 @@ export class TableBlock extends BaseBlock
     /**
      * Apply table transformation
      */
-    applyTransformation() {
-        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
-        const currentBlock = editorInstance?.currentBlock;
-        if (!currentBlock) return;
+    applyTransformation(targetElement, editorInstance) {
+        if (!targetElement) return;
         
         // Create a basic 2x3 table (header + 2 rows, 3 columns)
         this._headers = ['Column 1', 'Column 2', 'Column 3'];
@@ -198,14 +195,14 @@ export class TableBlock extends BaseBlock
             ['Row 2 Col 1', 'Row 2 Col 2', 'Row 2 Col 3']
         ];
         
-        currentBlock.setAttribute('data-block-type', 'table');
-        currentBlock.innerHTML = this.generateTableHTML();
+        targetElement.setAttribute('data-block-type', 'table');
+        targetElement.innerHTML = this.generateTableHTML();
         
         // Ensure cells are properly editable
-        this.setupCellEditing(currentBlock);
+        this.setupCellEditing(targetElement);
         
         if (editorInstance) {
-            editorInstance.setCurrentBlock(currentBlock);
+            editorInstance.setCurrentBlock(targetElement);
             editorInstance.update();
         }
     }

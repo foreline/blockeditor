@@ -2,8 +2,6 @@
 
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
-import {Toolbar} from "@/Toolbar";
-import {Editor} from "@/Editor";
 
 /**
  * Heading block types (H1-H6)
@@ -39,36 +37,35 @@ export class HeadingBlock extends BaseBlock
 
     /**
      * Apply heading transformation via toolbar
+     * @param {HTMLElement} targetElement - The block DOM element to transform
+     * @param {Object} editorInstance - The editor instance owning this block
      */
-    applyTransformation() {
-        // Get the current block and convert it to a heading
-        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
-        const currentBlock = editorInstance?.currentBlock;
-        if (!currentBlock) return;
+    applyTransformation(targetElement, editorInstance) {
+        if (!targetElement) return;
         
         // Update block attributes
-        currentBlock.setAttribute('data-block-type', `h${this.level}`);
-        currentBlock.className = `block block-h${this.level}`;
-    // Prevent typing directly into the block container; edits should happen inside the heading element
-    currentBlock.setAttribute('contenteditable', 'false');
+        targetElement.setAttribute('data-block-type', `h${this.level}`);
+        targetElement.className = `block block-h${this.level}`;
+        // Prevent typing directly into the block container; edits should happen inside the heading element
+        targetElement.setAttribute('contenteditable', 'false');
         
         // Get existing content
-        const existingContent = currentBlock.textContent || '';
+        const existingContent = targetElement.textContent || '';
         
         // Create heading element
         const headingElement = document.createElement(`h${this.level}`);
         headingElement.textContent = existingContent;
         
         // Replace content with heading
-        currentBlock.innerHTML = '';
-        currentBlock.appendChild(headingElement);
+        targetElement.innerHTML = '';
+        targetElement.appendChild(headingElement);
         
         // Make the heading element editable
         headingElement.setAttribute('contenteditable', 'true');
         
         // Focus the heading element if the block was focused
-        if (document.activeElement === currentBlock || 
-            currentBlock.contains(document.activeElement)) {
+        if (document.activeElement === targetElement || 
+            targetElement.contains(document.activeElement)) {
             requestAnimationFrame(() => {
                 headingElement.focus();
                 // Place cursor at end

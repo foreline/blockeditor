@@ -21,6 +21,7 @@ export class EditorStateMachine {
     constructor() {
         this._state = EditorState.IDLE;
         this._queue = [];
+        this._transactionDepth = 0;
     }
 
     /**
@@ -32,11 +33,46 @@ export class EditorStateMachine {
     }
 
     /**
-     * Whether the editor is busy (not IDLE)
+     * Whether the editor is busy (not IDLE or inside a transaction)
      * @returns {boolean}
      */
     isBusy() {
-        return this._state !== EditorState.IDLE;
+        return this._state !== EditorState.IDLE || this._transactionDepth > 0;
+    }
+
+    /**
+     * Whether the editor is inside a transaction
+     * @returns {boolean}
+     */
+    get inTransaction() {
+        return this._transactionDepth > 0;
+    }
+
+    /**
+     * Begin a transaction. Transactions nest — only the outermost
+     * finishTransaction() will flush the queue and allow isBusy() to
+     * return false again.
+     * @returns {boolean} always true
+     */
+    startTransaction() {
+        this._transactionDepth++;
+        log(`startTransaction() depth=${this._transactionDepth}`, 'StateMachine.');
+        return true;
+    }
+
+    /**
+     * End a transaction. When depth reaches 0 and state is IDLE,
+     * the operation queue is flushed.
+     */
+    finishTransaction() {
+        if (this._transactionDepth > 0) {
+            this._transactionDepth--;
+        }
+        log(`finishTransaction() depth=${this._transactionDepth}`, 'StateMachine.');
+
+        if (this._transactionDepth === 0 && this._state === EditorState.IDLE) {
+            this._flushQueue();
+        }
     }
 
     /**
@@ -121,7 +157,7 @@ export class EditorStateMachine {
      * @param {Function} fn - The operation to enqueue
      */
     enqueue(fn) {
-        if (this._state === EditorState.IDLE) {
+        if (this._state === EditorState.IDLE && this._transactionDepth === 0) {
             fn();
         } else {
             log(`Enqueuing operation (queue size: ${this._queue.length + 1})`, 'StateMachine.');
@@ -130,13 +166,14 @@ export class EditorStateMachine {
     }
 
     /**
-     * Force reset to IDLE state and clear the queue.
+     * Force reset to IDLE state, clear the queue, and exit any transactions.
      * Use only for error recovery.
      */
     reset() {
-        log(`reset() [${this._state} → ${EditorState.IDLE}], clearing ${this._queue.length} queued ops`, 'StateMachine.');
+        log(`reset() [${this._state} → ${EditorState.IDLE}], clearing ${this._queue.length} queued ops, depth=${this._transactionDepth}`, 'StateMachine.');
         this._state = EditorState.IDLE;
         this._queue = [];
+        this._transactionDepth = 0;
     }
 
     /**

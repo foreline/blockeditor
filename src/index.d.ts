@@ -51,6 +51,9 @@ declare module 'js-editor' {
     on(event: string, callback: Function): void;
     off(event: string, callback?: Function): void;
     emit(event: string, data?: any): void;
+
+    // Transaction
+    transaction<T>(fn: () => T): T;
     
     // Properties
     readonly id: string;

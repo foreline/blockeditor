@@ -65,6 +65,32 @@ export class EditorEventEmitter {
         this.debouncedEvents = new Map();
         this.throttledEvents = new Map();
         this.debug = options.debug !== undefined ? options.debug : true;
+        this._suppressionDepth = 0;
+    }
+
+    /**
+     * Suppress all event emission. Calls nest — only after a matching
+     * number of resume() calls will events start firing again.
+     */
+    suppress() {
+        this._suppressionDepth++;
+    }
+
+    /**
+     * Resume event emission after a previous suppress() call.
+     */
+    resume() {
+        if (this._suppressionDepth > 0) {
+            this._suppressionDepth--;
+        }
+    }
+
+    /**
+     * Whether event emission is currently suppressed
+     * @returns {boolean}
+     */
+    get isSuppressed() {
+        return this._suppressionDepth > 0;
     }
     
     /**
@@ -113,6 +139,11 @@ export class EditorEventEmitter {
      * @param {string} options.source - Event source identifier
      */
     emit(eventType, data = {}, options = {}) {
+        // Skip emission entirely while suppressed
+        if (this._suppressionDepth > 0) {
+            return;
+        }
+
         const eventData = {
             type: eventType,
             timestamp: Date.now(),

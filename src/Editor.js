@@ -852,7 +852,9 @@ export class Editor
                 const blocks = Parser.parseHtml(htmlData);
                 if ( blocks.length > 1 ) {
                     // Complex content with multiple blocks - insert as separate blocks
-                    this.insertMultipleBlocks(blocks);
+                    this.transaction(() => {
+                        this.insertMultipleBlocks(blocks);
+                    });
                     
                     // Emit paste event
                     this.eventEmitter.emit(EVENTS.USER_PASTE, {
@@ -862,8 +864,6 @@ export class Editor
                         timestamp: Date.now()
                     }, { source: 'user.paste' });
                     
-                    // Update editor after paste
-                    this.update();
                     return;
                 } else if ( blocks.length === 1 ) {
                     // Single block - handle as inline content
@@ -884,7 +884,9 @@ export class Editor
             const lines = text.split('\n').filter(line => line.trim() !== '');
             if (lines.length > 1) {
                 // Multiple lines - create separate blocks for each line
-                this.insertMultipleLinesAsBlocks(lines);
+                this.transaction(() => {
+                    this.insertMultipleLinesAsBlocks(lines);
+                });
                 
                 // Emit paste event
                 this.eventEmitter.emit(EVENTS.USER_PASTE, {
@@ -894,8 +896,6 @@ export class Editor
                     timestamp: Date.now()
                 }, { source: 'user.paste' });
                 
-                // Update editor after paste
-                this.update();
                 return;
             } else {
                 // Single line - convert markdown to HTML and insert inline
@@ -1908,6 +1908,48 @@ export class Editor
 
         // Perform the conversion
         return this.convertBlockType(blockElement, targetBlockType, textContent);
+    }
+
+    /**
+     * Execute a function inside a transaction. During the transaction:
+     * - Event emission is suppressed (no intermediate EDITOR_UPDATED / CONTENT_CHANGED)
+     * - Empty-editor protection is disabled (isBusy() returns true)
+     * - Pending debounced updates are cancelled
+     *
+     * After the callback completes (or throws) the transaction ends and a
+     * single update() is triggered so listeners receive one consolidated event.
+     *
+     * Transactions nest safely — only the outermost transaction triggers
+     * the final update.
+     *
+     * @param {Function} fn - The function to execute inside the transaction
+     * @returns {*} The return value of fn
+     */
+    transaction(fn) {
+        log('transaction()', 'Editor.');
+
+        const isOutermost = this._stateMachine._transactionDepth === 0;
+
+        // Cancel any pending debounced update so it doesn't fire mid-transaction
+        if (isOutermost && this._updateTimeout) {
+            clearTimeout(this._updateTimeout);
+            this._updateTimeout = null;
+        }
+
+        this._stateMachine.startTransaction();
+        this.eventEmitter.suppress();
+
+        try {
+            return fn();
+        } finally {
+            this.eventEmitter.resume();
+            this._stateMachine.finishTransaction();
+
+            // Only the outermost transaction triggers the consolidated update
+            if (this._stateMachine._transactionDepth === 0) {
+                this.update();
+            }
+        }
     }
 
     /**

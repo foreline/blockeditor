@@ -1,20 +1,18 @@
 import { QuoteBlock } from '@/blocks/QuoteBlock.js';
 import { BaseBlock } from '@/blocks/BaseBlock.js';
 import { BlockType } from '@/BlockType.js';
-import { Toolbar } from '@/Toolbar.js';
+import { Editor } from '@/Editor.js';
 
-// Mock the Toolbar module
-jest.mock('@/Toolbar.js', () => ({
-  Toolbar: {
-    quote: jest.fn()
-  }
-}));
+// Use real Editor module - manipulate _instances to control currentBlock
+// No jest.mock needed since we'll set up a fake editor instance
 
 describe('QuoteBlock', () => {
   let quoteBlock;
 
   beforeEach(() => {
     quoteBlock = new QuoteBlock();
+    // Clear any Editor instances from previous tests
+    Editor._instances.clear();
     jest.clearAllMocks();
   });
 
@@ -82,17 +80,35 @@ describe('QuoteBlock', () => {
   });
 
   describe('applyTransformation', () => {
-    test('calls Toolbar.quote method', () => {
-      quoteBlock.applyTransformation();
-      expect(Toolbar.quote).toHaveBeenCalledTimes(1);
-      expect(Toolbar.quote).toHaveBeenCalledWith();
-    });
-
-    test('can be called multiple times', () => {
-      quoteBlock.applyTransformation();
+    test('transforms block element to quote block', () => {
+      // Create a mock block element
+      const blockEl = document.createElement('div');
+      blockEl.className = 'block block-p';
+      blockEl.setAttribute('data-block-type', 'paragraph');
+      blockEl.textContent = 'Some text';
+      document.body.appendChild(blockEl);
+      
+      // Set up a fake editor instance so Editor.currentBlock returns blockEl
+      const fakeEditor = { currentBlock: blockEl };
+      Editor._instances.set('test', fakeEditor);
+      
       quoteBlock.applyTransformation();
       
-      expect(Toolbar.quote).toHaveBeenCalledTimes(2);
+      expect(blockEl.getAttribute('data-block-type')).toBe('quote');
+      expect(blockEl.className).toBe('block block-quote');
+      // querySelector is mocked, so check children array directly
+      const bq = blockEl.children.find(c => c.tagName === 'BLOCKQUOTE');
+      expect(bq).toBeTruthy();
+      expect(bq.textContent).toBe('Some text');
+      expect(bq.getAttribute('contenteditable')).toBe('true');
+      
+      document.body.removeChild(blockEl);
+      Editor._instances.clear();
+    });
+
+    test('handles null currentBlock gracefully', () => {
+      // No editor instances means Editor.currentBlock returns null
+      expect(() => quoteBlock.applyTransformation()).not.toThrow();
     });
   });
 

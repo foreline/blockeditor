@@ -42,7 +42,8 @@ export class HeadingBlock extends BaseBlock
      */
     applyTransformation() {
         // Get the current block and convert it to a heading
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         // Update block attributes

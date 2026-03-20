@@ -29,10 +29,14 @@ describe('KeyHandler', () => {
         mockEditorInstance = {
             keybuffer: [],
             currentBlock: mockCurrentBlock,
+            instance: document.createElement('div'),
             eventEmitter: {
                 emit: jest.fn()
             },
             update: jest.fn(),
+            addDefaultBlock: jest.fn(),
+            setCurrentBlock: jest.fn(),
+            focus: jest.fn(),
             checkAndConvertBlock: jest.fn().mockReturnValue(false)
         };
 
@@ -46,11 +50,8 @@ describe('KeyHandler', () => {
             preventDefault: jest.fn()
         };
 
-        // Setup Editor static methods
-        Editor.currentBlock = mockCurrentBlock;
-        Editor.keybuffer = [];
-        Editor.addDefaultBlock = jest.fn();
-        Editor.update = jest.fn();
+        // Setup Editor static methods (just getInstanceFromElement for block-level lookups)
+        Editor.getInstanceFromElement = jest.fn().mockReturnValue(mockEditorInstance);
 
         // Setup Utils mock
         Utils.stripTags = jest.fn().mockReturnValue('test content');
@@ -123,13 +124,13 @@ describe('KeyHandler', () => {
 
             expect(BlockFactory.createBlock).toHaveBeenCalledWith('p');
             expect(mockBlock.handleKeyPress).toHaveBeenCalledWith(mockEvent, 'test content');
-            expect(Editor.update).toHaveBeenCalled();
+            expect(mockEditorInstance.update).toHaveBeenCalled();
         });
 
         it('should call default update when no special handling', () => {
             KeyHandler.handleKeyPress(mockEvent, mockEditorInstance);
 
-            expect(Editor.update).toHaveBeenCalled();
+            expect(mockEditorInstance.update).toHaveBeenCalled();
         });
     });
 
@@ -195,29 +196,29 @@ describe('KeyHandler', () => {
         });
 
         it('should return early if no current block', () => {
-            Editor.currentBlock = null;
+            mockEditorInstance.currentBlock = null;
 
-            KeyHandler.handleEnterKey(mockEvent);
+            KeyHandler.handleEnterKey(mockEvent, mockEditorInstance);
 
-            expect(Editor.addDefaultBlock).not.toHaveBeenCalled();
+            expect(mockEditorInstance.addDefaultBlock).not.toHaveBeenCalled();
         });
 
         it('should create code block when triple backticks detected', () => {
-            Editor.keybuffer = ['`', '`', '`'];
+            mockEditorInstance.keybuffer = ['`', '`', '`'];
             const mockCodeBlock = {
                 applyTransformation: jest.fn()
             };
             BlockFactory.createBlock.mockReturnValue(mockCodeBlock);
 
-            KeyHandler.handleEnterKey(mockEvent);
+            KeyHandler.handleEnterKey(mockEvent, mockEditorInstance);
 
             expect(BlockFactory.createBlock).toHaveBeenCalledWith('code');
             expect(mockCodeBlock.applyTransformation).toHaveBeenCalled();
-            expect(Editor.update).toHaveBeenCalled();
+            expect(mockEditorInstance.update).toHaveBeenCalled();
         });
 
         it('should add empty block when cursor at end', () => {
-            Editor.keybuffer = [];
+            mockEditorInstance.keybuffer = [];
             
             // Mock cursor at end of block
             const mockRange = {
@@ -232,18 +233,18 @@ describe('KeyHandler', () => {
 
             const isCursorAtEndSpy = jest.spyOn(KeyHandler, 'isCursorAtEndOfBlock').mockReturnValue(true);
 
-            KeyHandler.handleEnterKey(mockEvent);
+            KeyHandler.handleEnterKey(mockEvent, mockEditorInstance);
 
-            expect(Editor.addDefaultBlock).toHaveBeenCalled();
+            expect(mockEditorInstance.addDefaultBlock).toHaveBeenCalled();
             expect(isCursorAtEndSpy).toHaveBeenCalled();
         });
     });
 
     describe('handleBackspaceKey', () => {
         it('should return early if no current block', () => {
-            Editor.currentBlock = null;
+            mockEditorInstance.currentBlock = null;
 
-            KeyHandler.handleBackspaceKey(mockEvent);
+            KeyHandler.handleBackspaceKey(mockEvent, mockEditorInstance);
 
             expect(Utils.stripTags).not.toHaveBeenCalled();
         });
@@ -252,42 +253,43 @@ describe('KeyHandler', () => {
             Utils.stripTags.mockReturnValue('');
             
             const mockPreviousBlock = { classList: { contains: jest.fn().mockReturnValue(true) } };
-            const mockCurrentBlock = {
+            const mockCurrBlock = {
                 innerHTML: '',
                 previousElementSibling: mockPreviousBlock,
                 remove: jest.fn()
             };
             
-            Editor.currentBlock = mockCurrentBlock;
-            Editor.instance = {
+            mockEditorInstance.currentBlock = mockCurrBlock;
+            mockEditorInstance.instance = {
                 querySelectorAll: jest.fn().mockReturnValue(['block1', 'block2']) // More than 1 block
             };
-            Editor.setCurrentBlock = jest.fn();
+            mockEditorInstance.setCurrentBlock = jest.fn();
+            mockEditorInstance.focus = jest.fn();
 
-            KeyHandler.handleBackspaceKey(mockEvent);
+            KeyHandler.handleBackspaceKey(mockEvent, mockEditorInstance);
 
-            expect(mockCurrentBlock.remove).toHaveBeenCalled();
-            expect(Editor.setCurrentBlock).toHaveBeenCalledWith(mockPreviousBlock);
+            expect(mockCurrBlock.remove).toHaveBeenCalled();
+            expect(mockEditorInstance.setCurrentBlock).toHaveBeenCalledWith(mockPreviousBlock);
             expect(mockEvent.preventDefault).toHaveBeenCalled();
         });
 
         it('should not remove last remaining block', () => {
             Utils.stripTags.mockReturnValue('');
             
-            const mockCurrentBlock = {
+            const mockCurrBlock = {
                 innerHTML: '',
                 previousElementSibling: null,
                 remove: jest.fn()
             };
             
-            Editor.currentBlock = mockCurrentBlock;
-            Editor.instance = {
+            mockEditorInstance.currentBlock = mockCurrBlock;
+            mockEditorInstance.instance = {
                 querySelectorAll: jest.fn().mockReturnValue(['block1']) // Only 1 block
             };
 
-            KeyHandler.handleBackspaceKey(mockEvent);
+            KeyHandler.handleBackspaceKey(mockEvent, mockEditorInstance);
 
-            expect(mockCurrentBlock.remove).not.toHaveBeenCalled();
+            expect(mockCurrBlock.remove).not.toHaveBeenCalled();
         });
 
         it('should delegate to block handleBackspaceKey', () => {
@@ -298,10 +300,10 @@ describe('KeyHandler', () => {
             };
             BlockFactory.createBlock.mockReturnValue(mockBlock);
 
-            KeyHandler.handleBackspaceKey(mockEvent);
+            KeyHandler.handleBackspaceKey(mockEvent, mockEditorInstance);
 
             expect(mockBlock.handleBackspaceKey).toHaveBeenCalledWith(mockEvent);
-            expect(Editor.update).toHaveBeenCalled();
+            expect(mockEditorInstance.update).toHaveBeenCalled();
         });
     });
 
@@ -337,22 +339,22 @@ describe('KeyHandler', () => {
 
     describe('clearKeyBuffer', () => {
         it('should clear the key buffer', () => {
-            Editor.keybuffer = ['a', 'b', 'c'];
+            mockEditorInstance.keybuffer = ['a', 'b', 'c'];
 
-            KeyHandler.clearKeyBuffer();
+            KeyHandler.clearKeyBuffer(mockEditorInstance);
 
-            expect(Editor.keybuffer).toEqual([]);
+            expect(mockEditorInstance.keybuffer).toEqual([]);
         });
     });
 
     describe('getKeyBuffer', () => {
         it('should return copy of key buffer', () => {
-            Editor.keybuffer = ['a', 'b', 'c'];
+            mockEditorInstance.keybuffer = ['a', 'b', 'c'];
 
-            const result = KeyHandler.getKeyBuffer();
+            const result = KeyHandler.getKeyBuffer(mockEditorInstance);
 
             expect(result).toEqual(['a', 'b', 'c']);
-            expect(result).not.toBe(Editor.keybuffer); // Should be a copy
+            expect(result).not.toBe(mockEditorInstance.keybuffer); // Should be a copy
         });
     });
 });

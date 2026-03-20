@@ -6,11 +6,34 @@
 import {Editor} from '../src/Editor.js';
 import '@testing-library/jest-dom';
 
+// Un-mock BlockFactory so real block types are available
+jest.unmock('../src/blocks/BlockFactory');
+
 describe('Markdown Shortcuts (Issue #45)', () => {
     let container;
     let editor;
+    let savedCreateElement;
+    let savedGetElementById;
+    let savedQuerySelector;
+    let savedQuerySelectorAll;
+    let savedBody;
+    let savedCreateTextNode;
 
     beforeEach(() => {
+        // Restore real JSDOM functions for integration-level tests
+        savedCreateElement = document.createElement;
+        savedGetElementById = document.getElementById;
+        savedQuerySelector = document.querySelector;
+        savedQuerySelectorAll = document.querySelectorAll;
+        savedBody = document.body;
+        savedCreateTextNode = document.createTextNode;
+        document.createElement = global._originalCreateElement;
+        document.getElementById = global._originalGetElementById;
+        document.querySelector = global._originalQuerySelector;
+        document.querySelectorAll = global._originalQuerySelectorAll;
+        document.createTextNode = global._originalCreateTextNode;
+        Object.defineProperty(document, 'body', { value: global._originalBody, writable: true });
+
         // Create container
         container = document.createElement('div');
         container.id = 'test-editor';
@@ -24,7 +47,16 @@ describe('Markdown Shortcuts (Issue #45)', () => {
         if (container && container.parentNode) {
             container.parentNode.removeChild(container);
         }
+        Editor._instances.clear();
         editor = null;
+
+        // Restore mocked functions
+        document.createElement = savedCreateElement;
+        document.getElementById = savedGetElementById;
+        document.querySelector = savedQuerySelector;
+        document.querySelectorAll = savedQuerySelectorAll;
+        document.createTextNode = savedCreateTextNode;
+        Object.defineProperty(document, 'body', { value: savedBody, writable: true });
     });
 
     describe('Header Shortcuts', () => {
@@ -32,7 +64,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
             // Get the first block (should be a paragraph)
             const block = editor.instance.querySelector('.block');
             expect(block).toBeTruthy();
-            expect(block.getAttribute('data-block-type')).toBe('p');
+            expect(block.getAttribute('data-block-type')).toBe('paragraph');
 
             // Set content to "# " and trigger the conversion
             block.textContent = '# ';
@@ -188,7 +220,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
             const converted = editor.checkAndConvertBlock(block);
 
             expect(converted).toBe(false);
-            expect(block.getAttribute('data-block-type')).toBe('p');
+            expect(block.getAttribute('data-block-type')).toBe('paragraph');
         });
 
         test('typing "# " in already converted H1 should not convert', () => {

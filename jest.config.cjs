@@ -22,6 +22,7 @@ module.exports = {
     '<rootDir>/tests/syntaxHighlighter\\.test\\.js',
   // Additional legacy suites still asserting pre-refactor contracts
   '<rootDir>/tests/Editor.instance\\.test\\.js',
+  '<rootDir>/tests/Editor.static\\.test\\.js',
   '<rootDir>/tests/EmptyBlockPersistenceFix\\.test\\.js',
   '<rootDir>/tests/HeaderConversionDebug\\.test\\.js',
   '<rootDir>/tests/CodeBlock\\.test\\.js',

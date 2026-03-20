@@ -48,7 +48,8 @@ export class OrderedListBlock extends ListBlock
 
     applyTransformation() {
         // Transform current paragraph block into an ordered list block in-place
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
 
         // Update attributes/classes
@@ -107,7 +108,10 @@ export class OrderedListBlock extends ListBlock
         olElement.appendChild(newListItem);
         
         // Focus on the new list item
-        Editor.setCurrentBlock(currentBlock); // Keep the same block
+        const editorInstance = Editor.getInstanceFromElement(currentBlock);
+        if (editorInstance) {
+            editorInstance.setCurrentBlock(currentBlock); // Keep the same block
+        }
         
         // Use requestAnimationFrame to ensure DOM is updated before focusing
         requestAnimationFrame(() => {

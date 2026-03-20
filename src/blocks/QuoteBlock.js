@@ -2,7 +2,7 @@
 
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
-import {Toolbar} from "@/Toolbar";
+import {Editor} from "@/Editor";
 
 /**
  * Quote block
@@ -39,7 +39,40 @@ export class QuoteBlock extends BaseBlock
     }
 
     applyTransformation() {
-        Toolbar.quote();
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
+        if (!currentBlock) return;
+
+        // Update block attributes
+        currentBlock.setAttribute('data-block-type', 'quote');
+        currentBlock.className = 'block block-quote';
+
+        // Get existing content
+        const existingContent = currentBlock.textContent || '';
+
+        // Create blockquote element
+        const blockquote = document.createElement('blockquote');
+        blockquote.setAttribute('contenteditable', 'true');
+        blockquote.textContent = existingContent;
+
+        // Replace content with blockquote
+        currentBlock.setAttribute('contenteditable', 'false');
+        currentBlock.innerHTML = '';
+        currentBlock.appendChild(blockquote);
+
+        // Focus the blockquote element
+        if (document.activeElement === currentBlock ||
+            currentBlock.contains(document.activeElement)) {
+            requestAnimationFrame(() => {
+                blockquote.focus();
+                const range = document.createRange();
+                const selection = window.getSelection();
+                range.selectNodeContents(blockquote);
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            });
+        }
     }
 
     /**

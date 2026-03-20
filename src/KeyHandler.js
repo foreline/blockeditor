@@ -1,7 +1,6 @@
 'use strict';
 
 import {BlockFactory} from "@/blocks/BlockFactory";
-import {Editor} from "@/Editor";
 import {Utils} from "@/Utils";
 import {log} from "@/utils/log.js";
 import {eventEmitter, EVENTS} from "@/utils/eventEmitter.js";
@@ -44,7 +43,7 @@ export class KeyHandler
         // This keypress handler focuses on special key behaviors.
 
         // Let the current block handle the key press immediately (for other behaviors)
-        const currentBlock = Editor.currentBlock;
+        const currentBlock = editorInstance.currentBlock;
         if (currentBlock && currentBlock.dataset && currentBlock.dataset.blockType) {
             const blockType = currentBlock.dataset.blockType;
             const block = BlockFactory.createBlock(blockType);
@@ -104,19 +103,20 @@ export class KeyHandler
     /**
      * Handle Enter key press
      * @param {KeyboardEvent} e
+     * @param {Editor} editorInstance - The editor instance
      */
-    static handleEnterKey(e) {
+    static handleEnterKey(e, editorInstance) {
         log('handleEnterKey()', 'KeyHandler.');
 
-        let currentBlock = Editor.currentBlock;
+        let currentBlock = editorInstance.currentBlock;
         
         // If currentBlock is null or detached, try to recover by finding the last block
         if (!currentBlock || !currentBlock.isConnected) {
-            const container = Editor.instance;
+            const container = editorInstance.instance;
             if (container) {
                 const lastBlock = container.querySelector('.block:last-child');
                 if (lastBlock) {
-                    Editor.setCurrentBlock(lastBlock);
+                    editorInstance.setCurrentBlock(lastBlock);
                     currentBlock = lastBlock;
                 } else {
                     return;
@@ -128,9 +128,9 @@ export class KeyHandler
 
         // Check for code block creation trigger (triple backticks)
         let ticksCounter = 0;
-        for (let i = Editor.keybuffer.length; i >= 0; i--) {
+        for (let i = editorInstance.keybuffer.length; i >= 0; i--) {
             const j = i - 1;
-            const sliceKey = Editor.keybuffer[j];
+            const sliceKey = editorInstance.keybuffer[j];
             
             // Stop at previous Enter
             if ('Enter' === sliceKey) {
@@ -145,7 +145,7 @@ export class KeyHandler
                 // Create code block
                 const codeBlock = BlockFactory.createBlock('code');
                 codeBlock.applyTransformation();
-                Editor.update();
+                editorInstance.update();
                 return;
             }
         }
@@ -156,7 +156,7 @@ export class KeyHandler
             const block = BlockFactory.createBlock(blockType);
             
             if (block.handleEnterKey(e)) {
-                Editor.update();
+                editorInstance.update();
                 return;
             }
         }
@@ -193,15 +193,14 @@ export class KeyHandler
                 if (block && typeof block.createNewListItem === 'function') {
                     e.preventDefault();
                     block.createNewListItem(currentBlock, li);
-                    Editor.update();
+                    editorInstance.update();
                     return;
                 }
             }
 
             // Default behavior - add new default block when cursor is at the end
             e.preventDefault();
-            Editor.addDefaultBlock();
-            // Note: addDefaultBlock() calls Editor.update() internally, no need to call it again
+            editorInstance.addDefaultBlock();
         }
         // If cursor is not at the end, let the browser handle default behavior (line break)
     }
@@ -240,12 +239,13 @@ export class KeyHandler
     /**
      * Handle Backspace key press
      * @param {KeyboardEvent} e
+     * @param {Editor} editorInstance - The editor instance
      */
-    static handleBackspaceKey(e) 
+    static handleBackspaceKey(e, editorInstance) 
     {
         log('handleBackspaceKey()', 'KeyHandler.');
 
-        const currentBlock = Editor.currentBlock;
+        const currentBlock = editorInstance.currentBlock;
         if (!currentBlock) {
             return;
         }
@@ -259,27 +259,27 @@ export class KeyHandler
             const previousBlock = currentBlock.previousElementSibling;
             
             // Don't remove the last remaining block
-            const allBlocks = Editor.instance.querySelectorAll('.block');
+            const allBlocks = editorInstance.instance.querySelectorAll('.block');
             if (allBlocks.length <= 1) {
                 return;
             }
             
             // Remove the empty block and focus on previous block
             if (previousBlock && previousBlock.classList.contains('block')) {
-                Editor.setCurrentBlock(previousBlock);
+                editorInstance.setCurrentBlock(previousBlock);
                 currentBlock.remove();
-                Editor.focus(previousBlock);
-                Editor.update();
+                editorInstance.focus(previousBlock);
+                editorInstance.update();
                 e.preventDefault();
                 return;
             } else {
                 // If no previous block, focus on next block (if exists)
                 const nextBlock = currentBlock.nextElementSibling;
                 if (nextBlock && nextBlock.classList.contains('block')) {
-                    Editor.setCurrentBlock(nextBlock);
+                    editorInstance.setCurrentBlock(nextBlock);
                     currentBlock.remove();
-                    Editor.focus(nextBlock);
-                    Editor.update();
+                    editorInstance.focus(nextBlock);
+                    editorInstance.update();
                     e.preventDefault();
                     return;
                 }
@@ -292,7 +292,7 @@ export class KeyHandler
             const block = BlockFactory.createBlock(blockType);
             
             if (block.handleBackspaceKey && block.handleBackspaceKey(e)) {
-                Editor.update();
+                editorInstance.update();
                 return;
             }
         }
@@ -328,20 +328,20 @@ export class KeyHandler
             
             // Remove the empty block and focus on next block
             if (nextBlock && nextBlock.classList.contains('block')) {
-                Editor.setCurrentBlock(nextBlock);
+                editorInstance.setCurrentBlock(nextBlock);
                 currentBlock.remove();
-                Editor.focus(nextBlock);
-                Editor.update();
+                editorInstance.focus(nextBlock);
+                editorInstance.update();
                 e.preventDefault();
                 return;
             } else {
                 // If no next block, focus on previous block (if exists)
                 const previousBlock = currentBlock.previousElementSibling;
                 if (previousBlock && previousBlock.classList.contains('block')) {
-                    Editor.setCurrentBlock(previousBlock);
+                    editorInstance.setCurrentBlock(previousBlock);
                     currentBlock.remove();
-                    Editor.focus(previousBlock);
-                    Editor.update();
+                    editorInstance.focus(previousBlock);
+                    editorInstance.update();
                     e.preventDefault();
                     return;
                 }
@@ -354,7 +354,7 @@ export class KeyHandler
             const block = BlockFactory.createBlock(blockType);
             
             if (block.handleDeleteKey && block.handleDeleteKey(e)) {
-                Editor.update();
+                editorInstance.update();
                 return;
             }
         }
@@ -362,16 +362,18 @@ export class KeyHandler
 
     /**
      * Clear the key buffer
+     * @param {Editor} editorInstance - The editor instance
      */
-    static clearKeyBuffer() {
-        Editor.keybuffer = [];
+    static clearKeyBuffer(editorInstance) {
+        editorInstance.keybuffer = [];
     }
 
     /**
      * Get the current key buffer
+     * @param {Editor} editorInstance - The editor instance
      * @returns {string[]}
      */
-    static getKeyBuffer() {
-        return [...Editor.keybuffer];
+    static getKeyBuffer(editorInstance) {
+        return [...editorInstance.keybuffer];
     }
 }

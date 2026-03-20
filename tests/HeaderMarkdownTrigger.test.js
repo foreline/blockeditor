@@ -56,12 +56,12 @@ describe('Header Markdown Trigger Conversion', () => {
         return {
           constructor: { getMarkdownTriggers: () => ['# '] },
           applyTransformation: jest.fn(() => {
-            const current = Editor.currentBlock;
+            const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+            const current = editorInstance?.currentBlock;
             if (!current) return;
             current.setAttribute('data-block-type', 'h1');
             current.className = 'block block-h1';
             const h = document.createElement('h1');
-            // In conversion flow, remaining content is added after; start empty
             h.textContent = '';
             current.innerHTML = '';
             current.appendChild(h);
@@ -109,7 +109,8 @@ describe('Header Markdown Trigger Conversion', () => {
     BlockFactory.createBlock = jest.fn(() => ({
       constructor: { getMarkdownTriggers: () => ['# '] },
       applyTransformation: jest.fn(() => {
-        const current = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const current = editorInstance?.currentBlock;
         if (!current) return;
         current.setAttribute('data-block-type', 'h1');
         current.className = 'block block-h1';

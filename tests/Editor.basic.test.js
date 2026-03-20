@@ -6,8 +6,7 @@ describe('Editor - Basic Tests', () => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     
     // Reset Editor state
-    Editor.instance = null;
-    Editor.currentBlock = null;
+    Editor._instances.clear();
     
     // Clean up DOM
     document.body.innerHTML = '';
@@ -19,22 +18,16 @@ describe('Editor - Basic Tests', () => {
   });
 
   describe('Static Methods', () => {
-    test('should have getMarkdown method', () => {
-      expect(typeof Editor.getMarkdown).toBe('function');
+    test('should have _instances registry', () => {
+      expect(Editor._instances).toBeInstanceOf(Map);
     });
 
-    test('should have getHtml method', () => {
-      expect(typeof Editor.getHtml).toBe('function');
+    test('should have getInstanceFromElement method', () => {
+      expect(typeof Editor.getInstanceFromElement).toBe('function');
     });
 
-    test('getMarkdown should return empty string when no instance', () => {
-      Editor.instance = null;
-      expect(Editor.getMarkdown()).toBe('');
-    });
-
-    test('getHtml should return empty string when no instance', () => {
-      Editor.instance = null;
-      expect(Editor.getHtml()).toBe('');
+    test('getInstanceFromElement should return null when no instances', () => {
+      expect(Editor.getInstanceFromElement(null)).toBeNull();
     });
   });
 

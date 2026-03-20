@@ -64,7 +64,10 @@ export class ImageBlock extends BaseBlock
     handleEnterKey(event) {
         // Create new paragraph block after image
         event.preventDefault();
-        Editor.addDefaultBlock();
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        if (editorInstance) {
+            editorInstance.addDefaultBlock();
+        }
         return true;
     }
 
@@ -136,7 +139,7 @@ export class ImageBlock extends BaseBlock
                 this.setupImageResizing(img);
             }
             
-            Editor.update();
+            Editor.getInstanceFromElement(element)?.update();
         };
         
         reader.readAsDataURL(file);
@@ -194,7 +197,7 @@ export class ImageBlock extends BaseBlock
             isResizing = false;
             document.removeEventListener('mousemove', doResize);
             document.removeEventListener('mouseup', stopResize);
-            Editor.update();
+            Editor.getInstanceFromElement(img)?.update();
         };
     }
 
@@ -210,7 +213,8 @@ export class ImageBlock extends BaseBlock
      * Apply image transformation
      */
     applyTransformation() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         // Prompt for image URL or show file picker
@@ -232,8 +236,10 @@ export class ImageBlock extends BaseBlock
             img.onload = () => this.setupImageResizing(img);
         }
         
-        Editor.setCurrentBlock(currentBlock);
-        Editor.update();
+        if (editorInstance) {
+            editorInstance.setCurrentBlock(currentBlock);
+            editorInstance.update();
+        }
     }
 
     /**

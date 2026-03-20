@@ -26,7 +26,6 @@ export class Editor
 {
     // Static registry to track all editor instances
     static _instances = new Map();
-    static _fallbackBlocks = [];
 
     /**
      * @param {object} options
@@ -608,7 +607,9 @@ export class Editor
                     // and normalize non-breaking spaces from contenteditable
                     const raw = Utils.stripTags(block.innerHTML);
                     const normalized = raw.replace(/&nbsp;/g, ' ').replace(/\u00A0|\xA0|\u00a0/g, ' ');
-                    const textContent = normalized.replace(/^\s+/, '');
+                    // Decode HTML entities that browsers inject in contenteditable (e.g. > becomes &gt;)
+                    const decoded = normalized.replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+                    const textContent = decoded.replace(/^\s+/, '');
                     
                     // Only check for conversion if text contains potential triggers
                     // Support: headings, unordered (* - +), task [- [ ]], ordered (1. / 1) ), quote, fences
@@ -1598,6 +1599,7 @@ export class Editor
 
     /**
      * Get all editor content as markdown
+     * Reads directly from the DOM to ensure current content is serialized
      * @returns {string} - markdown representation of all content
      */
     getMarkdown()
@@ -1605,19 +1607,17 @@ export class Editor
         log('getMarkdown()', 'Editor.');
         
         try {
-            if (!this.blocks || this.blocks.length === 0) {
-                return '';
+            const blockElements = this.instance.querySelectorAll('.block');
+            if (blockElements.length === 0) return '';
+
+            const markdownParts = [];
+            for (const blockEl of blockElements) {
+                const blockType = blockEl.getAttribute('data-block-type');
+                const md = this._blockElementToMarkdown(blockEl, blockType);
+                if (md !== null) markdownParts.push(md);
             }
 
-            const markdownBlocks = this.blocks.map(block => {
-                if (typeof block.toMarkdown === 'function') {
-                    return block.toMarkdown();
-                }
-                // Fallback for blocks that don't implement toMarkdown
-                return Editor.html2md(block.html || block.content || '');
-            });
-
-            return markdownBlocks.join('\n\n').trim();
+            return markdownParts.join('\n\n').trim();
         } catch (error) {
             logWarning('Error getting markdown content: ' + error.message, 'Editor.getMarkdown()');
             return '';
@@ -1625,7 +1625,90 @@ export class Editor
     }
 
     /**
+     * Extract markdown from a single block DOM element
+     * @param {HTMLElement} blockEl - The block element
+     * @param {string} blockType - The block type attribute value
+     * @returns {string|null} - Markdown string or null
+     * @private
+     */
+    _blockElementToMarkdown(blockEl, blockType)
+    {
+        switch (blockType) {
+            case 'h1': case 'h2': case 'h3': case 'h4': case 'h5': case 'h6': {
+                const level = parseInt(blockType[1]);
+                const heading = blockEl.querySelector(`h${level}`) || blockEl;
+                return '#'.repeat(level) + ' ' + (heading.textContent || '');
+            }
+            case 'p': case 'paragraph': {
+                const innerHTML = blockEl.innerHTML || '';
+                // Convert inline HTML formatting to markdown
+                if (/<[^>]+>/.test(innerHTML)) {
+                    return Editor.html2md(`<p>${innerHTML}</p>`).trim();
+                }
+                return blockEl.textContent || '';
+            }
+            case 'ul': {
+                const items = blockEl.querySelectorAll('li');
+                return Array.from(items).map(li => `- ${li.textContent || ''}`).join('\n');
+            }
+            case 'ol': {
+                const items = blockEl.querySelectorAll('li');
+                return Array.from(items).map((li, i) => `${i + 1}. ${li.textContent || ''}`).join('\n');
+            }
+            case 'sq': {
+                const items = blockEl.querySelectorAll('li');
+                return Array.from(items).map(li => {
+                    const checkbox = li.querySelector('input[type="checkbox"]');
+                    const checked = checkbox?.checked ? 'x' : ' ';
+                    // Get text content excluding the checkbox
+                    const textNode = li.querySelector('.task-text, span') || li;
+                    let text = textNode.textContent || '';
+                    // Remove leading whitespace from checkbox label
+                    text = text.replace(/^\s+/, '');
+                    return `- [${checked}] ${text}`;
+                }).join('\n');
+            }
+            case 'code': {
+                const code = blockEl.querySelector('code');
+                const text = code?.textContent || blockEl.textContent || '';
+                const langMatch = code?.className?.match(/language-(\w+)/);
+                const lang = langMatch ? langMatch[1] : '';
+                return '```' + lang + '\n' + text + '\n```';
+            }
+            case 'quote': {
+                const bq = blockEl.querySelector('blockquote') || blockEl;
+                return '> ' + (bq.textContent || '');
+            }
+            case 'delimiter':
+                return '---';
+            case 'table': {
+                const headers = Array.from(blockEl.querySelectorAll('th')).map(th => th.textContent || '');
+                const rows = Array.from(blockEl.querySelectorAll('tbody tr')).map(tr =>
+                    Array.from(tr.querySelectorAll('td')).map(td => td.textContent || '')
+                );
+                if (headers.length === 0) return '';
+                let md = '| ' + headers.join(' | ') + ' |\n';
+                md += '| ' + headers.map(() => '---').join(' | ') + ' |\n';
+                rows.forEach(row => {
+                    md += '| ' + row.join(' | ') + ' |\n';
+                });
+                return md.trim();
+            }
+            case 'image': {
+                const img = blockEl.querySelector('img');
+                if (!img) return '';
+                const src = img.getAttribute('src') || '';
+                const alt = img.getAttribute('alt') || '';
+                return `![${alt}](${src})`;
+            }
+            default:
+                return blockEl.textContent || '';
+        }
+    }
+
+    /**
      * Get all editor content as HTML
+     * Reads directly from the DOM to ensure current content is serialized
      * @returns {string} - HTML representation of all content
      */
     getHtml()
@@ -1633,22 +1716,67 @@ export class Editor
         log('getHtml()', 'Editor.');
         
         try {
-            if (!this.blocks || this.blocks.length === 0) {
-                return '';
+            const blockElements = this.instance.querySelectorAll('.block');
+            if (blockElements.length === 0) return '';
+
+            const htmlParts = [];
+            for (const blockEl of blockElements) {
+                const blockType = blockEl.getAttribute('data-block-type');
+                const html = this._blockElementToHtml(blockEl, blockType);
+                if (html) htmlParts.push(html);
             }
 
-            const htmlBlocks = this.blocks.map(block => {
-                if (typeof block.toHtml === 'function') {
-                    return block.toHtml();
-                }
-                // Fallback for blocks that don't implement toHtml
-                return block.html || Editor.md2html(block.content || '');
-            });
-
-            return htmlBlocks.join('\n').trim();
+            return htmlParts.join('\n').trim();
         } catch (error) {
             logWarning('Error getting HTML content: ' + error.message, 'Editor.getHtml()');
             return '';
+        }
+    }
+
+    /**
+     * Extract semantic HTML from a single block DOM element
+     * @param {HTMLElement} blockEl - The block element
+     * @param {string} blockType - The block type attribute value
+     * @returns {string} - Semantic HTML string
+     * @private
+     */
+    _blockElementToHtml(blockEl, blockType)
+    {
+        switch (blockType) {
+            case 'h1': case 'h2': case 'h3': case 'h4': case 'h5': case 'h6': {
+                const heading = blockEl.querySelector('h1,h2,h3,h4,h5,h6');
+                return heading ? heading.outerHTML : `<${blockType}>${blockEl.textContent || ''}</${blockType}>`;
+            }
+            case 'p': case 'paragraph':
+                return `<p>${blockEl.innerHTML}</p>`;
+            case 'ul': case 'ol': {
+                const list = blockEl.querySelector(blockType === 'ol' ? 'ol' : 'ul');
+                return list ? list.outerHTML : '';
+            }
+            case 'sq': {
+                const list = blockEl.querySelector('ul');
+                return list ? list.outerHTML : '';
+            }
+            case 'code': {
+                const pre = blockEl.querySelector('pre');
+                return pre ? pre.outerHTML : `<pre><code>${Utils.escapeHTML(blockEl.textContent || '')}</code></pre>`;
+            }
+            case 'quote': {
+                const bq = blockEl.querySelector('blockquote');
+                return bq ? bq.outerHTML : `<blockquote>${blockEl.textContent || ''}</blockquote>`;
+            }
+            case 'delimiter':
+                return '<hr>';
+            case 'table': {
+                const table = blockEl.querySelector('table');
+                return table ? table.outerHTML : '';
+            }
+            case 'image': {
+                const img = blockEl.querySelector('img');
+                return img ? img.outerHTML : '';
+            }
+            default:
+                return `<p>${blockEl.innerHTML}</p>`;
         }
     }
 
@@ -1671,7 +1799,9 @@ export class Editor
         const rawText = Utils.stripTags(blockElement.innerHTML);
         // Normalize non-breaking spaces (&nbsp; and \u00A0) to regular spaces before checking triggers
         const normalizedText = rawText.replace(/&nbsp;/g, ' ').replace(/\u00A0|\xA0|\u00a0/g, ' ');
-        const textContent = normalizedText.replace(/^\s+/, '');
+        // Decode HTML entities that browsers inject in contenteditable (e.g. > becomes &gt;)
+        const decodedText = normalizedText.replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
+        const textContent = decodedText.replace(/^\s+/, '');
         
         // Find matching block class for the current text content
         const matchingBlockClass = BlockFactory.findBlockClassForTrigger(textContent);
@@ -2028,117 +2158,3 @@ export class Editor
         this.eventEmitter = null;
     }
 }
-
-// Static property getters for backward compatibility
-Object.defineProperty(Editor, 'instance', {
-    get() {
-        const firstInstance = Editor._instances.keys().next().value;
-        return firstInstance || null;
-    },
-    set(value) {
-        if (value === null) {
-            Editor._instances.clear();
-        }
-    }
-});
-
-Object.defineProperty(Editor, 'currentBlock', {
-    get() {
-        const firstEditor = Editor._instances.values().next().value;
-        return firstEditor ? firstEditor.currentBlock : null;
-    },
-    set(value) {
-        const firstEditor = Editor._instances.values().next().value;
-        if (firstEditor) {
-            firstEditor.currentBlock = value;
-        }
-    }
-});
-
-Object.defineProperty(Editor, 'keybuffer', {
-    get() {
-        const firstEditor = Editor._instances.values().next().value;
-        return firstEditor ? firstEditor.keybuffer : [];
-    },
-    set(value) {
-        const firstEditor = Editor._instances.values().next().value;
-        if (firstEditor) {
-            firstEditor.keybuffer = value;
-        }
-    }
-});
-
-Object.defineProperty(Editor, 'blocks', {
-    get() {
-        const firstEditor = Editor._instances.values().next().value;
-        return firstEditor ? firstEditor.blocks : (Editor._fallbackBlocks || []);
-    },
-    set(value) {
-        const firstEditor = Editor._instances.values().next().value;
-        if (firstEditor) {
-            firstEditor.blocks = value;
-        } else {
-            Editor._fallbackBlocks = value;
-        }
-    }
-});
-
-/**
- * @deprecated Use editor instance methods instead
- * Static method for backward compatibility - delegates to first editor instance
- */
-Editor.addDefaultBlock = function() {
-    const firstEditor = Editor._instances.values().next().value;
-    return firstEditor ? firstEditor.addDefaultBlock() : undefined;
-};
-
-/**
- * @deprecated Use editor instance methods instead  
- * Static method for backward compatibility - delegates to first editor instance
- */
-Editor.setCurrentBlock = function(block) {
-    const firstEditor = Editor._instances.values().next().value;
-    if (firstEditor) {
-        firstEditor.setCurrentBlock(block);
-    }
-};
-
-/**
- * @deprecated Use editor instance methods instead
- * Static method for backward compatibility - delegates to first editor instance
- */
-Editor.focus = function(element = null) {
-    const firstEditor = Editor._instances.values().next().value;
-    if (firstEditor) {
-        firstEditor.focus(element);
-    }
-};
-
-/**
- * @deprecated Use editor instance methods instead
- * Static method for backward compatibility - delegates to first editor instance  
- */
-Editor.update = function() {
-    const firstEditor = Editor._instances.values().next().value;
-    if (firstEditor) {
-        firstEditor.update();
-    }
-};
-
-/**
- * @deprecated Use editor instance methods instead
- * Static method for backward compatibility - delegates to first editor instance
- */
-Editor.getMarkdown = function() {
-    const firstEditor = Editor._instances.values().next().value;
-    return firstEditor ? firstEditor.getMarkdown() : '';
-};
-
-/**
- * @deprecated Use editor instance methods instead  
- * Static method for backward compatibility - delegates to first editor instance
- */
-Editor.getHtml = function() {
-    const firstEditor = Editor._instances.values().next().value;
-    return firstEditor ? firstEditor.getHtml() : '';
-};

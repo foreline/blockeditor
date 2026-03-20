@@ -105,7 +105,7 @@ export class TaskListBlock extends ListBlock
         }
         
         // Trigger editor update
-        Editor.update();
+        Editor.getInstanceFromElement(currentBlock)?.update();
     }
 
     /**
@@ -140,8 +140,9 @@ export class TaskListBlock extends ListBlock
             ? newListItem.querySelector('span[contenteditable]') 
             : null;
             
-        if (typeof Editor.setCurrentBlock === 'function') {
-            Editor.setCurrentBlock(currentBlock); // Keep the block reference
+        const editorInstance = Editor.getInstanceFromElement(currentBlock);
+        if (editorInstance) {
+            editorInstance.setCurrentBlock(currentBlock); // Keep the block reference
         }
         
         // Use requestAnimationFrame to ensure DOM is updated before focusing
@@ -179,7 +180,8 @@ export class TaskListBlock extends ListBlock
      */
     applyTransformation() {
         // Get current block and convert to task list
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         // Set block type
@@ -199,8 +201,10 @@ export class TaskListBlock extends ListBlock
         currentBlock.appendChild(checkbox);
         currentBlock.appendChild(document.createTextNode(' ' + existingText));
         
-        Editor.setCurrentBlock(currentBlock);
-        Editor.update();
+        if (editorInstance) {
+            editorInstance.setCurrentBlock(currentBlock);
+            editorInstance.update();
+        }
     }
 
     /**
@@ -422,9 +426,7 @@ export class TaskListBlock extends ListBlock
                 this._checked = isChecked;
                 
                 // Trigger editor update
-                if (typeof Editor.update === 'function') {
-                    Editor.update();
-                }
+                Editor.getInstanceFromElement(listItem)?.update();
             });
         }
         

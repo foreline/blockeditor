@@ -5,12 +5,19 @@ import { BlockType } from '@/BlockType.js';
 import { Editor } from '@/Editor.js';
 
 // Mock dependencies
-jest.mock('@/Editor.js', () => ({
-  Editor: {
+jest.mock('@/Editor.js', () => {
+  const mockEditorInstance = {
     setCurrentBlock: jest.fn(),
-    update: jest.fn()
-  }
-}));
+    update: jest.fn(),
+    currentBlock: null
+  };
+  return {
+    Editor: {
+      getInstanceFromElement: jest.fn().mockReturnValue(mockEditorInstance),
+      _mockInstance: mockEditorInstance
+    }
+  };
+});
 
 // Mock DOM functions
 global.document.createElement = jest.fn(() => ({
@@ -123,7 +130,7 @@ describe('TaskListBlock', () => {
       expect(mockCheckbox.checked).toBe(true);
       expect(taskListBlock._checked).toBe(true);
       expect(mockCurrentBlock.classList.add).toHaveBeenCalledWith('task-completed');
-      expect(Editor.update).toHaveBeenCalled();
+      expect(Editor._mockInstance.update).toHaveBeenCalled();
     });
 
     test('toggles checkbox state from checked to unchecked', () => {
@@ -149,7 +156,7 @@ describe('TaskListBlock', () => {
 
     test('does nothing when currentBlock is null', () => {
       taskListBlock.toggleCheckbox(null);
-      expect(Editor.update).not.toHaveBeenCalled();
+      expect(Editor._mockInstance.update).not.toHaveBeenCalled();
     });
 
     test('does nothing when checkbox is not found', () => {
@@ -158,7 +165,7 @@ describe('TaskListBlock', () => {
       };
       
       taskListBlock.toggleCheckbox(mockCurrentBlock);
-      expect(Editor.update).not.toHaveBeenCalled();
+      expect(Editor._mockInstance.update).not.toHaveBeenCalled();
     });
   });
 

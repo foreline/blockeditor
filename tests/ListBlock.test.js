@@ -27,8 +27,12 @@ describe('ListBlock', () => {
             addEventListener: jest.fn()
         };
 
-        Editor.currentBlock = mockCurrentBlock;
-        Editor.update = jest.fn();
+        Editor.getInstanceFromElement = jest.fn().mockReturnValue({
+            currentBlock: mockCurrentBlock,
+            update: jest.fn(),
+            addDefaultBlock: jest.fn(),
+            setCurrentBlock: jest.fn()
+        });
 
         listBlock = new ListBlock();
     });
@@ -157,7 +161,7 @@ describe('ListBlock', () => {
         });
 
         it('should handle missing current block', () => {
-            Editor.currentBlock = null;
+            Editor.getInstanceFromElement = jest.fn().mockReturnValue(null);
 
             expect(() => {
                 listBlock.applyTransformation();

@@ -21,7 +21,6 @@ describe('Complex Paste Functionality', () => {
     beforeEach(() => {
         // Clear the instances registry
         Editor._instances.clear();
-        Editor._fallbackBlocks = [];
 
         // Mock DOM element
         mockElement = {

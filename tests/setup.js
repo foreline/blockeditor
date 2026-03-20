@@ -43,6 +43,19 @@ const mockStyle = {
     zIndex: ''
 };
 
+// Simple selector matching for mock elements (supports tag, .class, tag.class)
+const _mockMatchesSelector = (el, selector) => {
+    if (!el || !selector) return false;
+    selector = selector.trim();
+    // Class selector: .block, .block-code
+    if (selector.startsWith('.')) {
+        const cls = selector.substring(1);
+        return (el.className || '').split(/\s+/).includes(cls);
+    }
+    // Tag selector: pre, code, h1, div
+    return el.tagName && el.tagName.toLowerCase() === selector.toLowerCase();
+};
+
 const createMockElement = (tagName = 'div') => ({
     tagName: tagName.toUpperCase(),
     classList: { ...mockClassList },
@@ -84,19 +97,46 @@ const createMockElement = (tagName = 'div') => ({
     replaceChild: jest.fn(),
     cloneNode: jest.fn(),
     contains: jest.fn().mockReturnValue(false),
-    querySelector: jest.fn().mockReturnValue(null),
-    querySelectorAll: jest.fn().mockReturnValue([]),
+    querySelector: jest.fn(function(selector) {
+        // Simple recursive search through mock children
+        const search = (el) => {
+            for (const child of (el.children || [])) {
+                if (_mockMatchesSelector(child, selector)) return child;
+                const found = search(child);
+                if (found) return found;
+            }
+            return null;
+        };
+        return search(this);
+    }),
+    querySelectorAll: jest.fn(function(selector) {
+        const results = [];
+        const search = (el) => {
+            for (const child of (el.children || [])) {
+                if (_mockMatchesSelector(child, selector)) results.push(child);
+                search(child);
+            }
+        };
+        search(this);
+        return results;
+    }),
     getElementsByTagName: jest.fn().mockReturnValue([]),
     getElementsByClassName: jest.fn().mockReturnValue([]),
     getElementById: jest.fn(),
-    getAttribute: jest.fn(),
+    getAttribute: jest.fn(function(name) {
+        return this.attributes && this.attributes[name] !== undefined ? this.attributes[name] : null;
+    }),
     setAttribute: jest.fn(function(name, value) {
         this.attributes[name] = value;
         if (name === 'class') this.className = value;
         if (name === 'id') this.id = value;
     }),
-    removeAttribute: jest.fn(),
-    hasAttribute: jest.fn().mockReturnValue(false),
+    removeAttribute: jest.fn(function(name) {
+        if (this.attributes) delete this.attributes[name];
+    }),
+    hasAttribute: jest.fn(function(name) {
+        return this.attributes && this.attributes[name] !== undefined;
+    }),
     addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
@@ -153,6 +193,14 @@ const createMockElement = (tagName = 'div') => ({
 });
 
 // Mock document.createElement
+// Save originals so integration tests can restore real JSDOM functions
+global._originalCreateElement = global.document.createElement.bind(global.document);
+global._originalGetElementById = global.document.getElementById.bind(global.document);
+global._originalQuerySelector = global.document.querySelector.bind(global.document);
+global._originalQuerySelectorAll = global.document.querySelectorAll.bind(global.document);
+global._originalBody = global.document.body;
+global._originalCreateTextNode = global.document.createTextNode.bind(global.document);
+
 global.document.createElement = jest.fn((tagName) => createMockElement(tagName));
 
 // Mock document methods

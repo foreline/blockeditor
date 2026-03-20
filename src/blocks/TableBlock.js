@@ -113,7 +113,8 @@ export class TableBlock extends BaseBlock
      * @param {boolean} backwards - true to move backwards (Shift+Tab)
      */
     moveToNextCell(backwards = false) {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         const table = currentBlock.closest('table') || currentBlock.querySelector('table');
@@ -136,7 +137,8 @@ export class TableBlock extends BaseBlock
      * Add a new row to the table
      */
     addNewRow() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         const table = currentBlock.querySelector('table');
@@ -170,7 +172,7 @@ export class TableBlock extends BaseBlock
         // Update internal data structure
         this._rows.push(new Array(this._headers.length).fill(''));
         
-        Editor.update();
+        editorInstance?.update();
     }
 
     /**
@@ -185,7 +187,8 @@ export class TableBlock extends BaseBlock
      * Apply table transformation
      */
     applyTransformation() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         // Create a basic 2x3 table (header + 2 rows, 3 columns)
@@ -201,8 +204,10 @@ export class TableBlock extends BaseBlock
         // Ensure cells are properly editable
         this.setupCellEditing(currentBlock);
         
-        Editor.setCurrentBlock(currentBlock);
-        Editor.update();
+        if (editorInstance) {
+            editorInstance.setCurrentBlock(currentBlock);
+            editorInstance.update();
+        }
     }
 
     /**
@@ -289,14 +294,15 @@ export class TableBlock extends BaseBlock
     handleCellInput(event) {
         // Update internal data structure as user types
         this.updateDataFromDOM();
-        Editor.update();
+        Editor.getInstanceFromElement(event.target)?.update();
     }
 
     /**
      * Update internal data structure from current DOM state
      */
     updateDataFromDOM() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         const table = currentBlock.querySelector('table');
@@ -642,7 +648,8 @@ export class TableBlock extends BaseBlock
      * Add a new column to the table
      */
     addColumn() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         const table = currentBlock.querySelector('table');
@@ -686,14 +693,15 @@ export class TableBlock extends BaseBlock
         this._headers.push(`Column ${this._headers.length + 1}`);
         this._rows.forEach(row => row.push(''));
         
-        Editor.update();
+        editorInstance?.update();
     }
 
     /**
      * Remove the last column from the table
      */
     removeColumn() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         const table = currentBlock.querySelector('table');
@@ -721,14 +729,15 @@ export class TableBlock extends BaseBlock
         this._headers.pop();
         this._rows.forEach(row => row.pop());
         
-        Editor.update();
+        editorInstance?.update();
     }
 
     /**
      * Add a new column to the left of the table
      */
     addColumnLeft() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         const table = currentBlock.querySelector('table');
@@ -771,14 +780,15 @@ export class TableBlock extends BaseBlock
         this._headers.unshift('New Column');
         this._rows.forEach(row => row.unshift(''));
         
-        Editor.update();
+        editorInstance?.update();
     }
 
     /**
      * Add a new row above the current row
      */
     addRowAbove() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         const table = currentBlock.querySelector('table');
@@ -814,14 +824,15 @@ export class TableBlock extends BaseBlock
         // Update internal data structure
         this._rows.unshift(new Array(this._headers.length).fill(''));
         
-        Editor.update();
+        editorInstance?.update();
     }
 
     /**
      * Delete the entire table
      */
     deleteTable() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         // Confirm deletion
@@ -838,7 +849,7 @@ export class TableBlock extends BaseBlock
             // Focus the new paragraph
             currentBlock.focus();
             
-            Editor.update();
+            editorInstance?.update();
         }
     }
 
@@ -846,7 +857,8 @@ export class TableBlock extends BaseBlock
      * Remove the last row from the table
      */
     removeRow() {
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         const table = currentBlock.querySelector('table');
@@ -865,7 +877,7 @@ export class TableBlock extends BaseBlock
             // Update internal data structure
             this._rows.pop();
             
-            Editor.update();
+            editorInstance?.update();
         }
     }
 

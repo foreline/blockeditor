@@ -48,7 +48,8 @@ export class UnorderedListBlock extends ListBlock
 
     applyTransformation() {
         // Transform current paragraph block into an unordered list block in-place
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
 
         // Update block attributes/classes

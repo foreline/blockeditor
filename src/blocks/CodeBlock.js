@@ -89,7 +89,8 @@ export class CodeBlock extends BaseBlock
     applyTransformation() {
         // Perform direct DOM transformation (similar to HeadingBlock)
         // to avoid circular dependency with Toolbar.code()
-        const currentBlock = Editor.currentBlock;
+        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+        const currentBlock = editorInstance?.currentBlock;
         if (!currentBlock) return;
         
         // Update block attributes

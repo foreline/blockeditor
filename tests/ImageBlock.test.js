@@ -11,11 +11,20 @@ jest.mock('@/Toolbar.js', () => ({
   }
 }));
 
-jest.mock('@/Editor.js', () => ({
-  Editor: {
-    addDefaultBlock: jest.fn()
-  }
-}));
+jest.mock('@/Editor.js', () => {
+  const mockEditorInstance = {
+    addDefaultBlock: jest.fn(),
+    update: jest.fn(),
+    setCurrentBlock: jest.fn(),
+    currentBlock: null
+  };
+  return {
+    Editor: {
+      getInstanceFromElement: jest.fn().mockReturnValue(mockEditorInstance),
+      _mockInstance: mockEditorInstance
+    }
+  };
+});
 
 describe('ImageBlock', () => {
   let imageBlock;
@@ -148,7 +157,7 @@ describe('ImageBlock', () => {
       const result = imageBlock.handleEnterKey(event);
       
       expect(event.preventDefault).toHaveBeenCalled();
-      expect(Editor.addDefaultBlock).toHaveBeenCalled();
+      expect(Editor._mockInstance.addDefaultBlock).toHaveBeenCalled();
       expect(result).toBe(true);
     });
   });

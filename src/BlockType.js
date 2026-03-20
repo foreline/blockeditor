@@ -82,6 +82,7 @@ export class BlockType
             BlockType.PARAGRAPH,
             BlockType.CODE,
             BlockType.DELIMITER,
+            BlockType.QUOTE,
             BlockType.UL,
             BlockType.OL,
             BlockType.SQ,

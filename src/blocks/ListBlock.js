@@ -63,7 +63,10 @@ export class ListBlock extends BaseBlock
             // Remove the empty list item and create a new paragraph block
             event.preventDefault();
             currentListItem.remove();
-            Editor.addDefaultBlock();
+            const editorInstance = Editor.getInstanceFromElement(currentBlock);
+            if (editorInstance) {
+                editorInstance.addDefaultBlock();
+            }
             return true;
         }
         

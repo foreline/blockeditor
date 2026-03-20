@@ -25,7 +25,7 @@ describe('CodeBlock Conversion', () => {
 
         paragraphBlock = document.createElement('div');
         paragraphBlock.className = 'block block-p';
-        paragraphBlock.setAttribute('data-block-type', 'p');
+        paragraphBlock.setAttribute('data-block-type', 'paragraph');
         paragraphBlock.setAttribute('contenteditable', 'true');
         paragraphBlock.innerHTML = '```';
         container.appendChild(paragraphBlock);
@@ -52,7 +52,8 @@ describe('CodeBlock Conversion', () => {
                 return {
                     constructor: { getMarkdownTriggers: () => ['```', '~~~'] },
                     applyTransformation: jest.fn(() => {
-                        const current = Editor.currentBlock;
+                        const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+                        const current = editorInstance?.currentBlock;
                         if (!current) return;
                         current.setAttribute('data-block-type', 'code');
                         current.className = 'block block-code';
@@ -122,7 +123,8 @@ describe('CodeBlock Conversion', () => {
             // Mock createBlock for toolbar call
             const codeBlockInstance = new CodeBlock();
             codeBlockInstance.applyTransformation = jest.fn(() => {
-                const current = Editor.currentBlock;
+                const editorInstance = Editor.getInstanceFromElement(document.activeElement);
+                const current = editorInstance?.currentBlock;
                 if (!current) return;
                 current.setAttribute('data-block-type', 'code');
                 current.className = 'block block-code';

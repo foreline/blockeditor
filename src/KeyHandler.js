@@ -18,6 +18,9 @@ export class KeyHandler
     {
         log('constructor()', 'KeyHandler.');
         this.editorInstance = editorInstance;
+
+        /** @type {number|null} Sticky column offset preserved across consecutive ArrowUp/ArrowDown presses */
+        this._desiredOffset = null;
     }
 
     /**
@@ -26,6 +29,11 @@ export class KeyHandler
      */
     handleKeyPress(e) {
         log('handleKeyPress()', 'KeyHandler.'); 
+
+        // Any non-arrow key resets the sticky column
+        if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') {
+            this._desiredOffset = null;
+        }
         
         this.editorInstance.keybuffer.push(e.key);
         
@@ -77,6 +85,11 @@ export class KeyHandler
      */
     handleSpecialKeys(e) {
         log('handleSpecialKeys()', 'KeyHandler.');
+
+        // Any non-arrow key resets the sticky column
+        if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') {
+            this._desiredOffset = null;
+        }
         
         if ('Enter' === e.key && !e.shiftKey) {
             // Ctrl/Cmd + Enter inside a code block: create a new paragraph below
@@ -97,6 +110,10 @@ export class KeyHandler
         
         if ('Delete' === e.key) {
             return this.handleDeleteKey(e);
+        }
+
+        if ('ArrowUp' === e.key || 'ArrowDown' === e.key) {
+            return this.handleArrowKey(e);
         }
         
         if ('Tab' === e.key) {
@@ -236,11 +253,72 @@ export class KeyHandler
     }
 
     /**
-     * Check if cursor is at the end of the current block
-     * @param {HTMLElement} block
-     * @param {Range} range
-     * @returns {boolean}
+     * Handle ArrowUp / ArrowDown — move to adjacent block when cursor is at boundary,
+     * preserving the cursor's horizontal offset (sticky column).
+     * @param {KeyboardEvent} e
      */
+    handleArrowKey(e) {
+        log('handleArrowKey()', 'KeyHandler.');
+
+        const currentBlock = this.editorInstance.currentBlock;
+        if (!currentBlock || !currentBlock.isConnected) return;
+
+        const isUp = e.key === 'ArrowUp';
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return;
+        const range = selection.getRangeAt(0);
+
+        // Only intervene when the cursor is at the boundary of the block
+        const atBoundary = isUp
+            ? KeyHandler.isCursorAtStartOfBlock(currentBlock, range)
+            : KeyHandler.isCursorAtEndOfBlock(currentBlock, range);
+
+        if (!atBoundary) return; // Let browser handle intra-block movement
+
+        const sibling = isUp
+            ? currentBlock.previousElementSibling
+            : currentBlock.nextElementSibling;
+
+        if (!sibling || !sibling.classList.contains('block')) return;
+
+        e.preventDefault();
+
+        // Compute current cursor offset within the block
+        const currentOffset = KeyHandler.getCursorOffsetInBlock(currentBlock, range);
+
+        // On the first arrow press in a sequence, record the desired offset
+        if (this._desiredOffset === null) {
+            this._desiredOffset = currentOffset;
+        }
+
+        this.editorInstance.setCurrentBlock(sibling);
+        const editable = this.editorInstance.findEditableElementInBlock(sibling);
+        const target = editable || sibling;
+        const siblingLength = (target.textContent || '').length;
+
+        if (siblingLength === 0) {
+            // Empty block — place cursor at 0, but keep _desiredOffset for next move
+            this.editorInstance.placeCursorAtStart(target);
+        } else {
+            // Place cursor at the desired offset, clamped to block length
+            this.editorInstance.placeCursorAtOffset(target, Math.min(this._desiredOffset, siblingLength));
+        }
+    }
+
+    /**
+     * Calculate the cursor's character offset from the start of a block.
+     * @param {HTMLElement} block
+     * @param {Range} range - A collapsed range (cursor position)
+     * @returns {number}
+     */
+    static getCursorOffsetInBlock(block, range) {
+        if (!range || !block) return 0;
+        const preRange = range.cloneRange();
+        preRange.selectNodeContents(block);
+        preRange.setEnd(range.startContainer, range.startOffset);
+        return preRange.toString().length;
+    }
+
     static isCursorAtEndOfBlock(block, range) {
         if (!range || !block) {
             return false;

@@ -747,8 +747,12 @@ export class Editor
         });
 
         // Track mouse clicks to prevent duplicate focus handling
+        // and reset sticky column offset
         this.instance.addEventListener('mousedown', () => {
             this._lastClickTime = Date.now();
+            if (this.keyHandler) {
+                this.keyHandler._desiredOffset = null;
+            }
         });
     }
 
@@ -2159,6 +2163,79 @@ export class Editor
                 range.setStart(element, 0);
             }
             
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } catch (error) {
+            // Silently fail for cursor positioning
+        }
+    }
+
+    /**
+     * Place cursor at the start of the given element
+     * @param {HTMLElement} element - The element to place cursor in
+     */
+    placeCursorAtStart(element)
+    {
+        log('placeCursorAtStart()', 'Editor.');
+
+        if (!element) {
+            return;
+        }
+
+        try {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.setStart(element, 0);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } catch (error) {
+            // Silently fail for cursor positioning
+        }
+    }
+
+    /**
+     * Place cursor at a specific character offset within an element.
+     * Clamps to the element's text length if offset exceeds it.
+     * @param {HTMLElement} element - The element to place cursor in
+     * @param {number} offset - The desired character offset from the start
+     */
+    placeCursorAtOffset(element, offset)
+    {
+        log('placeCursorAtOffset()', 'Editor.');
+
+        if (!element) {
+            return;
+        }
+
+        try {
+            const selection = window.getSelection();
+            const textLength = (element.textContent || '').length;
+            const targetOffset = Math.min(offset, textLength);
+
+            // Walk through text nodes to find the correct node and local offset
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null);
+            let remaining = targetOffset;
+            let node = walker.nextNode();
+
+            while (node) {
+                const len = node.textContent.length;
+                if (remaining <= len) {
+                    const range = document.createRange();
+                    range.setStart(node, remaining);
+                    range.collapse(true);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    return;
+                }
+                remaining -= len;
+                node = walker.nextNode();
+            }
+
+            // Fallback — no text nodes (empty element), place at start
+            const range = document.createRange();
+            range.setStart(element, 0);
             range.collapse(true);
             selection.removeAllRanges();
             selection.addRange(range);

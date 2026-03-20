@@ -35,7 +35,6 @@ export { ImageBlock } from './blocks/ImageBlock.js';
 export { DelimiterBlock } from './blocks/DelimiterBlock.js';
 
 // Events
-export { Event } from './Event.js';
 export { EditorEventEmitter, EVENTS } from './utils/eventEmitter.js';
 
 // State machine

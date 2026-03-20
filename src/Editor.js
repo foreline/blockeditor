@@ -2140,6 +2140,16 @@ export class Editor
 
         const currentBlockType = currentBlock.getAttribute('data-block-type');
         console.log('Current block type:', currentBlockType);
+
+        // Toggle: if current block is already the target type, convert back to paragraph
+        if (currentBlockType === targetBlockType) {
+            console.log('Toggling block back to paragraph');
+            // Extract the editable content from the block.
+            // For code blocks, the real content is inside the <code> element.
+            const editableEl = this.findEditableElementInBlock(currentBlock);
+            const content = editableEl ? (editableEl.textContent || '') : '';
+            return this.convertBlockType(currentBlock, BlockType.PARAGRAPH, content);
+        }
         
         // If current block is a paragraph with content, convert it
         if (currentBlockType === BlockType.PARAGRAPH) {
@@ -2153,7 +2163,7 @@ export class Editor
             return this.convertBlockType(currentBlock, targetBlockType, triggerText);
         }
         
-        // For non-paragraph blocks or empty paragraphs, create a new block after current
+        // For non-paragraph blocks of a different type, create a new block after current
         console.log('Creating new block after current');
         return this.createNewBlock(targetBlockType, options);
     }

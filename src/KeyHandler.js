@@ -79,6 +79,15 @@ export class KeyHandler
         log('handleSpecialKeys()', 'KeyHandler.');
         
         if ('Enter' === e.key && !e.shiftKey) {
+            // Ctrl/Cmd + Enter inside a code block: create a new paragraph below
+            if (e.ctrlKey || e.metaKey) {
+                const currentBlock = this.editorInstance.currentBlock;
+                if (currentBlock?.dataset?.blockType === 'code') {
+                    e.preventDefault();
+                    this.editorInstance.addDefaultBlock();
+                    return;
+                }
+            }
             return this.handleEnterKey(e);
         }
         
@@ -132,27 +141,34 @@ export class KeyHandler
             }
         }
 
-        // Check for code block creation trigger (triple backticks)
-        let ticksCounter = 0;
-        for (let i = this.editorInstance.keybuffer.length; i >= 0; i--) {
-            const j = i - 1;
-            const sliceKey = this.editorInstance.keybuffer[j];
-            
-            // Stop at previous Enter
-            if ('Enter' === sliceKey) {
-                break;
-            }
-            
-            if ('`' === sliceKey) {
-                ticksCounter++;
-            }
-            
-            if (3 === ticksCounter) {
-                // Create code block
-                const codeBlock = BlockFactory.createBlock('code');
-                codeBlock.applyTransformation(currentBlock, this.editorInstance);
-                this.editorInstance.update();
-                return;
+        // Check for code block creation trigger (triple backticks).
+        // Only attempt conversion if the block is still a paragraph — the input
+        // event listener may have already converted it via checkAndConvertBlock.
+        const currentBlockType = currentBlock.dataset?.blockType;
+        if (currentBlockType === 'p' || currentBlockType === 'paragraph') {
+            let ticksCounter = 0;
+            for (let i = this.editorInstance.keybuffer.length; i >= 0; i--) {
+                const j = i - 1;
+                const sliceKey = this.editorInstance.keybuffer[j];
+                
+                // Stop at previous Enter
+                if ('Enter' === sliceKey) {
+                    break;
+                }
+                
+                if ('`' === sliceKey) {
+                    ticksCounter++;
+                }
+                
+                if (3 === ticksCounter) {
+                    // Delegate to Editor.convertBlockType so trigger text is stripped
+                    // and the block is properly linked in the block map.
+                    e.preventDefault();
+                    const triggerText = currentBlock.textContent || '';
+                    this.editorInstance.convertBlockType(currentBlock, 'code', triggerText);
+                    this.editorInstance.update();
+                    return;
+                }
             }
         }
 
@@ -256,7 +272,16 @@ export class KeyHandler
         }
 
         // Check if current block is empty (only whitespace or no content)
-        const text = Utils.stripTags(currentBlock.innerHTML).trim();
+        // For code blocks, check the inner <code> element to avoid counting
+        // language selector option text as content.
+        let text;
+        const blockType = currentBlock.dataset?.blockType;
+        if (blockType === 'code') {
+            const code = currentBlock.querySelector('code');
+            text = (code ? code.textContent : '').trim();
+        } else {
+            text = Utils.stripTags(currentBlock.innerHTML).trim();
+        }
         
         // Only handle backspace for empty blocks
         if (text === '') {

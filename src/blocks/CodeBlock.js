@@ -46,6 +46,21 @@ export class CodeBlock extends BaseBlock
     }
 
     /**
+     * Get buttons that should be disabled when a code block is active.
+     * Formatting actions don't apply inside <code> elements.
+     * @returns {string[]} - array of button class names to disable
+     */
+    static getDisabledButtons() {
+        return [
+            'editor-toolbar-bold',
+            'editor-toolbar-italic',
+            'editor-toolbar-underline',
+            'editor-toolbar-strikethrough',
+            'editor-toolbar-inline',
+        ];
+    }
+
+    /**
      * Handle key press for code blocks
      * @param {KeyboardEvent} event
      * @param {string} text - current text content of the block
@@ -63,13 +78,52 @@ export class CodeBlock extends BaseBlock
     }
 
     /**
-     * Handle Enter key press for code blocks
+     * Handle Enter key press for code blocks.
+     * Always return true to prevent the default "add new block" behavior.
+     * The browser's native contenteditable behavior inserts a newline, which
+     * is exactly what we want inside a code block.
+     * To create a new block below, use Ctrl+Enter (handled in KeyHandler).
+     * @param {KeyboardEvent} event
+     * @returns {boolean} - true (always handled)
+     */
+    handleEnterKey(event) {
+        // Don't call preventDefault — let the browser insert a newline.
+        // Return true so KeyHandler knows we handled it and won't create a new block.
+        return true;
+    }
+
+    /**
+     * Handle Backspace key press for code blocks.
+     * When the <code> element is empty and cursor is at position 0,
+     * convert the block back to a paragraph.
      * @param {KeyboardEvent} event
      * @returns {boolean} - true if key was handled, false otherwise
      */
-    handleEnterKey(event) {
-        // In code blocks, preserve indentation on new lines
-        return false;
+    handleBackspaceKey(event) {
+        const blockElement = event?.target?.closest?.('.block') || this._element;
+        if (!blockElement) return false;
+
+        const code = blockElement.querySelector('code');
+        if (!code) return false;
+
+        const codeText = (code.textContent || '').trim();
+        if (codeText !== '') return false;
+
+        // Convert empty code block back to paragraph
+        event.preventDefault();
+
+        const existingContent = '';
+        blockElement.setAttribute('data-block-type', 'p');
+        blockElement.className = 'block block-p';
+        blockElement.setAttribute('contenteditable', 'true');
+        blockElement.setAttribute('data-placeholder', '');
+        blockElement.innerHTML = existingContent;
+
+        requestAnimationFrame(() => {
+            blockElement.focus();
+        });
+
+        return true;
     }
 
     /**
@@ -89,13 +143,25 @@ export class CodeBlock extends BaseBlock
     applyTransformation(targetElement, editorInstance) {
         if (!targetElement) return;
         
+        // Store element reference so instance methods (refreshHighlighting, syncFromElement) work
+        this._element = targetElement;
+        
         // Update block attributes
         targetElement.setAttribute('data-block-type', 'code');
         targetElement.className = 'block block-code';
         targetElement.setAttribute('contenteditable', 'false');
         
-        // Get existing content (markdown trigger already stripped by Editor.convertBlockType)
-        const existingContent = targetElement.textContent || '';
+        // Get existing content — strip markdown triggers that may still be present
+        // when called directly (e.g. from KeyHandler keybuffer path)
+        let existingContent = targetElement.textContent || '';
+        const triggers = CodeBlock.getMarkdownTriggers();
+        for (const trigger of triggers) {
+            if (existingContent.startsWith(trigger)) {
+                existingContent = existingContent.substring(trigger.length);
+                break;
+            }
+        }
+        existingContent = existingContent.trim();
         
         // Create code structure (pre > code)
         const pre = document.createElement('pre');
@@ -112,20 +178,17 @@ export class CodeBlock extends BaseBlock
         const languageSelector = this.createLanguageSelector();
         targetElement.appendChild(languageSelector);
         
-        // Focus the code element if the block was focused
-        if (document.activeElement === targetElement || 
-            targetElement.contains(document.activeElement)) {
-            requestAnimationFrame(() => {
-                code.focus();
-                // Place cursor at end
-                const range = document.createRange();
-                const selection = window.getSelection();
-                range.selectNodeContents(code);
-                range.collapse(false);
-                selection.removeAllRanges();
-                selection.addRange(range);
-            });
-        }
+        // Focus the code element
+        requestAnimationFrame(() => {
+            code.focus();
+            // Place cursor at end
+            const range = document.createRange();
+            const selection = window.getSelection();
+            range.selectNodeContents(code);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        });
     }
 
     /**
@@ -266,26 +329,30 @@ export class CodeBlock extends BaseBlock
     }
 
     /**
-     * Refresh syntax highlighting after language change
+     * Refresh syntax highlighting after language change.
+     * Uses this._element to scope to the correct block instance.
      */
     refreshHighlighting() {
-        const element = document.querySelector(`[data-block-type="code"]`);
-        if (element) {
-            const code = element.querySelector('code');
-            if (code) {
-                // Remove old language classes
-                code.className = '';
-                
-                // Apply new highlighting
-                const highlighted = this.highlightSyntax();
-                code.innerHTML = highlighted;
-                
-                // Add new language classes
-                if (this._language) {
-                    const normalizedLang = SyntaxHighlighter.normalizeLanguage(this._language);
-                    code.classList.add(normalizedLang);
-                    code.classList.add(`language-${this._language}`);
-                }
+        const element = this._element;
+        if (!element) return;
+
+        const code = element.querySelector('code');
+        if (code) {
+            // Sync content from DOM before re-highlighting
+            this._content = code.textContent || '';
+
+            // Remove old language classes
+            code.className = '';
+
+            // Apply new highlighting
+            const highlighted = this.highlightSyntax();
+            code.innerHTML = highlighted;
+
+            // Add new language classes
+            if (this._language) {
+                const normalizedLang = SyntaxHighlighter.normalizeLanguage(this._language);
+                code.classList.add(normalizedLang);
+                code.classList.add(`language-${this._language}`);
             }
         }
     }

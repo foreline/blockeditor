@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.0.29] - 2026-03-29
+
 ### Fixed
 - GitLab CI pipeline failure: Added `image: node:20-alpine` to use Node.js in all pipeline jobs. Removed duplicate `npm ci` from global `before_script` to prevent redundant installs. This resolves "node: not found" and "npm: not found" errors in the install stage.
 

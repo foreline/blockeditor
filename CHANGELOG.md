@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.1] - 2026-05-01
+
+### Changed
+- Align documentation with BlockEditor project name: Updated all project documentation, configuration files, and demo files to use "BlockEditor" naming instead of "JS Editor" to reflect the official project identity following npmjs publication.
+
 ## [v0.1.0] - 2026-05-01
 
 ### Changed

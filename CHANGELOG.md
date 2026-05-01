@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.3] - 2026-05-01
+
+### Added
+- IIFE build format for browser usage: Added IIFE (Immediately Invoked Function Expression) format alongside ES and CommonJS. The browser field in package.json now points to the IIFE bundle for direct browser `<script>` tag inclusion.
+
 ## [v0.1.2] - 2026-05-01
 
 ### Changed

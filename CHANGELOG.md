@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.0] - 2026-05-02
+
+### Added
+- Popover API-based dropdown positioning: Toolbar dropdown menus now use the native Popover API when available (Chrome 125+, Safari 18+, Firefox 125+, Edge 125+), rendering in the browser's Top Layer to bypass overflow and z-index constraints. Includes graceful fallback to position:fixed for older browsers.
+
+### Changed
+- Removed `@popperjs/core` and `bootstrap` as peer dependencies. The editor now implements custom dropdown positioning logic, reducing external dependencies and bundle size impact. Toolbar remains fully functional with automatic menu positioning and ARIA accessibility.
+
 ## [v0.1.4] - 2026-05-02
 
 ### Changed

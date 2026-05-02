@@ -1687,20 +1687,15 @@ export class Editor
             markdownContainer.style.width = '100%';
             markdownContainer.style.minHeight = '300px';
 
-            const container = document.querySelector('.editor-container');
-            if (container) {
-                // Check if container already exists to avoid duplicates
-                const existing = container.querySelector('#editor-markdown');
-                if (existing) {
-                    logWarning('Markdown container already exists, skipping initialization.', 'Editor.initMarkdownContainer()');
-                    return true;
-                }
-                container.appendChild(markdownContainer);
+            const container = this.instance?.parentElement ?? document.body;
+            // Check if container already exists to avoid duplicates
+            const existing = container.querySelector('#editor-markdown');
+            if (existing) {
+                logWarning('Markdown container already exists, skipping initialization.', 'Editor.initMarkdownContainer()');
                 return true;
-            } else {
-                logWarning('Editor container not found for Markdown container initialization.', 'Editor.initMarkdownContainer()');
-                return false;
             }
+            container.appendChild(markdownContainer);
+            return true;
         } catch (error) {
             logWarning('Error initializing markdown container: ' + error.message, 'Editor.initMarkdownContainer()');
             return false;
@@ -1722,20 +1717,15 @@ export class Editor
             htmlContainer.style.width = '100%';
             htmlContainer.style.minHeight = '300px';
 
-            const container = document.querySelector('.editor-container');
-            if (container) {
-                // Check if container already exists to avoid duplicates
-                const existing = container.querySelector('#editor-html');
-                if (existing) {
-                    logWarning('HTML container already exists, skipping initialization.', 'Editor.initHtmlContainer()');
-                    return true;
-                }
-                container.appendChild(htmlContainer);
+            const container = this.instance?.parentElement ?? document.body;
+            // Check if container already exists to avoid duplicates
+            const existing = container.querySelector('#editor-html');
+            if (existing) {
+                logWarning('HTML container already exists, skipping initialization.', 'Editor.initHtmlContainer()');
                 return true;
-            } else {
-                logWarning('Editor container not found for HTML container initialization.', 'Editor.initHtmlContainer()');
-                return false;
             }
+            container.appendChild(htmlContainer);
+            return true;
         } catch (error) {
             logWarning('Error initializing HTML container: ' + error.message, 'Editor.initHtmlContainer()');
             return false;

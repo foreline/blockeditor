@@ -2,7 +2,7 @@
  * TypeScript declarations for JS Editor
  */
 
-declare module 'js-editor' {
+declare module '@foreline/blockeditor' {
   export interface EditorOptions {
     id: string;
     placeholder?: string;

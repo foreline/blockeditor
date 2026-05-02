@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.5.0] - 2026-05-02
+
+### Added
+- Readonly mode support: New `readonly` option allows consumers to create read-only editor instances. When enabled, the editor is non-editable with ARIA accessibility attributes (`aria-readonly="true"`), improved keyboard handling, and visual styling to indicate read-only state.
+- Enhanced TypeScript type definitions: Added `EditorEventName` union type for event names, `ContentChangedPayload` and `BlockContentChangedPayload` interfaces for type-safe event handling. Improved `on()` method overloads for better IDE autocomplete and type safety.
+
+### Fixed
+- Improved event listener cleanup: Event handlers are now stored in `_boundHandlers` map for proper removal on destroy, preventing memory leaks in scenarios with multiple editor instances or repeated initialize/destroy cycles.
+
 ## [v0.4.0] - 2026-05-02
 
 ### Added

@@ -56,7 +56,7 @@ describe('H6Block', () => {
     test('getToolbarConfig returns correct configuration', () => {
       const config = H6Block.getToolbarConfig();
       expect(config).toEqual({
-        class: 'editor-toolbar-header6',
+        class: 'bke-toolbar-header6',
         label: 'Heading 6',
         group: 'headers'
       });

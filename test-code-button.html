@@ -39,11 +39,11 @@
             padding: 10px;
             border-left: 3px solid #007cba;
         }
-        .block-code {
+        .bke-block--code {
             background: #f8f8f8;
             border-left-color: #666;
         }
-        .block-code pre {
+        .bke-block--code pre {
             margin: 0;
             padding: 10px;
             background: #f0f0f0;
@@ -80,13 +80,13 @@
     </div>
 
     <div class="toolbar">
-        <button class="editor-toolbar-text" title="Text">
+        <button class="bke-toolbar-text" title="Text">
             <i class="fa fa-paragraph"></i> Text
         </button>
-        <button class="editor-toolbar-code" title="Code Block">
+        <button class="bke-toolbar-code" title="Code Block">
             <i class="fa fa-code"></i> Code
         </button>
-        <button class="editor-toolbar-ul" title="Unordered List">
+        <button class="bke-toolbar-ul" title="Unordered List">
             <i class="fa fa-list"></i> List
         </button>
     </div>
@@ -118,7 +118,7 @@
         }
 
         // Test the code button functionality
-        document.querySelector('.editor-toolbar-code').addEventListener('click', () => {
+        document.querySelector('.bke-toolbar-code').addEventListener('click', () => {
             logTest('Code button clicked');
             
             try {
@@ -126,7 +126,7 @@
                 logTest(`Code conversion result: ${result ? 'Success' : 'Failed'}`);
                 
                 // Check if a code block was created
-                const codeBlocks = editor.instance.querySelectorAll('.block-code');
+                const codeBlocks = editor.instance.querySelectorAll('.bke-block--code');
                 logTest(`Number of code blocks in editor: ${codeBlocks.length}`);
                 
                 if (codeBlocks.length > 0) {
@@ -140,7 +140,7 @@
         });
 
         // Test other buttons for comparison
-        document.querySelector('.editor-toolbar-ul').addEventListener('click', () => {
+        document.querySelector('.bke-toolbar-ul').addEventListener('click', () => {
             logTest('List button clicked');
             try {
                 const result = editor.convertCurrentBlockOrCreate('ul');

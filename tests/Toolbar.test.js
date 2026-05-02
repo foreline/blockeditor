@@ -342,7 +342,7 @@ describe('Toolbar', () => {
         it('should switch to text view', () => {
             Toolbar.text();
 
-            expect(document.querySelector).toHaveBeenCalledWith('.editor-toolbar-text');
+            expect(document.querySelector).toHaveBeenCalledWith('.bke-toolbar-text');
             expect(document.querySelector).toHaveBeenCalledWith('.note-text');
         });
 
@@ -429,7 +429,7 @@ describe('Toolbar', () => {
             Toolbar.createToolbar(mockContainer, config);
 
             expect(document.createElement).toHaveBeenCalledWith('div');
-            expect(mockToolbar.className).toBe('editor-toolbar');
+            expect(mockToolbar.className).toBe('bke-toolbar');
             expect(mockContainer.appendChild).toHaveBeenCalledWith(mockToolbar);
         });
 

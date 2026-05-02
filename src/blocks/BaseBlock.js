@@ -224,7 +224,7 @@ export class BaseBlock
     renderToElement() {
         // Default implementation - override in subclasses for custom rendering
         let element = document.createElement('div');
-        element.classList.add('block');
+        element.classList.add('bke-block');
         element.setAttribute('data-block-type', this._type);
         element.setAttribute('data-placeholder', '');
         element.innerHTML = this._html || this._content || '';

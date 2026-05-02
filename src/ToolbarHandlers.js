@@ -47,7 +47,7 @@ export const ToolbarHandlers = {
     */
 
     document
-        .querySelectorAll('.editor-toolbar-undo')
+        .querySelectorAll('.bke-toolbar-undo')
         .forEach(btn => {
             const handler = ToolbarHandlers.createToolbarHandler('undo', () => toolbar.undo());
             btn.addEventListener('click', handler);
@@ -55,7 +55,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-redo')
+        .querySelectorAll('.bke-toolbar-redo')
         .forEach(btn => {
             const handler = ToolbarHandlers.createToolbarHandler('redo', () => toolbar.redo());
             btn.addEventListener('click', handler);
@@ -67,7 +67,7 @@ export const ToolbarHandlers = {
     */
 
     document
-        .querySelectorAll('.editor-toolbar-header1')
+        .querySelectorAll('.bke-toolbar-header1')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -76,7 +76,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-header2')
+        .querySelectorAll('.bke-toolbar-header2')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -85,7 +85,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-header3')
+        .querySelectorAll('.bke-toolbar-header3')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -94,7 +94,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-header4')
+        .querySelectorAll('.bke-toolbar-header4')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -103,7 +103,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-header5')
+        .querySelectorAll('.bke-toolbar-header5')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -112,7 +112,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-header6')
+        .querySelectorAll('.bke-toolbar-header6')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -121,7 +121,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-paragraph')
+        .querySelectorAll('.bke-toolbar-paragraph')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -134,7 +134,7 @@ export const ToolbarHandlers = {
     */
 
     document
-        .querySelectorAll('.editor-toolbar-bold')
+        .querySelectorAll('.bke-toolbar-bold')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -143,7 +143,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-italic')
+        .querySelectorAll('.bke-toolbar-italic')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -152,7 +152,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-underline')
+        .querySelectorAll('.bke-toolbar-underline')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -161,7 +161,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-strikethrough')
+        .querySelectorAll('.bke-toolbar-strikethrough')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -174,7 +174,7 @@ export const ToolbarHandlers = {
     */
 
     document
-        .querySelectorAll('.editor-toolbar-ul')
+        .querySelectorAll('.bke-toolbar-ul')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -183,7 +183,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-ol')
+        .querySelectorAll('.bke-toolbar-ol')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -192,7 +192,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-sq')
+        .querySelectorAll('.bke-toolbar-sq')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -205,7 +205,7 @@ export const ToolbarHandlers = {
     */
 
     document
-        .querySelectorAll('.editor-toolbar-code')
+        .querySelectorAll('.bke-toolbar-code')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -218,7 +218,7 @@ export const ToolbarHandlers = {
     */
 
     document
-        .querySelectorAll('.editor-toolbar-table')
+        .querySelectorAll('.bke-toolbar-table')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -231,7 +231,7 @@ export const ToolbarHandlers = {
     */
 
     document
-        .querySelectorAll('.editor-toolbar-text')
+        .querySelectorAll('.bke-toolbar-text')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -240,7 +240,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-markdown')
+        .querySelectorAll('.bke-toolbar-markdown')
         .forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -249,7 +249,7 @@ export const ToolbarHandlers = {
         });
 
     document
-        .querySelectorAll('.editor-toolbar-html')
+        .querySelectorAll('.bke-toolbar-html')
         .forEach(btn => {
             const handler = (e) => {
                 e.preventDefault();
@@ -263,7 +263,7 @@ export const ToolbarHandlers = {
     * DEBUG MODE TOGGLE
     */
     document
-        .querySelectorAll('.editor-toolbar-debug')
+        .querySelectorAll('.bke-toolbar-debug')
         .forEach(btn => {
             const handler = ToolbarHandlers.createToolbarHandler('debug', () => toolbar.debug());
             btn.addEventListener('click', handler);

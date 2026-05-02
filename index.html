@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -21,7 +21,7 @@
 <body>
 
 <div class="editor-container">
-    <div id="editor" class="editor"></div>
+    <div id="editor" class="bke-editor"></div>
 </div>
 
 <script type="module">
@@ -38,19 +38,19 @@
     const toolbarConfig = [
         {
             group: [
-                { class: 'editor-toolbar-undo', icon: 'fa-undo', title: 'отменить действие' },
-                { class: 'editor-toolbar-redo', icon: 'fa-redo', title: 'применить действие' }
+                { class: 'bke-toolbar-undo', icon: 'fa-undo', title: 'отменить действие' },
+                { class: 'bke-toolbar-redo', icon: 'fa-redo', title: 'применить действие' }
             ]
         },
         {
             group: [
-                { class: 'editor-toolbar-header1', label: 'Заголовок 1' },
-                { class: 'editor-toolbar-header2', label: 'Заголовок 2' },
-                { class: 'editor-toolbar-header3', label: 'Заголовок 3' },
-                { class: 'editor-toolbar-header4', label: 'Заголовок 4' },
-                { class: 'editor-toolbar-header5', label: 'Заголовок 5' },
-                { class: 'editor-toolbar-header6', label: 'Заголовок 6' },
-                { class: 'editor-toolbar-paragraph', label: 'Обычный текст' }
+                { class: 'bke-toolbar-header1', label: 'Заголовок 1' },
+                { class: 'bke-toolbar-header2', label: 'Заголовок 2' },
+                { class: 'bke-toolbar-header3', label: 'Заголовок 3' },
+                { class: 'bke-toolbar-header4', label: 'Заголовок 4' },
+                { class: 'bke-toolbar-header5', label: 'Заголовок 5' },
+                { class: 'bke-toolbar-header6', label: 'Заголовок 6' },
+                { class: 'bke-toolbar-paragraph', label: 'Обычный текст' }
             ],
             dropdown: true,
             icon: 'fa-heading',
@@ -58,35 +58,35 @@
         },
         {
             group: [
-                { class: 'editor-toolbar-bold', icon: 'fa-bold', title: 'жирный текст' },
-                { class: 'editor-toolbar-italic', icon: 'fa-italic', title: 'курсив' },
-                { class: 'editor-toolbar-underline', icon: 'fa-underline', title: 'подчеркнутый' },
-                { class: 'editor-toolbar-strikethrough', icon: 'fa-strikethrough', title: 'перечеркнутый' }
+                { class: 'bke-toolbar-bold', icon: 'fa-bold', title: 'жирный текст' },
+                { class: 'bke-toolbar-italic', icon: 'fa-italic', title: 'курсив' },
+                { class: 'bke-toolbar-underline', icon: 'fa-underline', title: 'подчеркнутый' },
+                { class: 'bke-toolbar-strikethrough', icon: 'fa-strikethrough', title: 'перечеркнутый' }
             ]
         },
         {
             group: [
-                { class: 'editor-toolbar-ul', icon: 'fa-list', title: 'вставить список' },
-                { class: 'editor-toolbar-ol', icon: 'fa-list-ol', title: 'вставить нумерованный список' },
-                { class: 'editor-toolbar-sq', icon: 'fa-list-check', title: 'вставить список с чекбоксами' }
+                { class: 'bke-toolbar-ul', icon: 'fa-list', title: 'вставить список' },
+                { class: 'bke-toolbar-ol', icon: 'fa-list-ol', title: 'вставить нумерованный список' },
+                { class: 'bke-toolbar-sq', icon: 'fa-list-check', title: 'вставить список с чекбоксами' }
             ]
         },
         {
             group: [
-                { class: 'editor-toolbar-table', icon: 'fa-table', title: 'вставить таблицу' },
-                { class: 'editor-toolbar-image', icon: 'fa-image', title: 'вставить изображение' }
+                { class: 'bke-toolbar-table', icon: 'fa-table', title: 'вставить таблицу' },
+                { class: 'bke-toolbar-image', icon: 'fa-image', title: 'вставить изображение' }
             ]
         },
         {
             group: [
-                { class: 'editor-toolbar-code', icon: 'fa-code', title: 'форматировать как исходный код' }
+                { class: 'bke-toolbar-code', icon: 'fa-code', title: 'форматировать как исходный код' }
             ]
         },
         {
             group: [
-                { class: 'editor-toolbar-text', icon: 'fa-paragraph', title: 'просмотр форматированного текста', disabled: true },
-                { class: 'editor-toolbar-markdown', icon: 'fa-brands fa-markdown', title: 'просмотр markdown' },
-                { class: 'editor-toolbar-html', icon: 'fa-brands fa-html5', title: 'просмотр html' }
+                { class: 'bke-toolbar-text', icon: 'fa-paragraph', title: 'просмотр форматированного текста', disabled: true },
+                { class: 'bke-toolbar-markdown', icon: 'fa-brands fa-markdown', title: 'просмотр markdown' },
+                { class: 'bke-toolbar-html', icon: 'fa-brands fa-html5', title: 'просмотр html' }
             ]
         }
     ];

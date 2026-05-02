@@ -64,7 +64,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
     describe('Header Shortcuts', () => {
         test('typing "# " should convert paragraph to H1', (done) => {
             // Get the first block (should be a paragraph)
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             expect(block).toBeTruthy();
             expect(block.getAttribute('data-block-type')).toBe('paragraph');
 
@@ -85,7 +85,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
         });
 
         test('typing "## " should convert paragraph to H2', (done) => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             block.textContent = '## ';
             editor.currentBlock = block;
 
@@ -100,7 +100,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
         });
 
         test('typing "### " should convert paragraph to H3', (done) => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             block.textContent = '### ';
             editor.currentBlock = block;
 
@@ -115,7 +115,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
         });
 
         test('typing "# Hello" should convert to H1 with "Hello" as content', (done) => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             block.textContent = '# Hello';
             editor.currentBlock = block;
 
@@ -134,7 +134,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
 
     describe('List Shortcuts', () => {
         test('typing "- " should convert paragraph to unordered list', (done) => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             block.textContent = '- ';
             editor.currentBlock = block;
 
@@ -150,7 +150,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
         });
 
         test('typing "* " should convert paragraph to unordered list', (done) => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             block.textContent = '* ';
             editor.currentBlock = block;
 
@@ -165,7 +165,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
         });
 
         test('typing "1. " should convert paragraph to ordered list', (done) => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             block.textContent = '1. ';
             editor.currentBlock = block;
 
@@ -181,7 +181,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
         });
 
         test('typing "1 " should convert paragraph to ordered list', (done) => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             block.textContent = '1 ';
             editor.currentBlock = block;
 
@@ -196,7 +196,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
         });
 
         test('typing "- Item text" should create list with "Item text" as content', (done) => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             block.textContent = '- Item text';
             editor.currentBlock = block;
 
@@ -215,7 +215,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
 
     describe('No Conversion Cases', () => {
         test('typing "#" without space should not convert', () => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             block.textContent = '#';
             editor.currentBlock = block;
 
@@ -226,7 +226,7 @@ describe('Markdown Shortcuts (Issue #45)', () => {
         });
 
         test('typing "# " in already converted H1 should not convert', () => {
-            const block = editor.instance.querySelector('.block');
+            const block = editor.instance.querySelector('.bke-block');
             // Manually convert to H1 first
             block.setAttribute('data-block-type', 'h1');
             block.innerHTML = '<h1 contenteditable="true"># </h1>';

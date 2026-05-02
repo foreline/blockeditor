@@ -24,7 +24,7 @@ export class TaskListBlock extends ListBlock
         // Handle checkbox toggling and task list continuation
         if (event.key === ' ' && event.ctrlKey) {
             // Toggle checkbox state
-            this.toggleCheckbox(event.target.closest('.block'));
+            this.toggleCheckbox(event.target.closest('.bke-block'));
             return true;
         }
         return false;
@@ -54,7 +54,7 @@ export class TaskListBlock extends ListBlock
                         const range = selection.getRangeAt(0);
                         const element = range.startContainer.nodeType === Node.TEXT_NODE ? 
                             range.startContainer.parentElement : range.startContainer;
-                        targetListItem = element.closest('li.task-list-item');
+                        targetListItem = element.closest('li.bke-task-list-item');
                         
                         if (targetListItem && typeof targetListItem.querySelector === 'function') {
                             checkbox = targetListItem.querySelector('input[type="checkbox"]');
@@ -65,7 +65,7 @@ export class TaskListBlock extends ListBlock
                 
                 // If no specific item is focused, toggle the first checkbox in the block
                 if (!checkbox) {
-                    targetListItem = currentBlock.querySelector('li.task-list-item');
+                    targetListItem = currentBlock.querySelector('li.bke-task-list-item');
                     if (targetListItem && typeof targetListItem.querySelector === 'function') {
                         checkbox = targetListItem.querySelector('input[type="checkbox"]');
                         textContainer = targetListItem.querySelector('span[contenteditable]');
@@ -87,7 +87,7 @@ export class TaskListBlock extends ListBlock
         if (targetListItem) {
             if (checkbox.checked) {
                 if (typeof targetListItem.classList?.add === 'function') {
-                    targetListItem.classList.add('task-completed');
+                    targetListItem.classList.add('bke-task-completed');
                 }
                 if (textContainer && textContainer.style) {
                     textContainer.style.textDecoration = 'line-through';
@@ -95,7 +95,7 @@ export class TaskListBlock extends ListBlock
                 }
             } else {
                 if (typeof targetListItem.classList?.remove === 'function') {
-                    targetListItem.classList.remove('task-completed');
+                    targetListItem.classList.remove('bke-task-completed');
                 }
                 if (textContainer && textContainer.style) {
                     textContainer.style.textDecoration = 'none';
@@ -211,7 +211,7 @@ export class TaskListBlock extends ListBlock
      */
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-sq',
+            class: 'bke-toolbar-sq',
             icon: 'fa-list-check',
             title: 'Checklist',
             group: 'lists'
@@ -272,7 +272,7 @@ export class TaskListBlock extends ListBlock
         if (tasks.length === 0 || (tasks.length === 1 && !tasks[0].trim())) {
             // Single empty task
             const checked = this._checked ? ' checked' : '';
-            return `<ul class="task-list">\n<li class="task-list-item"><input type="checkbox"${checked}> </li>\n</ul>`;
+            return `<ul class="bke-task-list">\n<li class="bke-task-list-item"><input type="checkbox"${checked}> </li>\n</ul>`;
         }
         
         // Multiple tasks
@@ -280,11 +280,11 @@ export class TaskListBlock extends ListBlock
             // For now, use the block's checked state for the first item only
             const isChecked = index === 0 ? this._checked : false;
             const checked = isChecked ? ' checked' : '';
-            const completedClass = isChecked ? ' task-completed' : '';
-            return `<li class="task-list-item${completedClass}"><input type="checkbox"${checked}> ${task.trim()}</li>`;
+            const completedClass = isChecked ? ' bke-task-completed' : '';
+            return `<li class="bke-task-list-item${completedClass}"><input type="checkbox"${checked}> ${task.trim()}</li>`;
         }).join('\n');
         
-        return `<ul class="task-list">\n${listItems}\n</ul>`;
+        return `<ul class="bke-task-list">\n${listItems}\n</ul>`;
     }
 
     /**
@@ -310,15 +310,15 @@ export class TaskListBlock extends ListBlock
     renderToElement() {
         // Create div wrapper for the block
         let element = document.createElement('div');
-        element.classList.add('block');
-        element.classList.add('block-sq');
+        element.classList.add('bke-block');
+        element.classList.add('bke-block--sq');
         element.setAttribute('data-block-type', 'sq');
         element.setAttribute('data-placeholder', 'Task item');
         
         // Create the actual ul element (semantic unordered list)
         let ulElement = document.createElement('ul');
         if (ulElement.classList && typeof ulElement.classList.add === 'function') {
-            ulElement.classList.add('task-list');
+            ulElement.classList.add('bke-task-list');
         }
         if (ulElement.style) {
             ulElement.style.listStyle = 'none';
@@ -367,7 +367,7 @@ export class TaskListBlock extends ListBlock
         
         // Add class safely
         if (listItem.classList && typeof listItem.classList.add === 'function') {
-            listItem.classList.add('task-list-item');
+            listItem.classList.add('bke-task-list-item');
         }
         
         // Set data-block-type attribute for compatibility
@@ -411,7 +411,7 @@ export class TaskListBlock extends ListBlock
         // Apply completed styling if checked
         if (isChecked) {
             if (listItem.classList && typeof listItem.classList.add === 'function') {
-                listItem.classList.add('task-completed');
+                listItem.classList.add('bke-task-completed');
             }
             if (textContainer && textContainer.style) {
                 textContainer.style.textDecoration = 'line-through';
@@ -426,7 +426,7 @@ export class TaskListBlock extends ListBlock
                 
                 if (isChecked) {
                     if (listItem.classList && typeof listItem.classList.add === 'function') {
-                        listItem.classList.add('task-completed');
+                        listItem.classList.add('bke-task-completed');
                     }
                     if (textContainer && textContainer.style) {
                         textContainer.style.textDecoration = 'line-through';
@@ -434,7 +434,7 @@ export class TaskListBlock extends ListBlock
                     }
                 } else {
                     if (listItem.classList && typeof listItem.classList.remove === 'function') {
-                        listItem.classList.remove('task-completed');
+                        listItem.classList.remove('bke-task-completed');
                     }
                     if (textContainer && textContainer.style) {
                         textContainer.style.textDecoration = 'none';
@@ -469,8 +469,8 @@ export class TaskListBlock extends ListBlock
     static canParseHtml(htmlString) {
         return htmlString.includes('data-block-type="sq"') ||
                (htmlString.includes('<input type="checkbox"') && 
-                (htmlString.includes('<li') || htmlString.includes('task-list'))) ||
-               htmlString.includes('class="task-list"');
+                (htmlString.includes('<li') || htmlString.includes('bke-task-list'))) ||
+               htmlString.includes('class="bke-task-list"');
     }
 
     /**
@@ -486,7 +486,7 @@ export class TaskListBlock extends ListBlock
         const doc = parser.parseFromString(htmlString, 'text/html');
         
         // Look for task list items
-        const taskItems = doc.querySelectorAll('li.task-list-item, li[data-block-type="sq"]');
+        const taskItems = doc.querySelectorAll('li.bke-task-list-item, li[data-block-type="sq"]');
         
         if (taskItems.length === 0) {
             // Try to parse a single checkbox input
@@ -538,7 +538,7 @@ export class TaskListBlock extends ListBlock
         const isChecked = checkState === 'x';
         const content = match[2].trim();
         const checked = isChecked ? ' checked' : '';
-        const html = `<li class="task-list-item" data-block-type="sq"><input type="checkbox"${checked}> ${content}</li>`;
+        const html = `<li class="bke-task-list-item" data-block-type="sq"><input type="checkbox"${checked}> ${content}</li>`;
         
         const taskBlock = new TaskListBlock(content, html);
         taskBlock.setChecked(isChecked);

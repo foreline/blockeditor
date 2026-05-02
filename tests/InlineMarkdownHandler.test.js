@@ -43,7 +43,7 @@ describe('InlineMarkdownHandler', () => {
      */
     function createBlock(text, blockType = 'p') {
         const block = document.createElement('div');
-        block.className = `block block-${blockType}`;
+        block.className = `bke-block bke-block--${blockType}`;
         block.setAttribute('data-block-type', blockType);
         block.setAttribute('contenteditable', 'true');
         block.textContent = text;
@@ -233,7 +233,7 @@ describe('InlineMarkdownHandler', () => {
     describe('already-formatted content', () => {
         test('does not re-format text inside <strong>', () => {
             const block = document.createElement('div');
-            block.className = 'block block-p';
+            block.className = 'bke-block bke-block--p';
             block.setAttribute('data-block-type', 'p');
             block.setAttribute('contenteditable', 'true');
 
@@ -248,7 +248,7 @@ describe('InlineMarkdownHandler', () => {
 
         test('does not re-format text inside <em>', () => {
             const block = document.createElement('div');
-            block.className = 'block block-p';
+            block.className = 'bke-block bke-block--p';
             block.setAttribute('data-block-type', 'p');
             block.setAttribute('contenteditable', 'true');
 
@@ -263,7 +263,7 @@ describe('InlineMarkdownHandler', () => {
 
         test('does not re-format text inside <code>', () => {
             const block = document.createElement('div');
-            block.className = 'block block-p';
+            block.className = 'bke-block bke-block--p';
             block.setAttribute('data-block-type', 'p');
             block.setAttribute('contenteditable', 'true');
 
@@ -311,7 +311,7 @@ describe('InlineMarkdownHandler', () => {
     describe('non-paragraph blocks', () => {
         test('applies inline formatting inside heading blocks', () => {
             const block = document.createElement('div');
-            block.className = 'block block-h1';
+            block.className = 'bke-block bke-block--h1';
             block.setAttribute('data-block-type', 'h1');
 
             const h1 = document.createElement('h1');

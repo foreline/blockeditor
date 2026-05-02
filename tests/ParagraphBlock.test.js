@@ -91,7 +91,7 @@ describe('ParagraphBlock', () => {
     test('getToolbarConfig returns correct configuration', () => {
       const config = ParagraphBlock.getToolbarConfig();
       expect(config).toEqual({
-        class: 'editor-toolbar-paragraph',
+        class: 'bke-toolbar-paragraph',
         label: 'Paragraph',
         group: 'headers'
       });
@@ -105,7 +105,7 @@ describe('ParagraphBlock', () => {
       paragraphBlock.applyTransformation(mockBlock, mockEditor);
       
       expect(mockBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'p');
-      expect(mockBlock.className).toBe('block block-p');
+      expect(mockBlock.className).toBe('bke-block bke-block--p');
       expect(mockBlock.setAttribute).toHaveBeenCalledWith('contenteditable', 'true');
       expect(mockBlock.innerHTML).toBe('existing content');
     });

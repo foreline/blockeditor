@@ -90,8 +90,8 @@ describe('Parser - Block-based parsing', () => {
       const element = Parser.html(block);
       
       expect(document.createElement).toHaveBeenCalledWith('div');
-      expect(element.classList.add).toHaveBeenCalledWith('block');
-      expect(element.classList.add).toHaveBeenCalledWith('block-h1');
+      expect(element.classList.add).toHaveBeenCalledWith('bke-block');
+      expect(element.classList.add).toHaveBeenCalledWith('bke-block--h1');
       
       console.log.mockRestore();
     });

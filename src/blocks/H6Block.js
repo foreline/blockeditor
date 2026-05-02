@@ -17,7 +17,7 @@ export class H6Block extends HeadingBlock
 
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-header6',
+            class: 'bke-toolbar-header6',
             label: 'Heading 6',
             group: 'headers'
         };

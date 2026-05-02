@@ -17,7 +17,7 @@ export class H4Block extends HeadingBlock
 
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-header4',
+            class: 'bke-toolbar-header4',
             label: 'Heading 4',
             group: 'headers'
         };

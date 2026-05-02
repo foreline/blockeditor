@@ -132,7 +132,7 @@ describe('Complex Paste Functionality', () => {
 
             // Mock current block
             const currentBlock = document.createElement('div');
-            currentBlock.classList.add('block');
+            currentBlock.classList.add('bke-block');
             currentBlock.innerHTML = '<br>';
             editor.currentBlock = currentBlock;
 
@@ -164,7 +164,7 @@ describe('Complex Paste Functionality', () => {
             };
 
             const currentBlock = document.createElement('div');
-            currentBlock.classList.add('block');
+            currentBlock.classList.add('bke-block');
             editor.currentBlock = currentBlock;
 
             editor.isBlockEmpty = jest.fn().mockReturnValue(true);
@@ -181,7 +181,7 @@ describe('Complex Paste Functionality', () => {
             const lines = ['First line', 'Second line', 'Third line'];
             
             const currentBlock = document.createElement('div');
-            currentBlock.classList.add('block');
+            currentBlock.classList.add('bke-block');
             currentBlock.innerHTML = '<br>';
             editor.currentBlock = currentBlock;
 

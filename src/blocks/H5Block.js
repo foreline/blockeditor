@@ -17,7 +17,7 @@ export class H5Block extends HeadingBlock
 
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-header5',
+            class: 'bke-toolbar-header5',
             label: 'Heading 5',
             group: 'headers'
         };

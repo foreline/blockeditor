@@ -92,7 +92,7 @@ describe('TaskListBlock', () => {
       
       const result = taskListBlock.handleKeyPress(event, 'task text');
       
-      expect(mockBlock.closest).toHaveBeenCalledWith('.block');
+      expect(mockBlock.closest).toHaveBeenCalledWith('.bke-block');
       expect(taskListBlock.toggleCheckbox).toHaveBeenCalledWith('mockClosestBlock');
       expect(result).toBe(true);
     });
@@ -129,7 +129,7 @@ describe('TaskListBlock', () => {
       expect(mockCurrentBlock.querySelector).toHaveBeenCalledWith('input[type="checkbox"]');
       expect(mockCheckbox.checked).toBe(true);
       expect(taskListBlock._checked).toBe(true);
-      expect(mockCurrentBlock.classList.add).toHaveBeenCalledWith('task-completed');
+      expect(mockCurrentBlock.classList.add).toHaveBeenCalledWith('bke-task-completed');
       expect(Editor._mockInstance.update).toHaveBeenCalled();
     });
 
@@ -151,7 +151,7 @@ describe('TaskListBlock', () => {
       
       expect(mockCheckbox.checked).toBe(false);
       expect(taskListBlock._checked).toBe(false);
-      expect(mockCurrentBlock.classList.remove).toHaveBeenCalledWith('task-completed');
+      expect(mockCurrentBlock.classList.remove).toHaveBeenCalledWith('bke-task-completed');
     });
 
     test('does nothing when currentBlock is null', () => {
@@ -207,7 +207,7 @@ describe('TaskListBlock', () => {
       expect(document.createElement).toHaveBeenCalledWith('li');
       expect(document.createElement).toHaveBeenCalledWith('input');
       expect(document.createElement).toHaveBeenCalledWith('span');
-      expect(mockListItem.classList.add).toHaveBeenCalledWith('task-list-item');
+      expect(mockListItem.classList.add).toHaveBeenCalledWith('bke-task-list-item');
       expect(mockListItem.setAttribute).toHaveBeenCalledWith('data-block-type', 'sq');
       expect(mockListItem.style.listStyle).toBe('none');
       expect(mockListItem.style.display).toBe('flex');
@@ -320,7 +320,7 @@ describe('TaskListBlock', () => {
   describe('HTML Parsing', () => {
     test('canParseHtml detects valid task list HTML', () => {
       expect(TaskListBlock.canParseHtml('<li data-block-type="sq"><input type="checkbox"> Task</li>')).toBe(true);
-      expect(TaskListBlock.canParseHtml('<li class="task-list-item"><input type="checkbox"> Task</li>')).toBe(true);
+      expect(TaskListBlock.canParseHtml('<li class="bke-task-list-item"><input type="checkbox"> Task</li>')).toBe(true);
       expect(TaskListBlock.canParseHtml('<li><input type="checkbox" checked> Task</li>')).toBe(true);
     });
 
@@ -375,11 +375,11 @@ describe('TaskListBlock', () => {
 
     test('toHtml produces correct HTML format', () => {
       const uncheckedBlock = new TaskListBlock('Unchecked task');
-      expect(uncheckedBlock.toHtml()).toBe('<ul class="task-list">\n<li class="task-list-item"><input type="checkbox"> Unchecked task</li>\n</ul>');
+      expect(uncheckedBlock.toHtml()).toBe('<ul class="bke-task-list">\n<li class="bke-task-list-item"><input type="checkbox"> Unchecked task</li>\n</ul>');
 
       const checkedBlock = new TaskListBlock('Checked task');
       checkedBlock.setChecked(true);
-      expect(checkedBlock.toHtml()).toBe('<ul class="task-list">\n<li class="task-list-item task-completed"><input type="checkbox" checked> Checked task</li>\n</ul>');
+      expect(checkedBlock.toHtml()).toBe('<ul class="bke-task-list">\n<li class="bke-task-list-item bke-task-completed"><input type="checkbox" checked> Checked task</li>\n</ul>');
     });
   });
 
@@ -445,8 +445,8 @@ describe('TaskListBlock', () => {
       
       // Expect div wrapper to be created
       expect(document.createElement).toHaveBeenCalledWith('div');
-      expect(mockElement.classList.add).toHaveBeenCalledWith('block');
-      expect(mockElement.classList.add).toHaveBeenCalledWith('block-sq');
+      expect(mockElement.classList.add).toHaveBeenCalledWith('bke-block');
+      expect(mockElement.classList.add).toHaveBeenCalledWith('bke-block--sq');
       expect(mockElement.setAttribute).toHaveBeenCalledWith('data-block-type', 'sq');
       expect(mockElement.setAttribute).toHaveBeenCalledWith('data-placeholder', 'Task item');
       
@@ -476,7 +476,7 @@ describe('TaskListBlock', () => {
     test('getToolbarConfig returns correct configuration', () => {
       const config = TaskListBlock.getToolbarConfig();
       expect(config).toEqual({
-        class: 'editor-toolbar-sq',
+        class: 'bke-toolbar-sq',
         icon: 'fa-list-check',
         title: 'Checklist',
         group: 'lists'
@@ -489,7 +489,7 @@ describe('TaskListBlock', () => {
       const emptyBlock = new TaskListBlock('');
       expect(emptyBlock.content).toBe('');
       expect(emptyBlock.toMarkdown()).toBe('- [ ] ');
-      expect(emptyBlock.toHtml()).toBe('<ul class="task-list">\n<li class="task-list-item"><input type="checkbox"> </li>\n</ul>');
+      expect(emptyBlock.toHtml()).toBe('<ul class="bke-task-list">\n<li class="bke-task-list-item"><input type="checkbox"> </li>\n</ul>');
     });
 
     test('handles content with special characters', () => {

@@ -535,7 +535,7 @@ describe('Editor Instance Methods', () => {
             const result = editor.addDefaultBlock();
 
             expect(document.createElement).toHaveBeenCalledWith('div');
-            expect(mockBlock.classList.add).toHaveBeenCalledWith('block');
+            expect(mockBlock.classList.add).toHaveBeenCalledWith('bke-block');
             expect(mockBlock.innerHTML).toBe('<br />');
             expect(editor.instance.appendChild).toHaveBeenCalledWith(mockBlock);
             expect(editor.setCurrentBlock).toHaveBeenCalledWith(mockBlock);
@@ -604,7 +604,7 @@ describe('Editor Instance Methods', () => {
             document.querySelector.mockReturnValue(mockButton);
             
             const mockBlockClass = {
-                getDisabledButtons: jest.fn().mockReturnValue(['editor-toolbar-bold'])
+                getDisabledButtons: jest.fn().mockReturnValue(['bke-toolbar-bold'])
             };
             
             const getBlockClassSpy = jest.spyOn(Editor, 'getBlockClass').mockReturnValue(mockBlockClass);
@@ -614,7 +614,7 @@ describe('Editor Instance Methods', () => {
             expect(editor.enableAllToolbarButtons).toHaveBeenCalled();
             expect(getBlockClassSpy).toHaveBeenCalledWith('p');
             expect(mockBlockClass.getDisabledButtons).toHaveBeenCalled();
-            expect(document.querySelector).toHaveBeenCalledWith('.editor-toolbar-bold');
+            expect(document.querySelector).toHaveBeenCalledWith('.bke-toolbar-bold');
             expect(mockButton.disabled).toBe(true);
             expect(mockButton.classList.add).toHaveBeenCalledWith('disabled');
         });

@@ -42,7 +42,7 @@ export class DelimiterBlock extends BaseBlock
 
         // Update block attributes
         targetElement.setAttribute('data-block-type', 'delimiter');
-        targetElement.className = 'block block-delimiter';
+        targetElement.className = 'bke-block bke-block--delimiter';
         targetElement.setAttribute('contenteditable', 'false');
 
         // Replace content with <hr>
@@ -62,8 +62,8 @@ export class DelimiterBlock extends BaseBlock
      */
     renderToElement() {
         let element = document.createElement('hr');
-        element.classList.add('block');
-        element.classList.add('block-delimiter');
+        element.classList.add('bke-block');
+        element.classList.add('bke-block--delimiter');
         element.setAttribute('data-block-type', 'delimiter');
         element.contentEditable = false; // Delimiters are not editable
         

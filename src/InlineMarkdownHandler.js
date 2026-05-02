@@ -146,7 +146,7 @@ export class InlineMarkdownHandler
                 return true;
             }
             // Stop at the block boundary
-            if (parent.classList && parent.classList.contains('block')) {
+            if (parent.classList && parent.classList.contains('bke-block')) {
                 break;
             }
             parent = parent.parentNode;

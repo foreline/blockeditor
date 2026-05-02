@@ -77,7 +77,7 @@ describe('Empty Editor Edge Case Fix', () => {
 
     describe('isEditorEmpty', () => {
         test('should return false when blocks have content', () => {
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             const result = mockEditor.isEditorEmpty(blocks);
             
             expect(result).toBe(false);
@@ -85,7 +85,7 @@ describe('Empty Editor Edge Case Fix', () => {
 
         test('should return true when all blocks are empty', () => {
             // Make all blocks empty
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             blocks.forEach(block => {
                 block.innerHTML = '';
             });
@@ -97,7 +97,7 @@ describe('Empty Editor Edge Case Fix', () => {
 
         test('should return true when blocks contain only whitespace', () => {
             // Make all blocks contain only whitespace
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             blocks.forEach(block => {
                 block.innerHTML = '   \n\t  ';
             });
@@ -109,7 +109,7 @@ describe('Empty Editor Edge Case Fix', () => {
 
         test('should return true when no blocks exist', () => {
             mockEditor.instance.innerHTML = '';
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             
             const result = mockEditor.isEditorEmpty(blocks);
             
@@ -117,7 +117,7 @@ describe('Empty Editor Edge Case Fix', () => {
         });
 
         test('should return false when at least one block has content', () => {
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             // Make most blocks empty but keep one with content
             blocks[0].innerHTML = '';
             blocks[1].innerHTML = '   ';
@@ -131,7 +131,7 @@ describe('Empty Editor Edge Case Fix', () => {
 
     describe('detachBlockEvents', () => {
         test('should emit block destroyed events for blocks with IDs', () => {
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             blocks[0].setAttribute('data-block-id', 'block-1');
             blocks[1].setAttribute('data-block-id', 'block-2');
             
@@ -157,7 +157,7 @@ describe('Empty Editor Edge Case Fix', () => {
         });
 
         test('should handle blocks without IDs gracefully', () => {
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             
             // Should not throw error
             expect(() => {
@@ -193,7 +193,7 @@ describe('Empty Editor Edge Case Fix', () => {
             // Simulate empty editor state
             mockEditor.instance.innerHTML = '';
             
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             const needsProtection = blocks.length === 0 || mockEditor.isEditorEmpty(blocks);
             
             expect(needsProtection).toBe(true);
@@ -201,14 +201,14 @@ describe('Empty Editor Edge Case Fix', () => {
 
         test('should identify when editor has valid content', () => {
             // Keep existing content
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             const needsProtection = blocks.length === 0 || mockEditor.isEditorEmpty(blocks);
             
             expect(needsProtection).toBe(false);
         });
 
         test('should handle mixed empty and non-empty blocks correctly', () => {
-            const blocks = mockEditor.instance.querySelectorAll('.block');
+            const blocks = mockEditor.instance.querySelectorAll('.bke-block');
             
             // Make some blocks empty
             blocks[0].innerHTML = '';

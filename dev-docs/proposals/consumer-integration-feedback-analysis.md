@@ -291,8 +291,6 @@ All CSS classes in `src/css/editor.css` and all class assignments in `src/Toolba
 
 **Migration approach:** A single search-and-replace pass on `src/css/editor.css` plus all JS files where `className` is assigned. The block files in `src/blocks/` each assign `block block-<type>` — those become `bke-block bke-block--<type>`.
 
-**This is a breaking change** — consumers using `.editor` or `.block` CSS selectors in their overrides will need to update. Must be released as a major version bump (0.2.0 or 1.0.0).
-
 ---
 
 ### Priority 3 — Scoped CSS reset (High impact, Low effort)

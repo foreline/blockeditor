@@ -17,7 +17,7 @@ export class H1Block extends HeadingBlock
 
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-header1',
+            class: 'bke-toolbar-header1',
             label: 'Heading 1',
             group: 'headers'
         };

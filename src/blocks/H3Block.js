@@ -17,7 +17,7 @@ export class H3Block extends HeadingBlock
 
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-header3',
+            class: 'bke-toolbar-header3',
             label: 'Heading 3',
             group: 'headers'
         };

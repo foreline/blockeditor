@@ -47,7 +47,7 @@ const mockStyle = {
 const _mockMatchesSelector = (el, selector) => {
     if (!el || !selector) return false;
     selector = selector.trim();
-    // Class selector: .block, .block-code
+    // Class selector: .bke-block, .bke-block--code
     if (selector.startsWith('.')) {
         const cls = selector.substring(1);
         return (el.className || '').split(/\s+/).includes(cls);

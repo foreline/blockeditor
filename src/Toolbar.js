@@ -335,11 +335,11 @@ export class Toolbar
         log('text()', 'Toolbar.');
 
         const noteText = document.querySelector('.note-text');
-        const textMd = document.querySelector('.editor-text-md');
-        const textHtml = document.querySelector('.editor-text-html');
-        const btnText = document.querySelector('.editor-toolbar-text');
-        const btnMarkdown = document.querySelector('.editor-toolbar-markdown');
-        const btnHtml = document.querySelector('.editor-toolbar-html');
+        const textMd = document.querySelector('.bke-text-md');
+        const textHtml = document.querySelector('.bke-text-html');
+        const btnText = document.querySelector('.bke-toolbar-text');
+        const btnMarkdown = document.querySelector('.bke-toolbar-markdown');
+        const btnHtml = document.querySelector('.bke-toolbar-html');
 
         noteText?.classList.remove('visually-hidden');
         textMd?.classList.add('visually-hidden');
@@ -364,12 +364,12 @@ export class Toolbar
         log('markdown()', 'Toolbar.');
 
         const noteText = document.querySelector('.note-text');
-        const textMd = document.querySelector('.editor-text-md');
-        const textHtml = document.querySelector('.editor-text-html');
+        const textMd = document.querySelector('.bke-text-md');
+        const textHtml = document.querySelector('.bke-text-html');
 
-        const btnText = document.querySelector('.editor-toolbar-text');
-        const btnMarkdown = document.querySelector('.editor-toolbar-markdown');
-        const btnHtml = document.querySelector('.editor-toolbar-html');
+        const btnText = document.querySelector('.bke-toolbar-text');
+        const btnMarkdown = document.querySelector('.bke-toolbar-markdown');
+        const btnHtml = document.querySelector('.bke-toolbar-html');
 
         noteText?.classList.add('visually-hidden');
         textMd?.classList.remove('visually-hidden');
@@ -398,11 +398,11 @@ export class Toolbar
         log('html()', 'Toolbar.');
 
         const noteText = document.querySelector('.note-text');
-        const textMd = document.querySelector('.editor-text-md');
-        const textHtml = document.querySelector('.editor-text-html');
-        const btnText = document.querySelector('.editor-toolbar-text');
-        const btnMarkdown = document.querySelector('.editor-toolbar-markdown');
-        const btnHtml = document.querySelector('.editor-toolbar-html');
+        const textMd = document.querySelector('.bke-text-md');
+        const textHtml = document.querySelector('.bke-text-html');
+        const btnText = document.querySelector('.bke-toolbar-text');
+        const btnMarkdown = document.querySelector('.bke-toolbar-markdown');
+        const btnHtml = document.querySelector('.bke-toolbar-html');
 
         noteText?.classList.add('visually-hidden');
         textMd?.classList.add('visually-hidden');
@@ -433,7 +433,7 @@ export class Toolbar
         if (this.editorInstance) {
             this.editorInstance.toggleDebugMode();
             
-            const debugBtn = document.querySelector('.editor-toolbar-debug');
+            const debugBtn = document.querySelector('.bke-toolbar-debug');
             if (debugBtn) {
                 const isActive = this.editorInstance.debugMode;
                 if (isActive) {
@@ -467,26 +467,26 @@ export class Toolbar
         log('createToolbar()', 'Toolbar.'); console.log({container, config, debug});
 
         const toolbar = document.createElement('div');
-        toolbar.className = 'editor-toolbar';
+        toolbar.className = 'bke-toolbar';
 
         const sections = config.config || config || [];
         
         sections.forEach((section) => {
             const group = document.createElement('div');
-            group.className = 'editor-toolbar-group';
+            group.className = 'bke-toolbar-group';
             if (section.dropdown) {
                 const menuId = `editor-dropdown-${section.id}`;
                 const supportsPopover = typeof HTMLElement !== 'undefined' && 'popover' in HTMLElement.prototype;
 
                 // Wrapper div (replaces Bootstrap .dropdown)
                 const wrapper = document.createElement('div');
-                wrapper.className = 'editor-toolbar-dropdown';
+                wrapper.className = 'bke-toolbar-dropdown';
 
                 // Trigger button (replaces Bootstrap .btn.dropdown-toggle)
                 const trigger = document.createElement('button');
                 trigger.type = 'button';
                 trigger.id = section.id;
-                trigger.className = 'editor-toolbar-btn';
+                trigger.className = 'bke-toolbar-btn';
                 trigger.setAttribute('aria-haspopup', 'true');
                 trigger.setAttribute('aria-expanded', 'false');
                 trigger.setAttribute('aria-controls', menuId);
@@ -495,7 +495,7 @@ export class Toolbar
                 // Menu list (replaces Bootstrap .dropdown-menu)
                 const ul = document.createElement('ul');
                 ul.id = menuId;
-                ul.className = 'editor-toolbar-dropdown-menu';
+                ul.className = 'bke-toolbar-dropdown-menu';
                 ul.setAttribute('role', 'menu');
                 ul.setAttribute('aria-labelledby', section.id);
 
@@ -532,7 +532,7 @@ export class Toolbar
                         const isOpen = trigger.getAttribute('aria-expanded') === 'true';
                         Toolbar._closeAllDropdowns();
                         if (!isOpen) {
-                            ul.classList.add('editor-toolbar-dropdown-menu--open');
+                            ul.classList.add('bke-toolbar-dropdown-menu--open');
                             trigger.setAttribute('aria-expanded', 'true');
                             Toolbar._positionDropdown(trigger, ul);
                         }
@@ -565,10 +565,10 @@ export class Toolbar
         // Add debug button if debug mode is enabled
         if (debug) {
             const debugGroup = document.createElement('div');
-            debugGroup.className = 'editor-toolbar-group';
+            debugGroup.className = 'bke-toolbar-group';
             
             const debugButton = document.createElement('button');
-            debugButton.className = 'editor-toolbar-debug active';
+            debugButton.className = 'bke-toolbar-debug active';
             debugButton.innerHTML = '<i class="fa fa-bug"></i>';
             debugButton.title = 'отключить режим отладки';
             
@@ -606,8 +606,8 @@ export class Toolbar
      * Close all open fallback (non-Popover) dropdowns.
      */
     static _closeAllDropdowns() {
-        document.querySelectorAll('.editor-toolbar-dropdown-menu--open').forEach(menu => {
-            menu.classList.remove('editor-toolbar-dropdown-menu--open');
+        document.querySelectorAll('.bke-toolbar-dropdown-menu--open').forEach(menu => {
+            menu.classList.remove('bke-toolbar-dropdown-menu--open');
             const triggerId = menu.getAttribute('aria-labelledby');
             if (triggerId) {
                 const t = document.getElementById(triggerId);

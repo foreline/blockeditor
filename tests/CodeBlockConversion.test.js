@@ -24,15 +24,15 @@ describe('CodeBlock Conversion', () => {
         document.getElementById = jest.fn().mockReturnValue(container);
 
         paragraphBlock = document.createElement('div');
-        paragraphBlock.className = 'block block-p';
+        paragraphBlock.className = 'bke-block bke-block--p';
         paragraphBlock.setAttribute('data-block-type', 'paragraph');
         paragraphBlock.setAttribute('contenteditable', 'true');
         paragraphBlock.innerHTML = '```';
         container.appendChild(paragraphBlock);
         
         // Ensure block discovery works
-        container.querySelectorAll = jest.fn((sel) => sel === '.block' ? [paragraphBlock] : []);
-        container.querySelector = jest.fn((sel) => sel === '.block' ? paragraphBlock : null);
+        container.querySelectorAll = jest.fn((sel) => sel === '.bke-block' ? [paragraphBlock] : []);
+        container.querySelector = jest.fn((sel) => sel === '.bke-block' ? paragraphBlock : null);
 
         // Mock Utils.stripTags
         jest.spyOn(Utils, 'stripTags').mockReturnValue('```');
@@ -56,7 +56,7 @@ describe('CodeBlock Conversion', () => {
                         const current = editorInstance?.currentBlock;
                         if (!current) return;
                         current.setAttribute('data-block-type', 'code');
-                        current.className = 'block block-code';
+                        current.className = 'bke-block bke-block--code';
                         current.setAttribute('contenteditable', 'false');
                         const pre = document.createElement('pre');
                         const code = document.createElement('code');
@@ -96,7 +96,7 @@ describe('CodeBlock Conversion', () => {
 
             // Assert the transformation to code block was applied
             expect(paragraphBlock.getAttribute('data-block-type')).toBe('code');
-            expect(paragraphBlock.className).toBe('block block-code');
+            expect(paragraphBlock.className).toBe('bke-block bke-block--code');
             expect(paragraphBlock.querySelector('pre')).toBeTruthy();
             expect(paragraphBlock.querySelector('code')).toBeTruthy();
         });
@@ -110,7 +110,7 @@ describe('CodeBlock Conversion', () => {
             expect(converted).toBe(true);
 
             expect(paragraphBlock.getAttribute('data-block-type')).toBe('code');
-            expect(paragraphBlock.className).toBe('block block-code');
+            expect(paragraphBlock.className).toBe('bke-block bke-block--code');
         });
     });
 
@@ -127,7 +127,7 @@ describe('CodeBlock Conversion', () => {
                 const current = editorInstance?.currentBlock;
                 if (!current) return;
                 current.setAttribute('data-block-type', 'code');
-                current.className = 'block block-code';
+                current.className = 'bke-block bke-block--code';
                 current.setAttribute('contenteditable', 'false');
                 const pre = document.createElement('pre');
                 const code = document.createElement('code');

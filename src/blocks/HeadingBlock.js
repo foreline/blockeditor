@@ -45,7 +45,7 @@ export class HeadingBlock extends BaseBlock
         
         // Update block attributes
         targetElement.setAttribute('data-block-type', `h${this.level}`);
-        targetElement.className = `block block-h${this.level}`;
+        targetElement.className = `bke-block bke-block--h${this.level}`;
         // Prevent typing directly into the block container; edits should happen inside the heading element
         targetElement.setAttribute('contenteditable', 'false');
         
@@ -94,18 +94,18 @@ export class HeadingBlock extends BaseBlock
      */
     static getDisabledButtons() {
         return [
-            'editor-toolbar-bold',
-            'editor-toolbar-italic', 
-            'editor-toolbar-underline',
-            'editor-toolbar-strikethrough',
-            'editor-toolbar-quote',
-            'editor-toolbar-ul',
-            'editor-toolbar-ol',
-            'editor-toolbar-sq',
-            'editor-toolbar-code',
-            'editor-toolbar-delimiter',
-            'editor-toolbar-table',
-            'editor-toolbar-image'
+            'bke-toolbar-bold',
+            'bke-toolbar-italic', 
+            'bke-toolbar-underline',
+            'bke-toolbar-strikethrough',
+            'bke-toolbar-quote',
+            'bke-toolbar-ul',
+            'bke-toolbar-ol',
+            'bke-toolbar-sq',
+            'bke-toolbar-code',
+            'bke-toolbar-delimiter',
+            'bke-toolbar-table',
+            'bke-toolbar-image'
         ];
     }
 
@@ -143,8 +143,8 @@ export class HeadingBlock extends BaseBlock
      */
     renderToElement() {
         let element = document.createElement('div');
-        element.classList.add('block');
-        element.classList.add(`block-h${this.level}`);
+        element.classList.add('bke-block');
+        element.classList.add(`bke-block--h${this.level}`);
         element.setAttribute('data-block-type', this._type);
         element.setAttribute('data-placeholder', '');
         element.innerHTML = this._html || this._content || '';

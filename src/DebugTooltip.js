@@ -46,7 +46,7 @@ export class DebugTooltip {
         this.addEventListeners();
         
         // Add debug mode class to editor instance
-        this.editorInstance.classList.add('debug-mode');
+        this.editorInstance.classList.add('bke-debug-mode');
         
         log('Debug tooltips enabled', 'DebugTooltip');
     }
@@ -64,7 +64,7 @@ export class DebugTooltip {
         this.removeEventListeners();
         
         // Remove debug mode class from editor instance
-        this.editorInstance.classList.remove('debug-mode');
+        this.editorInstance.classList.remove('bke-debug-mode');
         
         log('Debug tooltips disabled', 'DebugTooltip');
     }
@@ -124,11 +124,11 @@ export class DebugTooltip {
         if (!this.enabled || !this.editor || !this.editor.currentBlock) return;
         
         // Only update position for the active block's tooltip
-        const blocks = this.editorInstance.querySelectorAll('.block');
+        const blocks = this.editorInstance.querySelectorAll('.bke-block');
         const currentIndex = Array.from(blocks).indexOf(this.editor.currentBlock);
         
         if (currentIndex !== -1) {
-            const tooltip = document.querySelector(`.debug-tooltip[data-block-index="${currentIndex}"]`);
+            const tooltip = document.querySelector(`.bke-debug-tooltip[data-block-index="${currentIndex}"]`);
             if (tooltip) {
                 this.positionTooltip(tooltip, this.editor.currentBlock);
             }
@@ -154,13 +154,13 @@ export class DebugTooltip {
         log('createTooltip()', 'DebugTooltip');
 
         // Remove existing tooltip if present
-        const existingTooltip = document.querySelector(`.debug-tooltip[data-block-index="${index}"]`);
+        const existingTooltip = document.querySelector(`.bke-debug-tooltip[data-block-index="${index}"]`);
         if (existingTooltip) {
             existingTooltip.remove();
         }
         
         const tooltip = document.createElement('div');
-        tooltip.className = 'debug-tooltip';
+        tooltip.className = 'bke-debug-tooltip';
         tooltip.setAttribute('data-block-index', index);
         
         // Position tooltip to the right of the block using fixed positioning
@@ -216,7 +216,7 @@ export class DebugTooltip {
         log('updateTooltipContent()', 'DebugTooltip');
 
         const block = this.editor ? this.editor.blocks[index] : null;
-        const isActive = blockElement.classList.contains('active-block');
+        const isActive = blockElement.classList.contains('bke-block--active');
         const currentTimestamp = Date.now();
         
         // Get block type from multiple sources
@@ -282,12 +282,12 @@ export class DebugTooltip {
         }
         
         tooltip.innerHTML = `
-            <div class="debug-tooltip-header">Block ${index} (Active)</div>
-            <div class="debug-tooltip-row"><strong>Type:</strong> ${blockType}</div>
-            <div class="debug-tooltip-row"><strong>Active:</strong> ✓ Yes</div>
-            <div class="debug-tooltip-row"><strong>Updated:</strong> ${timeDisplay}</div>
-            <div class="debug-tooltip-row"><strong>Content:</strong></div>
-            <div class="debug-tooltip-content">${markdownContent || '(empty)'}</div>
+            <div class="bke-debug-tooltip-header">Block ${index} (Active)</div>
+            <div class="bke-debug-tooltip-row"><strong>Type:</strong> ${blockType}</div>
+            <div class="bke-debug-tooltip-row"><strong>Active:</strong> ✓ Yes</div>
+            <div class="bke-debug-tooltip-row"><strong>Updated:</strong> ${timeDisplay}</div>
+            <div class="bke-debug-tooltip-row"><strong>Content:</strong></div>
+            <div class="bke-debug-tooltip-content">${markdownContent || '(empty)'}</div>
         `;
     }
     
@@ -297,7 +297,7 @@ export class DebugTooltip {
     removeTooltips() {
         log('removeTooltips()', 'DebugTooltip');
 
-        const tooltips = document.querySelectorAll('.debug-tooltip');
+        const tooltips = document.querySelectorAll('.bke-debug-tooltip');
         tooltips.forEach(tooltip => tooltip.remove());
     }
     
@@ -382,7 +382,7 @@ export class DebugTooltip {
         this.removeTooltips();
         
         // Find the index of the current block
-        const blocks = this.editorInstance.querySelectorAll('.block');
+        const blocks = this.editorInstance.querySelectorAll('.bke-block');
         const currentIndex = Array.from(blocks).indexOf(this.editor.currentBlock);
         
         if (currentIndex !== -1) {

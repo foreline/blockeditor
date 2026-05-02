@@ -56,7 +56,7 @@ describe('H2Block', () => {
     test('getToolbarConfig returns correct configuration', () => {
       const config = H2Block.getToolbarConfig();
       expect(config).toEqual({
-        class: 'editor-toolbar-header2',
+        class: 'bke-toolbar-header2',
         label: 'Heading 2',
         group: 'headers'
       });

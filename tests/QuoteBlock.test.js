@@ -83,7 +83,7 @@ describe('QuoteBlock', () => {
     test('transforms block element to quote block', () => {
       // Create a mock block element
       const blockEl = document.createElement('div');
-      blockEl.className = 'block block-p';
+      blockEl.className = 'bke-block bke-block--p';
       blockEl.setAttribute('data-block-type', 'paragraph');
       blockEl.textContent = 'Some text';
       document.body.appendChild(blockEl);
@@ -91,7 +91,7 @@ describe('QuoteBlock', () => {
       quoteBlock.applyTransformation(blockEl, null);
       
       expect(blockEl.getAttribute('data-block-type')).toBe('quote');
-      expect(blockEl.className).toBe('block block-quote');
+      expect(blockEl.className).toBe('bke-block bke-block--quote');
       // querySelector is mocked, so check children array directly
       const bq = blockEl.children.find(c => c.tagName === 'BLOCKQUOTE');
       expect(bq).toBeTruthy();

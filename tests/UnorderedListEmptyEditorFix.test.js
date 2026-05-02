@@ -26,7 +26,7 @@ describe('UnorderedList in Empty Editor Fix', () => {
     
     test('should create unordered list in empty editor without infinite recursion', () => {
         // Verify editor starts empty
-        expect(mockDiv.querySelectorAll('.block').length).toBe(0);
+        expect(mockDiv.querySelectorAll('.bke-block').length).toBe(0);
         console.log('Before calling convertCurrentBlockOrCreate');
         console.log('Editor instance:', editorInstance);
         console.log('Editor instance type:', typeof editorInstance);
@@ -45,7 +45,7 @@ describe('UnorderedList in Empty Editor Fix', () => {
         }
         
         // Should have created a UL block
-        const blocks = mockDiv.querySelectorAll('.block');
+        const blocks = mockDiv.querySelectorAll('.bke-block');
         expect(blocks.length).toBe(1);
         
         const ulBlock = mockDiv.querySelector('[data-block-type="ul"]');
@@ -62,7 +62,7 @@ describe('UnorderedList in Empty Editor Fix', () => {
     
     test('should handle empty editor case when creating list via toolbar', () => {
         // Verify editor starts empty
-        expect(mockDiv.querySelectorAll('.block').length).toBe(0);
+        expect(mockDiv.querySelectorAll('.bke-block').length).toBe(0);
         
         // Clear current block to simulate empty editor
         editorInstance.currentBlock = null;

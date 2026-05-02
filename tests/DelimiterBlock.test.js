@@ -114,7 +114,7 @@ describe('DelimiterBlock', () => {
       delimiterBlock.applyTransformation(mockBlock, mockEditor);
       
       expect(mockBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'delimiter');
-      expect(mockBlock.className).toBe('block block-delimiter');
+      expect(mockBlock.className).toBe('bke-block bke-block--delimiter');
       expect(mockBlock.setAttribute).toHaveBeenCalledWith('contenteditable', 'false');
       expect(mockBlock.appendChild).toHaveBeenCalled();
     });
@@ -149,8 +149,8 @@ describe('DelimiterBlock', () => {
       const element = delimiterBlock.renderToElement();
       
       expect(document.createElement).toHaveBeenCalledWith('hr');
-      expect(mockElement.classList.add).toHaveBeenCalledWith('block');
-      expect(mockElement.classList.add).toHaveBeenCalledWith('block-delimiter');
+      expect(mockElement.classList.add).toHaveBeenCalledWith('bke-block');
+      expect(mockElement.classList.add).toHaveBeenCalledWith('bke-block--delimiter');
       expect(mockElement.setAttribute).toHaveBeenCalledWith('data-block-type', 'delimiter');
       expect(mockElement.contentEditable).toBe(false);
     });

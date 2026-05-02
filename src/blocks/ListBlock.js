@@ -17,7 +17,7 @@ export class ListBlock extends BaseBlock
     handleEnterKey(event) {
         // List blocks should create new list items or end the list if empty
         let currentBlock = event.target && typeof event.target.closest === 'function'
-            ? event.target.closest('.block')
+            ? event.target.closest('.bke-block')
             : null;
 
         // Resolve current list item in a robust way (target may be LI or a child like SPAN)
@@ -36,7 +36,7 @@ export class ListBlock extends BaseBlock
                 if (element && typeof element.closest === 'function') {
                     currentListItem = element.closest('li');
                     if (!currentBlock) {
-                        currentBlock = element.closest('.block');
+                        currentBlock = element.closest('.bke-block');
                     }
                 }
             }
@@ -44,7 +44,7 @@ export class ListBlock extends BaseBlock
 
         // As a last resort, if we have an LI, resolve the block from it
         if (!currentBlock && currentListItem && typeof currentListItem.closest === 'function') {
-            currentBlock = currentListItem.closest('.block');
+            currentBlock = currentListItem.closest('.bke-block');
         }
 
         if (!currentBlock || !currentListItem) {

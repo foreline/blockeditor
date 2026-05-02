@@ -26,7 +26,7 @@ describe('Header Markdown Trigger Conversion', () => {
   document.getElementById = jest.fn().mockReturnValue(container);
 
   paragraphBlock = document.createElement('div');
-    paragraphBlock.className = 'block block-p';
+    paragraphBlock.className = 'bke-block bke-block--p';
   paragraphBlock.setAttribute('data-block-type', 'p');
   // Ensure attribute access works as expected for Editor checks
   paragraphBlock.getAttribute = jest.fn((name) => paragraphBlock.attributes[name]);
@@ -35,8 +35,8 @@ describe('Header Markdown Trigger Conversion', () => {
     paragraphBlock.innerHTML = '# Title ';
   container.appendChild(paragraphBlock);
   // Ensure block discovery works in Editor.init
-  container.querySelectorAll = jest.fn((sel) => sel === '.block' ? [paragraphBlock] : []);
-  container.querySelector = jest.fn((sel) => sel === '.block' ? paragraphBlock : null);
+  container.querySelectorAll = jest.fn((sel) => sel === '.bke-block' ? [paragraphBlock] : []);
+  container.querySelector = jest.fn((sel) => sel === '.bke-block' ? paragraphBlock : null);
 
     // Preserve trailing space in the stripped text
     jest.spyOn(Utils, 'stripTags').mockReturnValue('# Title ');
@@ -60,7 +60,7 @@ describe('Header Markdown Trigger Conversion', () => {
             const current = editorInstance?.currentBlock;
             if (!current) return;
             current.setAttribute('data-block-type', 'h1');
-            current.className = 'block block-h1';
+            current.className = 'bke-block bke-block--h1';
             const h = document.createElement('h1');
             h.textContent = '';
             current.innerHTML = '';
@@ -89,7 +89,7 @@ describe('Header Markdown Trigger Conversion', () => {
 
     // Assert the transformation to H1 was applied
     expect(paragraphBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'h1');
-    expect(paragraphBlock.className).toBe('block block-h1');
+    expect(paragraphBlock.className).toBe('bke-block bke-block--h1');
     expect(document.createElement).toHaveBeenCalledWith('h1');
   });
 
@@ -113,7 +113,7 @@ describe('Header Markdown Trigger Conversion', () => {
         const current = editorInstance?.currentBlock;
         if (!current) return;
         current.setAttribute('data-block-type', 'h1');
-        current.className = 'block block-h1';
+        current.className = 'bke-block bke-block--h1';
         const h = document.createElement('h1');
         current.innerHTML = '';
         current.appendChild(h);
@@ -126,6 +126,6 @@ describe('Header Markdown Trigger Conversion', () => {
     const converted = editor.checkAndConvertBlock(paragraphBlock);
 
     expect(converted).toBe(true);
-    expect(paragraphBlock.className).toBe('block block-h1');
+    expect(paragraphBlock.className).toBe('bke-block bke-block--h1');
   });
 });

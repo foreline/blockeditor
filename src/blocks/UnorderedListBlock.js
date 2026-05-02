@@ -51,7 +51,7 @@ export class UnorderedListBlock extends ListBlock
 
         // Update block attributes/classes
         targetElement.setAttribute('data-block-type', 'ul');
-        targetElement.className = 'block block-ul';
+        targetElement.className = 'bke-block bke-block--ul';
         targetElement.setAttribute('contenteditable', 'false');
 
         // Capture existing text (Editor.convertBlockType already removed trigger)
@@ -140,7 +140,7 @@ export class UnorderedListBlock extends ListBlock
      */
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-ul',
+            class: 'bke-toolbar-ul',
             icon: 'fa-list',
             title: 'Bullet List',
             group: 'lists'
@@ -184,8 +184,8 @@ export class UnorderedListBlock extends ListBlock
     renderToElement() {
         // Create div wrapper for the block
         let element = document.createElement('div');
-        element.classList.add('block');
-        element.classList.add('block-ul');
+        element.classList.add('bke-block');
+        element.classList.add('bke-block--ul');
         element.setAttribute('data-block-type', 'ul');
         element.setAttribute('data-placeholder', 'List item');
         

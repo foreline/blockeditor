@@ -1,18 +1,18 @@
-﻿import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 /**
- * BlockEditor — Inline Markdown Replacement E2E Tests
+ * BlockEditor � Inline Markdown Replacement E2E Tests
  *
  * Verifies that typing inline markdown patterns (e.g., **bold**, *italic*,
  * `code`) inside blocks triggers live formatting replacement.
  */
-test.describe('BlockEditor — Inline Markdown Replacements', () => {
+test.describe('BlockEditor � Inline Markdown Replacements', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/test-page.html');
         await page.waitForFunction(() => window.editorReady === true, { timeout: 10000 });
     });
 
-    // ── Bold ────────────────────────────────────────────────────────
+    // -- Bold --------------------------------------------------------
 
     test('**text** becomes bold', async ({ page }) => {
         const block = page.locator('[contenteditable="true"]').first();
@@ -36,7 +36,7 @@ test.describe('BlockEditor — Inline Markdown Replacements', () => {
         await expect(strong).toHaveText('world');
     });
 
-    // ── Italic ──────────────────────────────────────────────────────
+    // -- Italic ------------------------------------------------------
 
     test('*text* becomes italic', async ({ page }) => {
         const block = page.locator('[contenteditable="true"]').first();
@@ -60,7 +60,7 @@ test.describe('BlockEditor — Inline Markdown Replacements', () => {
         await expect(em).toHaveText('world');
     });
 
-    // ── Inline code ─────────────────────────────────────────────────
+    // -- Inline code -------------------------------------------------
 
     test('`text` becomes inline code', async ({ page }) => {
         const block = page.locator('[contenteditable="true"]').first();
@@ -73,7 +73,7 @@ test.describe('BlockEditor — Inline Markdown Replacements', () => {
         await expect(code).toHaveText('console.log()');
     });
 
-    // ── Strikethrough ───────────────────────────────────────────────
+    // -- Strikethrough -----------------------------------------------
 
     test('~~text~~ becomes strikethrough', async ({ page }) => {
         const block = page.locator('[contenteditable="true"]').first();
@@ -86,7 +86,7 @@ test.describe('BlockEditor — Inline Markdown Replacements', () => {
         await expect(del).toHaveText('world');
     });
 
-    // ── No false positives ──────────────────────────────────────────
+    // -- No false positives ------------------------------------------
 
     test('unclosed **text does not trigger bold', async ({ page }) => {
         const block = page.locator('[contenteditable="true"]').first();
@@ -108,7 +108,7 @@ test.describe('BlockEditor — Inline Markdown Replacements', () => {
         await expect(em).toHaveCount(0);
     });
 
-    // ── Continuation after formatting ───────────────────────────────
+    // -- Continuation after formatting -------------------------------
 
     test('can continue typing after bold formatting', async ({ page }) => {
         const block = page.locator('[contenteditable="true"]').first();

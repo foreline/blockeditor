@@ -203,7 +203,7 @@ describe('ImageBlock', () => {
       
       expect(mockEvent.preventDefault).toHaveBeenCalled();
       expect(mockEvent.stopPropagation).toHaveBeenCalled();
-      expect(mockElement.classList.add).toHaveBeenCalledWith('drag-over');
+      expect(mockElement.classList.add).toHaveBeenCalledWith('bke-drag-over');
     });
   });
 

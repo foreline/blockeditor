@@ -47,7 +47,7 @@ test.describe('Cross-Block Deletion', () => {
 
       // Programmatically select blocks 2 and 3 entirely
       await page.evaluate(() => {
-        const blocks = document.querySelectorAll('.block');
+        const blocks = document.querySelectorAll('.bke-block');
         const sel = window.getSelection();
         const range = document.createRange();
         range.setStartBefore(blocks[1]);
@@ -59,7 +59,7 @@ test.describe('Cross-Block Deletion', () => {
       await page.keyboard.press('Backspace');
       await page.waitForTimeout(300);
 
-      const blocks = page.locator('.block');
+      const blocks = page.locator('.bke-block');
       await expect(blocks).toHaveCount(1);
       await expect(blocks.first()).toContainText('Block one');
     });
@@ -68,7 +68,7 @@ test.describe('Cross-Block Deletion', () => {
       await createBlocks(page, ['Block one', 'Block two', 'Block three']);
 
       await page.evaluate(() => {
-        const blocks = document.querySelectorAll('.block');
+        const blocks = document.querySelectorAll('.bke-block');
         const sel = window.getSelection();
         const range = document.createRange();
         range.setStartBefore(blocks[1]);
@@ -85,7 +85,7 @@ test.describe('Cross-Block Deletion', () => {
         if (!sel || !sel.rangeCount) return false;
         let node = sel.anchorNode;
         if (node && node.nodeType === Node.TEXT_NODE) node = node.parentElement;
-        return !!node?.closest('.block');
+        return !!node?.closest('.bke-block');
       });
       expect(cursorInBlock).toBe(true);
     });
@@ -100,7 +100,7 @@ test.describe('Cross-Block Deletion', () => {
 
       // Select from offset 3 in block 1 ("BBB") through offset 3 in block 3 ("EEE")
       await page.evaluate(() => {
-        const blocks = document.querySelectorAll('.block');
+        const blocks = document.querySelectorAll('.bke-block');
         const first = blocks[0].firstChild;       // text node "AAABBB"
         const last  = blocks[2].firstChild;        // text node "EEEFFFGGG"
         const sel = window.getSelection();
@@ -115,7 +115,7 @@ test.describe('Cross-Block Deletion', () => {
       await page.waitForTimeout(300);
 
       // Should be exactly one block with merged content "AAAFFFGGG"
-      const blocks = page.locator('.block');
+      const blocks = page.locator('.bke-block');
       await expect(blocks).toHaveCount(1);
 
       const text = await blocks.first().textContent();
@@ -126,7 +126,7 @@ test.describe('Cross-Block Deletion', () => {
       await createBlocks(page, ['AAABBB', 'CCCDDD', 'EEEFFFGGG']);
 
       await page.evaluate(() => {
-        const blocks = document.querySelectorAll('.block');
+        const blocks = document.querySelectorAll('.bke-block');
         const first = blocks[0].firstChild;
         const last  = blocks[2].firstChild;
         const sel = window.getSelection();
@@ -145,7 +145,7 @@ test.describe('Cross-Block Deletion', () => {
         if (!sel || !sel.rangeCount) return false;
         let node = sel.anchorNode;
         if (node && node.nodeType === Node.TEXT_NODE) node = node.parentElement;
-        return !!node?.closest('.block');
+        return !!node?.closest('.bke-block');
       });
       expect(cursorInBlock).toBe(true);
     });
@@ -154,7 +154,7 @@ test.describe('Cross-Block Deletion', () => {
       await createBlocks(page, ['AAABBB', 'CCCDDD', 'EEEFFFGGG']);
 
       await page.evaluate(() => {
-        const blocks = document.querySelectorAll('.block');
+        const blocks = document.querySelectorAll('.bke-block');
         const first = blocks[0].firstChild;
         const last  = blocks[2].firstChild;
         const sel = window.getSelection();
@@ -172,7 +172,7 @@ test.describe('Cross-Block Deletion', () => {
       await page.keyboard.type('XYZ');
       await page.waitForTimeout(200);
 
-      const text = await page.locator('.block').first().textContent();
+      const text = await page.locator('.bke-block').first().textContent();
       expect(text).toBe('AAAXYZFFFGGG');
     });
   });
@@ -184,7 +184,7 @@ test.describe('Cross-Block Deletion', () => {
     await createBlocks(page, ['First', 'Second', 'Third']);
 
     await page.evaluate(() => {
-      const blocks = document.querySelectorAll('.block');
+      const blocks = document.querySelectorAll('.bke-block');
       const sel = window.getSelection();
       const range = document.createRange();
       range.selectNodeContents(blocks[1]);
@@ -196,7 +196,7 @@ test.describe('Cross-Block Deletion', () => {
     await page.keyboard.press('Backspace');
     await page.waitForTimeout(300);
 
-    const blocks = page.locator('.block');
+    const blocks = page.locator('.bke-block');
     const count = await blocks.count();
     // First block survives; second may be empty or removed — at most 2
     expect(count).toBeGreaterThanOrEqual(1);
@@ -208,7 +208,7 @@ test.describe('Cross-Block Deletion', () => {
       if (!sel || !sel.rangeCount) return false;
       let node = sel.anchorNode;
       if (node && node.nodeType === Node.TEXT_NODE) node = node.parentElement;
-      return !!node?.closest('.block');
+      return !!node?.closest('.bke-block');
     });
     expect(cursorInBlock).toBe(true);
   });
@@ -231,7 +231,7 @@ test.describe('Cross-Block Deletion', () => {
     await page.keyboard.press('Backspace');
     await page.waitForTimeout(300);
 
-    const blocks = page.locator('.block');
+    const blocks = page.locator('.bke-block');
     await expect(blocks).toHaveCount(1);
 
     const text = await blocks.first().textContent();
@@ -245,7 +245,7 @@ test.describe('Cross-Block Deletion', () => {
     await createBlocks(page, ['HelloWorld', 'FooBar']);
 
     await page.evaluate(() => {
-      const blocks = document.querySelectorAll('.block');
+      const blocks = document.querySelectorAll('.bke-block');
       const first = blocks[0].firstChild; // "HelloWorld"
       const last  = blocks[1].firstChild; // "FooBar"
       const sel = window.getSelection();
@@ -259,7 +259,7 @@ test.describe('Cross-Block Deletion', () => {
     await page.keyboard.press('Backspace');
     await page.waitForTimeout(300);
 
-    const blocks = page.locator('.block');
+    const blocks = page.locator('.bke-block');
     await expect(blocks).toHaveCount(1);
 
     const text = await blocks.first().textContent();
@@ -273,7 +273,7 @@ test.describe('Cross-Block Deletion', () => {
     await createBlocks(page, ['Alpha', 'Beta', 'Gamma']);
 
     await page.evaluate(() => {
-      const blocks = document.querySelectorAll('.block');
+      const blocks = document.querySelectorAll('.bke-block');
       const sel = window.getSelection();
       const range = document.createRange();
       range.setStartBefore(blocks[1]);
@@ -306,7 +306,7 @@ test.describe('Cross-Block Deletion', () => {
 
     // Delete blocks 2 and 3
     await page.evaluate(() => {
-      const blocks = document.querySelectorAll('.block');
+      const blocks = document.querySelectorAll('.bke-block');
       const sel = window.getSelection();
       const range = document.createRange();
       range.setStartBefore(blocks[1]);
@@ -322,12 +322,12 @@ test.describe('Cross-Block Deletion', () => {
     await page.keyboard.type('NewText');
     await page.waitForTimeout(200);
 
-    const blocks = page.locator('.block');
+    const blocks = page.locator('.bke-block');
     const count = await blocks.count();
     expect(count).toBeGreaterThanOrEqual(1);
 
     const hasNewText = await page.evaluate(() => {
-      const blocks = document.querySelectorAll('.block');
+      const blocks = document.querySelectorAll('.bke-block');
       return Array.from(blocks).some(b => b.textContent.includes('NewText'));
     });
     expect(hasNewText).toBe(true);
@@ -340,7 +340,7 @@ test.describe('Cross-Block Deletion', () => {
     await createBlocks(page, ['One', 'Two', 'Three']);
 
     await page.evaluate(() => {
-      const blocks = document.querySelectorAll('.block');
+      const blocks = document.querySelectorAll('.bke-block');
       const sel = window.getSelection();
       const range = document.createRange();
       range.setStartBefore(blocks[1]);
@@ -355,7 +355,7 @@ test.describe('Cross-Block Deletion', () => {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(300);
 
-    const blocks = page.locator('.block');
+    const blocks = page.locator('.bke-block');
     const count = await blocks.count();
     expect(count).toBeGreaterThanOrEqual(2);
   });

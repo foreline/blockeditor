@@ -146,7 +146,7 @@ export class KeyHandler
         if (!currentBlock || !currentBlock.isConnected) {
             const container = this.editorInstance.instance;
             if (container) {
-                const lastBlock = container.querySelector('.block:last-child');
+                const lastBlock = container.querySelector('.bke-block:last-child');
                 if (lastBlock) {
                     this.editorInstance.setCurrentBlock(lastBlock);
                     currentBlock = lastBlock;
@@ -279,7 +279,7 @@ export class KeyHandler
             ? currentBlock.previousElementSibling
             : currentBlock.nextElementSibling;
 
-        if (!sibling || !sibling.classList.contains('block')) return;
+        if (!sibling || !sibling.classList.contains('bke-block')) return;
 
         e.preventDefault();
 
@@ -398,13 +398,13 @@ export class KeyHandler
             const previousBlock = currentBlock.previousElementSibling;
             
             // Don't remove the last remaining block
-            const allBlocks = this.editorInstance.instance.querySelectorAll('.block');
+            const allBlocks = this.editorInstance.instance.querySelectorAll('.bke-block');
             if (allBlocks.length <= 1) {
                 return;
             }
             
             // Remove the empty block and focus on previous block
-            if (previousBlock && previousBlock.classList.contains('block')) {
+            if (previousBlock && previousBlock.classList.contains('bke-block')) {
                 this.editorInstance.setCurrentBlock(previousBlock);
                 currentBlock.remove();
                 this.editorInstance.focus(previousBlock);
@@ -414,7 +414,7 @@ export class KeyHandler
             } else {
                 // If no previous block, focus on next block (if exists)
                 const nextBlock = currentBlock.nextElementSibling;
-                if (nextBlock && nextBlock.classList.contains('block')) {
+                if (nextBlock && nextBlock.classList.contains('bke-block')) {
                     this.editorInstance.setCurrentBlock(nextBlock);
                     currentBlock.remove();
                     this.editorInstance.focus(nextBlock);
@@ -459,13 +459,13 @@ export class KeyHandler
             const nextBlock = currentBlock.nextElementSibling;
             
             // Don't remove the last remaining block
-            const allBlocks = this.editorInstance.instance.querySelectorAll('.block');
+            const allBlocks = this.editorInstance.instance.querySelectorAll('.bke-block');
             if (allBlocks.length <= 1) {
                 return;
             }
             
             // Remove the empty block and focus on next block
-            if (nextBlock && nextBlock.classList.contains('block')) {
+            if (nextBlock && nextBlock.classList.contains('bke-block')) {
                 this.editorInstance.setCurrentBlock(nextBlock);
                 currentBlock.remove();
                 this.editorInstance.focus(nextBlock);
@@ -475,7 +475,7 @@ export class KeyHandler
             } else {
                 // If no next block, focus on previous block (if exists)
                 const previousBlock = currentBlock.previousElementSibling;
-                if (previousBlock && previousBlock.classList.contains('block')) {
+                if (previousBlock && previousBlock.classList.contains('bke-block')) {
                     this.editorInstance.setCurrentBlock(previousBlock);
                     currentBlock.remove();
                     this.editorInstance.focus(previousBlock);

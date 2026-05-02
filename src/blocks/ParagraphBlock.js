@@ -55,7 +55,7 @@ export class ParagraphBlock extends BaseBlock
 
         // Update block attributes
         targetElement.setAttribute('data-block-type', 'p');
-        targetElement.className = 'block block-p';
+        targetElement.className = 'bke-block bke-block--p';
         targetElement.setAttribute('contenteditable', 'true');
         targetElement.setAttribute('data-placeholder', '');
 
@@ -85,7 +85,7 @@ export class ParagraphBlock extends BaseBlock
      */
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-paragraph',
+            class: 'bke-toolbar-paragraph',
             label: 'Paragraph',
             group: 'headers'
         };
@@ -128,8 +128,8 @@ export class ParagraphBlock extends BaseBlock
      */
     renderToElement() {
         let element = document.createElement('div');
-        element.classList.add('block');
-        element.classList.add('block-p');
+        element.classList.add('bke-block');
+        element.classList.add('bke-block--p');
         element.setAttribute('data-block-type', this._type);
         element.setAttribute('data-placeholder', '');
         element.innerHTML = this._html || this._content || '';

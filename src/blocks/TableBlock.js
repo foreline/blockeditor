@@ -366,7 +366,7 @@ export class TableBlock extends BaseBlock
         
         // Create main container for all controls
         const controlsContainer = document.createElement('div');
-        controlsContainer.className = 'table-controls-container';
+        controlsContainer.className = 'bke-table-controls-container';
         controlsContainer.style.cssText = `
             position: absolute;
             top: 0;
@@ -379,7 +379,7 @@ export class TableBlock extends BaseBlock
         
         // Create top-left corner control (add column/row controls)
         const topLeftControl = document.createElement('div');
-        topLeftControl.className = 'table-control-topleft';
+        topLeftControl.className = 'bke-table-control-topleft';
         topLeftControl.style.cssText = `
             position: absolute;
             top: -35px;
@@ -401,7 +401,7 @@ export class TableBlock extends BaseBlock
         
         // Create right edge control (add column)
         const rightControl = document.createElement('div');
-        rightControl.className = 'table-control-right';
+        rightControl.className = 'bke-table-control-right';
         rightControl.style.cssText = `
             position: absolute;
             top: 50%;
@@ -425,7 +425,7 @@ export class TableBlock extends BaseBlock
         
         // Create bottom edge control (add row)
         const bottomControl = document.createElement('div');
-        bottomControl.className = 'table-control-bottom';
+        bottomControl.className = 'bke-table-control-bottom';
         bottomControl.style.cssText = `
             position: absolute;
             bottom: -20px;
@@ -506,7 +506,7 @@ export class TableBlock extends BaseBlock
         this.hideTableMenu();
         
         const menu = document.createElement('div');
-        menu.className = 'table-menu';
+        menu.className = 'bke-table-menu';
         menu.style.cssText = `
             position: absolute;
             top: 35px;
@@ -565,7 +565,7 @@ export class TableBlock extends BaseBlock
                 menu.appendChild(divider);
             } else {
                 const menuItem = document.createElement('div');
-                menuItem.className = 'table-menu-item';
+                menuItem.className = 'bke-table-menu-item';
                 menuItem.textContent = item.label;
                 menuItem.style.cssText = `
                     padding: 8px 12px;
@@ -636,7 +636,7 @@ export class TableBlock extends BaseBlock
         this.hideTableMenu();
         
         // Also remove any orphaned control containers
-        document.querySelectorAll('.table-controls-container').forEach(container => {
+        document.querySelectorAll('.bke-table-controls-container').forEach(container => {
             container.remove();
         });
     }
@@ -839,7 +839,7 @@ export class TableBlock extends BaseBlock
             
             // Replace with empty paragraph block
             currentBlock.setAttribute('data-block-type', 'paragraph');
-            currentBlock.className = 'block block-p';
+            currentBlock.className = 'bke-block bke-block--p';
             currentBlock.innerHTML = '<p><br></p>';
             currentBlock.contentEditable = true;
             
@@ -921,7 +921,7 @@ export class TableBlock extends BaseBlock
      * @returns {Array<string>} - Array of disabled button classes
      */
     static getDisabledButtons() {
-        return ['editor-toolbar-bold', 'editor-toolbar-italic', 'editor-toolbar-ul', 'editor-toolbar-ol'];
+        return ['bke-toolbar-bold', 'bke-toolbar-italic', 'bke-toolbar-ul', 'bke-toolbar-ol'];
     }
 
     /**
@@ -962,7 +962,7 @@ export class TableBlock extends BaseBlock
      */
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-table',
+            class: 'bke-toolbar-table',
             icon: 'fa-table',
             title: 'Table',
             group: 'blocks'
@@ -975,8 +975,8 @@ export class TableBlock extends BaseBlock
      */
     renderToElement() {
         let element = document.createElement('div');
-        element.classList.add('block');
-        element.classList.add('block-table');
+        element.classList.add('bke-block');
+        element.classList.add('bke-block--table');
         element.setAttribute('data-block-type', 'table');
         element.setAttribute('data-placeholder', 'Table');
         element.contentEditable = false; // Tables manage their own editing

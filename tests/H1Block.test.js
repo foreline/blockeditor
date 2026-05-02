@@ -56,7 +56,7 @@ describe('H1Block', () => {
     test('getToolbarConfig returns correct configuration', () => {
       const config = H1Block.getToolbarConfig();
       expect(config).toEqual({
-        class: 'editor-toolbar-header1',
+        class: 'bke-toolbar-header1',
         label: 'Heading 1',
         group: 'headers'
       });

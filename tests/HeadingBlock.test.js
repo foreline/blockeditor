@@ -118,7 +118,7 @@ describe('HeadingBlock', () => {
       
       // Verify the block was transformed correctly
       expect(mockCurrentBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'h1');
-      expect(mockCurrentBlock.className).toBe('block block-h1');
+      expect(mockCurrentBlock.className).toBe('bke-block bke-block--h1');
       expect(document.createElement).toHaveBeenCalledWith('h1');
     });
 
@@ -141,7 +141,7 @@ describe('HeadingBlock', () => {
       h2Block.applyTransformation();
       
       expect(mockCurrentBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'h2');
-      expect(mockCurrentBlock.className).toBe('block block-h2');
+      expect(mockCurrentBlock.className).toBe('bke-block bke-block--h2');
       expect(document.createElement).toHaveBeenCalledWith('h2');
     });
 
@@ -164,7 +164,7 @@ describe('HeadingBlock', () => {
       h3Block.applyTransformation();
       
       expect(mockCurrentBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'h3');
-      expect(mockCurrentBlock.className).toBe('block block-h3');
+      expect(mockCurrentBlock.className).toBe('bke-block bke-block--h3');
       expect(document.createElement).toHaveBeenCalledWith('h3');
     });
 

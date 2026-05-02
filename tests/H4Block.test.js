@@ -56,7 +56,7 @@ describe('H4Block', () => {
     test('getToolbarConfig returns correct configuration', () => {
       const config = H4Block.getToolbarConfig();
       expect(config).toEqual({
-        class: 'editor-toolbar-header4',
+        class: 'bke-toolbar-header4',
         label: 'Heading 4',
         group: 'headers'
       });

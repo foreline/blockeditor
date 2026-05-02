@@ -129,19 +129,19 @@ export class Editor
         const defaultToolbarConfig = [
             {
                 group: [
-                    { class: 'editor-toolbar-undo', icon: 'fa-undo', title: 'undo' },
-                    { class: 'editor-toolbar-redo', icon: 'fa-redo', title: 'redo' }
+                    { class: 'bke-toolbar-undo', icon: 'fa-undo', title: 'undo' },
+                    { class: 'bke-toolbar-redo', icon: 'fa-redo', title: 'redo' }
                 ]
             },
             {
                 group: [
-                    { class: 'editor-toolbar-header1', label: 'Header 1' },
-                    { class: 'editor-toolbar-header2', label: 'Header 2' },
-                    { class: 'editor-toolbar-header3', label: 'Header 3' },
-                    { class: 'editor-toolbar-header4', label: 'Header 4' },
-                    { class: 'editor-toolbar-header5', label: 'Header 5' },
-                    { class: 'editor-toolbar-header6', label: 'Header 6' },
-                    { class: 'editor-toolbar-paragraph', label: 'Paragraph' }
+                    { class: 'bke-toolbar-header1', label: 'Header 1' },
+                    { class: 'bke-toolbar-header2', label: 'Header 2' },
+                    { class: 'bke-toolbar-header3', label: 'Header 3' },
+                    { class: 'bke-toolbar-header4', label: 'Header 4' },
+                    { class: 'bke-toolbar-header5', label: 'Header 5' },
+                    { class: 'bke-toolbar-header6', label: 'Header 6' },
+                    { class: 'bke-toolbar-paragraph', label: 'Paragraph' }
                 ],
                 dropdown: true,
                 icon: 'fa-heading',
@@ -149,35 +149,35 @@ export class Editor
             },
             {
                 group: [
-                    { class: 'editor-toolbar-bold', icon: 'fa-bold', title: 'bold' },
-                    { class: 'editor-toolbar-italic', icon: 'fa-italic', title: 'italic' },
-                    { class: 'editor-toolbar-underline', icon: 'fa-underline', title: 'underline' },
-                    { class: 'editor-toolbar-strikethrough', icon: 'fa-strikethrough', title: 'strikethrough' }
+                    { class: 'bke-toolbar-bold', icon: 'fa-bold', title: 'bold' },
+                    { class: 'bke-toolbar-italic', icon: 'fa-italic', title: 'italic' },
+                    { class: 'bke-toolbar-underline', icon: 'fa-underline', title: 'underline' },
+                    { class: 'bke-toolbar-strikethrough', icon: 'fa-strikethrough', title: 'strikethrough' }
                 ]
             },
             {
                 group: [
-                    { class: 'editor-toolbar-ul', icon: 'fa-list', title: 'unordered list' },
-                    { class: 'editor-toolbar-ol', icon: 'fa-list-ol', title: 'ordered list' },
-                    { class: 'editor-toolbar-sq', icon: 'fa-list-check', title: 'task list' }
+                    { class: 'bke-toolbar-ul', icon: 'fa-list', title: 'unordered list' },
+                    { class: 'bke-toolbar-ol', icon: 'fa-list-ol', title: 'ordered list' },
+                    { class: 'bke-toolbar-sq', icon: 'fa-list-check', title: 'task list' }
                 ]
             },
             {
                 group: [
-                    { class: 'editor-toolbar-table', icon: 'fa-table', title: 'insert table' },
-                    { class: 'editor-toolbar-image', icon: 'fa-image', title: 'insert image' }
+                    { class: 'bke-toolbar-table', icon: 'fa-table', title: 'insert table' },
+                    { class: 'bke-toolbar-image', icon: 'fa-image', title: 'insert image' }
                 ]
             },
             {
                 group: [
-                    { class: 'editor-toolbar-code', icon: 'fa-code', title: 'code block' }
+                    { class: 'bke-toolbar-code', icon: 'fa-code', title: 'code block' }
                 ]
             },
             {
                 group: [
-                    { class: 'editor-toolbar-text', icon: 'fa-paragraph', title: 'text view', disabled: true },
-                    { class: 'editor-toolbar-markdown', icon: 'fa-brands fa-markdown', title: 'markdown view' },
-                    { class: 'editor-toolbar-html', icon: 'fa-brands fa-html5', title: 'html view' }
+                    { class: 'bke-toolbar-text', icon: 'fa-paragraph', title: 'text view', disabled: true },
+                    { class: 'bke-toolbar-markdown', icon: 'fa-brands fa-markdown', title: 'markdown view' },
+                    { class: 'bke-toolbar-html', icon: 'fa-brands fa-html5', title: 'html view' }
                 ]
             }
         ];
@@ -211,7 +211,7 @@ export class Editor
 
         const editorContainer = document.createElement('div');
         editorContainer.id = 'editor';
-        editorContainer.className = 'editor';
+        editorContainer.className = 'bke-editor';
 
         if ( options.container ) {
             if ( Array.isArray(options.container) ) {
@@ -267,7 +267,7 @@ export class Editor
             this._blockMap.set(html, typedBlock);
         }
         
-        this.setCurrentBlock(this.instance.querySelectorAll('.block')[0]);
+        this.setCurrentBlock(this.instance.querySelectorAll('.bke-block')[0]);
     
         this.keyHandler = new KeyHandler(this);
         this._inlineMarkdownHandler = new InlineMarkdownHandler(this);
@@ -432,7 +432,7 @@ export class Editor
         
         // Remove debug mode class
         if (this.instance) {
-            this.instance.classList.remove('debug-mode');
+            this.instance.classList.remove('bke-debug-mode');
         }
         
         // Cleanup event emitter
@@ -490,7 +490,7 @@ export class Editor
             const range = selection.getRangeAt(0);
             if (range.collapsed) return; // Single-point deletion — let the browser handle it
 
-            const allBlocks = this.instance.querySelectorAll('.block');
+            const allBlocks = this.instance.querySelectorAll('.bke-block');
             if (allBlocks.length === 0) return;
 
             // Collect the blocks that are touched by the selection
@@ -555,14 +555,14 @@ export class Editor
             // --- 6. Clean up: if firstBlock is empty but other blocks exist,
             //        remove it and focus the nearest neighbor instead. ----------
             const firstBlockContent = (firstBlock.textContent || '').trim();
-            let remainingBlocks = this.instance.querySelectorAll('.block');
+            let remainingBlocks = this.instance.querySelectorAll('.bke-block');
 
             if (!firstBlockContent && remainingBlocks.length > 1 && firstBlock.isConnected) {
                 const neighbor = firstBlock.previousElementSibling
                     || firstBlock.nextElementSibling;
                 firstBlock.remove();
-                remainingBlocks = this.instance.querySelectorAll('.block');
-                if (neighbor && neighbor.isConnected && neighbor.classList.contains('block')) {
+                remainingBlocks = this.instance.querySelectorAll('.bke-block');
+                if (neighbor && neighbor.isConnected && neighbor.classList.contains('bke-block')) {
                     this.setCurrentBlock(neighbor);
                     this.focus(neighbor);
                 } else if (remainingBlocks.length > 0) {
@@ -572,7 +572,7 @@ export class Editor
             }
 
             // --- 7. Ensure at least one block always exists -------------------
-            remainingBlocks = this.instance.querySelectorAll('.block');
+            remainingBlocks = this.instance.querySelectorAll('.bke-block');
             if (remainingBlocks.length === 0) {
                 this.currentBlock = null;
                 this.addDefaultBlock();
@@ -604,7 +604,7 @@ export class Editor
             // Find the block where the input occurred.
             // NOTE: e.target for input events in a contenteditable container is the
             // editing host (the editor container itself), NOT the child block element.
-            // Therefore e.target.closest('.block') would always return null.
+            // Therefore e.target.closest('.bke-block') would always return null.
             // Instead, use the current selection to determine which block received input.
             let block = null;
             const selection = window.getSelection();
@@ -615,10 +615,10 @@ export class Editor
                     anchorNode = anchorNode.parentElement;
                 }
                 if (anchorNode) {
-                    block = anchorNode.closest('.block');
+                    block = anchorNode.closest('.bke-block');
                     // If no block is found but the anchor is a list item, look for the parent list block
                     if (!block && anchorNode.tagName === 'LI') {
-                        block = anchorNode.closest('ul, ol, div')?.closest('.block') || null;
+                        block = anchorNode.closest('ul, ol, div')?.closest('.bke-block') || null;
                     }
                 }
             }
@@ -630,7 +630,7 @@ export class Editor
             // Check if editor is effectively empty after content deletion
             // Skip this check if a state transition (creating/converting) is in progress
             if (!this._stateMachine.isBusy()) {
-                const allBlocks = this.instance.querySelectorAll('.block');
+                const allBlocks = this.instance.querySelectorAll('.bke-block');
                 
                 // Only trigger empty editor protection if:
                 // 1. There are no blocks at all, OR
@@ -700,11 +700,11 @@ export class Editor
                 return;
             }
 
-            let block = e.target.closest('.block');
+            let block = e.target.closest('.bke-block');
             
             // If no block is found but the target is a list item, look for the parent list block
             if (!block && e.target.tagName === 'LI') {
-                block = e.target.closest('ul, ol, div').closest('.block');
+                block = e.target.closest('ul, ol, div').closest('.bke-block');
             }
             
             if ( block ) {
@@ -725,11 +725,11 @@ export class Editor
                 return;
             }
 
-            let block = e.target.closest('.block');
+            let block = e.target.closest('.bke-block');
             
             // If no block is found but the target is a list item, look for the parent list block
             if (!block && e.target.tagName === 'LI') {
-                block = e.target.closest('ul, ol, div').closest('.block');
+                block = e.target.closest('ul, ol, div').closest('.bke-block');
             }
             
             if ( block ) {
@@ -746,7 +746,7 @@ export class Editor
                         anchor = anchor.parentElement;
                     }
                     if (anchor) {
-                        const blockFromSel = anchor.closest('.block');
+                        const blockFromSel = anchor.closest('.bke-block');
                         if (blockFromSel) {
                             this.setCurrentBlock(blockFromSel);
                             return;
@@ -754,7 +754,7 @@ export class Editor
                     }
                 }
                 // Last resort: pick the first block
-                const firstBlock = this.instance.querySelector('.block');
+                const firstBlock = this.instance.querySelector('.bke-block');
                 if ( firstBlock ) {
                     this.setCurrentBlock(firstBlock);
                 }
@@ -789,7 +789,7 @@ export class Editor
             
             // Fallback mechanism: focus on editor instance or first available block
             // Use instance method instead of static to avoid recursion
-            const firstBlock = this.instance.querySelector('.block');
+            const firstBlock = this.instance.querySelector('.bke-block');
             if ( firstBlock && firstBlock.isConnected ) {
                 // Set current block and try to focus again, but prevent infinite recursion
                 this.setCurrentBlock(firstBlock);
@@ -1180,7 +1180,7 @@ export class Editor
         // Only enforce when there are no blocks, or when there's exactly one empty block.
         // Do NOT collapse multiple empty blocks, as users may intentionally create them.
         // Also skip enforcement while a state transition is in progress to avoid racing with transformations.
-        const blocks = this.instance.querySelectorAll('.block');
+        const blocks = this.instance.querySelectorAll('.bke-block');
         if (!this._stateMachine.isBusy()) {
             if (blocks.length === 0) {
                 this.ensureDefaultBlock();
@@ -1198,7 +1198,7 @@ export class Editor
         this.eventEmitter.emit(EVENTS.EDITOR_UPDATED, {
             html: editorHtml,
             markdown: markdownContent,
-            blockCount: this.instance.querySelectorAll('.block').length
+            blockCount: this.instance.querySelectorAll('.bke-block').length
         });
         
         // Emit debounced content change event for backend synchronization
@@ -1222,7 +1222,7 @@ export class Editor
     {
         log('updateBlockTimestamps()', 'Editor.');
 
-        const blocks = this.instance.querySelectorAll('.block');
+        const blocks = this.instance.querySelectorAll('.bke-block');
         const currentTimestamp = Date.now();
         
         blocks.forEach(block => {
@@ -1297,7 +1297,7 @@ export class Editor
         log('ensureDefaultBlock()', 'Editor.');
         
         // Get all current blocks
-        const allBlocks = this.instance.querySelectorAll('.block');
+        const allBlocks = this.instance.querySelectorAll('.bke-block');
         
         // Decide if we need a default block
         let needsDefault = false;
@@ -1464,7 +1464,7 @@ export class Editor
         this.eventEmitter.emit(EVENTS.BLOCK_CREATED, {
             blockId: blockId,
             blockType: BlockType.PARAGRAPH,
-            position: Array.from(this.instance.querySelectorAll('.block')).indexOf(htmlBlock),
+            position: Array.from(this.instance.querySelectorAll('.bke-block')).indexOf(htmlBlock),
             timestamp: Date.now()
         }, { source: 'editor.create' });
     
@@ -1518,7 +1518,7 @@ export class Editor
         this.eventEmitter.emit(EVENTS.BLOCK_CREATED, {
             blockId: blockId,
             blockType: BlockType.PARAGRAPH,
-            position: Array.from(this.instance.querySelectorAll('.block')).indexOf(htmlBlock),
+            position: Array.from(this.instance.querySelectorAll('.bke-block')).indexOf(htmlBlock),
             timestamp: Date.now()
         }, { source: 'editor.create' });
 
@@ -1577,12 +1577,12 @@ export class Editor
     {
         log('enableAllToolbarButtons()', 'Editor.');
 
-        const toolbarButtons = document.querySelectorAll('.editor-toolbar button');
+        const toolbarButtons = document.querySelectorAll('.bke-toolbar button');
         toolbarButtons.forEach(button => {
             // Don't re-enable view buttons that are currently disabled for good reason
-            const isViewButton = button.classList.contains('editor-toolbar-text') || 
-                               button.classList.contains('editor-toolbar-markdown') || 
-                               button.classList.contains('editor-toolbar-html');
+            const isViewButton = button.classList.contains('bke-toolbar-text') || 
+                               button.classList.contains('bke-toolbar-markdown') || 
+                               button.classList.contains('bke-toolbar-html');
             
             // Enable all non-view buttons, but preserve view button states
             if (!isViewButton) {
@@ -1649,11 +1649,11 @@ export class Editor
         const previousBlock = this.currentBlock;
         
         if (this.currentBlock) {
-            this.currentBlock.classList.remove('active-block');
+            this.currentBlock.classList.remove('bke-block--active');
         }
         
         this.currentBlock = block;
-        this.currentBlock.classList.add('active-block');
+        this.currentBlock.classList.add('bke-block--active');
         
         // Update toolbar button states based on current block
         this.updateToolbarButtonStates();
@@ -1683,7 +1683,7 @@ export class Editor
         try {
             const markdownContainer = document.createElement('textarea');
             markdownContainer.id = 'editor-markdown';
-            markdownContainer.className = 'editor-text-md visually-hidden';
+            markdownContainer.className = 'bke-text-md visually-hidden';
             markdownContainer.style.width = '100%';
             markdownContainer.style.minHeight = '300px';
 
@@ -1713,7 +1713,7 @@ export class Editor
         try {
             const htmlContainer = document.createElement('div');
             htmlContainer.id = 'editor-html';
-            htmlContainer.className = 'editor-text-html visually-hidden';
+            htmlContainer.className = 'bke-text-html visually-hidden';
             htmlContainer.style.width = '100%';
             htmlContainer.style.minHeight = '300px';
 
@@ -1742,7 +1742,7 @@ export class Editor
         log('getMarkdown()', 'Editor.');
         
         try {
-            const blockElements = this.instance.querySelectorAll('.block');
+            const blockElements = this.instance.querySelectorAll('.bke-block');
             if (blockElements.length === 0) return '';
 
             const markdownParts = [];
@@ -1851,7 +1851,7 @@ export class Editor
         log('getHtml()', 'Editor.');
         
         try {
-            const blockElements = this.instance.querySelectorAll('.block');
+            const blockElements = this.instance.querySelectorAll('.bke-block');
             if (blockElements.length === 0) return '';
 
             const htmlParts = [];
@@ -2390,7 +2390,7 @@ export class Editor
                 blockId: blockId,
                 blockType: blockType,
                 options: options,
-                position: Array.from(this.instance.querySelectorAll('.block')).indexOf(htmlBlock),
+                position: Array.from(this.instance.querySelectorAll('.bke-block')).indexOf(htmlBlock),
                 timestamp: Date.now()
             }, { source: 'editor.create' });
             

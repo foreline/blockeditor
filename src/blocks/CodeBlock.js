@@ -52,11 +52,11 @@ export class CodeBlock extends BaseBlock
      */
     static getDisabledButtons() {
         return [
-            'editor-toolbar-bold',
-            'editor-toolbar-italic',
-            'editor-toolbar-underline',
-            'editor-toolbar-strikethrough',
-            'editor-toolbar-inline',
+            'bke-toolbar-bold',
+            'bke-toolbar-italic',
+            'bke-toolbar-underline',
+            'bke-toolbar-strikethrough',
+            'bke-toolbar-inline',
         ];
     }
 
@@ -114,7 +114,7 @@ export class CodeBlock extends BaseBlock
 
         const existingContent = '';
         blockElement.setAttribute('data-block-type', 'p');
-        blockElement.className = 'block block-p';
+        blockElement.className = 'bke-block bke-block--p';
         blockElement.setAttribute('contenteditable', 'true');
         blockElement.setAttribute('data-placeholder', '');
         blockElement.innerHTML = existingContent;
@@ -148,7 +148,7 @@ export class CodeBlock extends BaseBlock
         
         // Update block attributes
         targetElement.setAttribute('data-block-type', 'code');
-        targetElement.className = 'block block-code';
+        targetElement.className = 'bke-block bke-block--code';
         targetElement.setAttribute('contenteditable', 'false');
         
         // Get existing content — strip markdown triggers that may still be present
@@ -258,8 +258,8 @@ export class CodeBlock extends BaseBlock
      */
     renderToElement() {
         let element = document.createElement('div');
-        element.classList.add('block');
-        element.classList.add('block-code');
+        element.classList.add('bke-block');
+        element.classList.add('bke-block--code');
         element.setAttribute('data-block-type', this._type);
         element.setAttribute('data-placeholder', '');
         
@@ -295,7 +295,7 @@ export class CodeBlock extends BaseBlock
      */
     createLanguageSelector() {
         const container = document.createElement('div');
-        container.classList.add('language-selector');
+        container.classList.add('bke-language-selector');
         
         const select = document.createElement('select');
         select.setAttribute('title', 'Select programming language');

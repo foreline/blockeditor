@@ -55,7 +55,7 @@ describe('Empty Block Persistence Fix', () => {
     });
 
     test('should create and persist empty blocks without removal', async () => {
-        const initialBlockCount = editor.instance.querySelectorAll('.block').length;
+        const initialBlockCount = editor.instance.querySelectorAll('.bke-block').length;
         
         // Add a new empty block
         const newBlock = editor.addDefaultBlock();
@@ -67,17 +67,17 @@ describe('Empty Block Persistence Fix', () => {
         await new Promise(resolve => setTimeout(resolve, 200));
         
         // Check that the block persists
-        const finalBlockCount = editor.instance.querySelectorAll('.block').length;
+        const finalBlockCount = editor.instance.querySelectorAll('.bke-block').length;
         expect(finalBlockCount).toBe(initialBlockCount + 1);
         
         // The new block should be empty but still exist
-        const lastBlock = editor.instance.querySelectorAll('.block')[finalBlockCount - 1];
+        const lastBlock = editor.instance.querySelectorAll('.bke-block')[finalBlockCount - 1];
         expect(lastBlock.textContent.trim()).toBe('');
         expect(lastBlock.isConnected).toBe(true);
     });
 
     test('should create multiple empty blocks and persist them all', async () => {
-        const initialBlockCount = editor.instance.querySelectorAll('.block').length;
+        const initialBlockCount = editor.instance.querySelectorAll('.bke-block').length;
         
         // Add multiple empty blocks
         const block1 = editor.addDefaultBlock();
@@ -93,11 +93,11 @@ describe('Empty Block Persistence Fix', () => {
         await new Promise(resolve => setTimeout(resolve, 200));
         
         // All blocks should persist
-        const finalBlockCount = editor.instance.querySelectorAll('.block').length;
+        const finalBlockCount = editor.instance.querySelectorAll('.bke-block').length;
         expect(finalBlockCount).toBe(initialBlockCount + 3);
         
         // All three new blocks should exist and be empty
-        const allBlocks = editor.instance.querySelectorAll('.block');
+        const allBlocks = editor.instance.querySelectorAll('.bke-block');
         const lastThreeBlocks = Array.from(allBlocks).slice(-3);
         
         lastThreeBlocks.forEach((block, index) => {
@@ -119,19 +119,19 @@ describe('Empty Block Persistence Fix', () => {
         await new Promise(resolve => setTimeout(resolve, 100));
         
         // Editor should have created at least one default block
-        const blocks = editor.instance.querySelectorAll('.block');
+        const blocks = editor.instance.querySelectorAll('.bke-block');
         expect(blocks.length).toBeGreaterThan(0);
     });
 
     test('should allow Enter key to create new empty blocks that persist', async () => {
         // Ensure we have at least one block
-        if (editor.instance.querySelectorAll('.block').length === 0) {
+        if (editor.instance.querySelectorAll('.bke-block').length === 0) {
             editor.addDefaultBlock();
             await new Promise(resolve => setTimeout(resolve, 100));
         }
 
-        const initialBlockCount = editor.instance.querySelectorAll('.block').length;
-        const blocks = editor.instance.querySelectorAll('.block');
+        const initialBlockCount = editor.instance.querySelectorAll('.bke-block').length;
+        const blocks = editor.instance.querySelectorAll('.bke-block');
         const lastBlock = blocks[blocks.length - 1];
         
         // Focus on the last block and make it empty
@@ -153,14 +153,14 @@ describe('Empty Block Persistence Fix', () => {
         await new Promise(resolve => setTimeout(resolve, 300));
         
         // Should have created a new block
-        const finalBlockCount = editor.instance.querySelectorAll('.block').length;
+        const finalBlockCount = editor.instance.querySelectorAll('.bke-block').length;
         expect(finalBlockCount).toBe(initialBlockCount + 1);
         
         // Wait a bit more to ensure blocks persist
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Blocks should still be there
-        const persistentBlockCount = editor.instance.querySelectorAll('.block').length;
+        const persistentBlockCount = editor.instance.querySelectorAll('.bke-block').length;
         expect(persistentBlockCount).toBe(finalBlockCount);
     });
 });

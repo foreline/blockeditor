@@ -17,7 +17,7 @@ export class H2Block extends HeadingBlock
 
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-header2',
+            class: 'bke-toolbar-header2',
             label: 'Heading 2',
             group: 'headers'
         };

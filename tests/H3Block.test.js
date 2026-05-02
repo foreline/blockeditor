@@ -56,7 +56,7 @@ describe('H3Block', () => {
     test('getToolbarConfig returns correct configuration', () => {
       const config = H3Block.getToolbarConfig();
       expect(config).toEqual({
-        class: 'editor-toolbar-header3',
+        class: 'bke-toolbar-header3',
         label: 'Heading 3',
         group: 'headers'
       });

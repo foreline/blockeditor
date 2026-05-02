@@ -51,7 +51,7 @@ export class OrderedListBlock extends ListBlock
 
         // Update attributes/classes
         targetElement.setAttribute('data-block-type', 'ol');
-        targetElement.className = 'block block-ol';
+        targetElement.className = 'bke-block bke-block--ol';
         targetElement.setAttribute('contenteditable', 'false');
 
         // Existing text after trigger removal
@@ -138,7 +138,7 @@ export class OrderedListBlock extends ListBlock
      */
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-ol',
+            class: 'bke-toolbar-ol',
             icon: 'fa-list-ol',
             title: 'Numbered List',
             group: 'lists'
@@ -182,8 +182,8 @@ export class OrderedListBlock extends ListBlock
     renderToElement() {
         // Create div wrapper for the block
         let element = document.createElement('div');
-        element.classList.add('block');
-        element.classList.add('block-ol');
+        element.classList.add('bke-block');
+        element.classList.add('bke-block--ol');
         element.setAttribute('data-block-type', 'ol');
         element.setAttribute('data-placeholder', 'List item');
         

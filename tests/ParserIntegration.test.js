@@ -143,7 +143,7 @@ console.log('Hello World');
       // HeadingBlock might render as a div with heading content
       expect(htmlElements[0].tagName.toLowerCase()).toMatch(/^(h1|div)$/);
       expect(htmlElements[1].tagName.toLowerCase()).toBe('div');
-      expect(htmlElements[1].classList.contains('block') || htmlElements[1].classList.contains('block-paragraph')).toBe(true);
+      expect(htmlElements[1].classList.contains('bke-block') || htmlElements[1].classList.contains('bke-block--paragraph')).toBe(true);
     });
 
     test('should maintain content fidelity through parse-render cycle', () => {

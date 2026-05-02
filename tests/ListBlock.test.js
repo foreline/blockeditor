@@ -129,7 +129,7 @@ describe('ListBlock', () => {
             listBlock.applyTransformation();
 
             expect(document.createElement).toHaveBeenCalledWith('ul');
-            expect(mockListElement.classList.add).toHaveBeenCalledWith('block');
+            expect(mockListElement.classList.add).toHaveBeenCalledWith('bke-block');
             expect(mockListElement.setAttribute).toHaveBeenCalledWith('data-block-type', 'ul');
             expect(mockCurrentBlock.parentNode.replaceChild).toHaveBeenCalledWith(mockListElement, mockCurrentBlock);
         });
@@ -332,13 +332,13 @@ describe('ListBlock', () => {
                     icon: 'fa-list-ul', 
                     title: 'Unordered List', 
                     action: 'ul',
-                    class: 'editor-toolbar-ul'
+                    class: 'bke-toolbar-ul'
                 },
                 { 
                     icon: 'fa-list-ol', 
                     title: 'Ordered List', 
                     action: 'ol',
-                    class: 'editor-toolbar-ol'
+                    class: 'bke-toolbar-ol'
                 }
             ]);
         });
@@ -348,12 +348,12 @@ describe('ListBlock', () => {
         it('should return buttons that should be disabled for lists', () => {
             const disabledButtons = ListBlock.getDisabledButtons();
 
-            expect(disabledButtons).toContain('editor-toolbar-h1');
-            expect(disabledButtons).toContain('editor-toolbar-h2');
-            expect(disabledButtons).toContain('editor-toolbar-h3');
-            expect(disabledButtons).toContain('editor-toolbar-h4');
-            expect(disabledButtons).toContain('editor-toolbar-h5');
-            expect(disabledButtons).toContain('editor-toolbar-h6');
+            expect(disabledButtons).toContain('bke-toolbar-h1');
+            expect(disabledButtons).toContain('bke-toolbar-h2');
+            expect(disabledButtons).toContain('bke-toolbar-h3');
+            expect(disabledButtons).toContain('bke-toolbar-h4');
+            expect(disabledButtons).toContain('bke-toolbar-h5');
+            expect(disabledButtons).toContain('bke-toolbar-h6');
         });
     });
 

@@ -212,8 +212,8 @@ export class Parser
             .replace(/<p><code>(.*?)<\/code><\/p>/g, '<code>$1</code>')
             .replace(/<task-item data-checked="(true|false)">(.*?)<\/task-item>/g, (match, checked, text) => {
                 const checkedAttr = checked === 'true' ? ' checked' : '';
-                const completedClass = checked === 'true' ? ' task-completed' : '';
-                return `<li class="task-list-item${completedClass}" data-block-type="sq"><input type="checkbox"${checkedAttr}> ${text}</li>`;
+                const completedClass = checked === 'true' ? ' bke-task-completed' : '';
+                return `<li class="bke-task-list-item${completedClass}" data-block-type="sq"><input type="checkbox"${checkedAttr}> ${text}</li>`;
             })
             .replace(/(<\/(?:h[1-6]|div|del|p|ol|ul|blockquote|pre|code)>)\s*(<(?:h[1-6]|div|del|p|ol|ul|blockquote|pre|code))/g, '$1\n$2')
             .replace(/<h[1-6]\s+id="[^"]+"/g, match => match.replace(/\s+id="[^"]+"/, ''));
@@ -232,15 +232,15 @@ export class Parser
     static groupTaskListItems(html) {
         // Find consecutive task list items and wrap them in ul
         return html.replace(
-            /(<li class="task-list-item[^"]*"[^>]*>.*?<\/li>)(\s*<li class="task-list-item[^"]*"[^>]*>.*?<\/li>)*/g,
+            /(<li class="bke-task-list-item[^"]*"[^>]*>.*?<\/li>)(\s*<li class="bke-task-list-item[^"]*"[^>]*>.*?<\/li>)*/g,
             (match) => {
                 // Extract individual li elements
-                const liElements = match.match(/<li class="task-list-item[^"]*"[^>]*>.*?<\/li>/g) || [];
+                const liElements = match.match(/<li class="bke-task-list-item[^"]*"[^>]*>.*?<\/li>/g) || [];
                 
                 if (liElements.length === 0) return match;
                 
                 // Wrap in ul with task-list class
-                return `<ul class="task-list">\n${liElements.join('\n')}\n</ul>`;
+                return `<ul class="bke-task-list">\n${liElements.join('\n')}\n</ul>`;
             }
         );
     }
@@ -292,12 +292,12 @@ export class Parser
      */
     static defaultRender(block) {
         let element = document.createElement('div');
-        element.classList.add('block');
+        element.classList.add('bke-block');
         element.setAttribute('data-block-type', block.type);
         element.setAttribute('data-placeholder', '');
         
         // Add block type specific class
-        const typeClass = `block-${block.type.replace(/[^a-z0-9]/gi, '').toLowerCase()}`;
+        const typeClass = `bke-block--${block.type.replace(/[^a-z0-9]/gi, '').toLowerCase()}`;
         element.classList.add(typeClass);
         
         element.innerHTML = block.html || block.content || '';

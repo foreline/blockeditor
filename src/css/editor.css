@@ -1,4 +1,4 @@
-.editor {
+.bke-editor {
     --editor-font-size: 1rem;
     --editor-line-height: 1.5;
     outline: none;
@@ -6,27 +6,27 @@
     line-height: var(--editor-line-height);
 }
 
-.editor .block {
+.bke-editor .bke-block {
     border: 1px dashed transparent;
     margin-bottom: 0.2em;
     min-height: calc(1em * var(--editor-line-height));
 }
 
-.editor.debug-mode .block {
+.bke-editor.bke-debug-mode .bke-block {
     border: 1px dashed #b6b0ff;
 }
 
-.editor.debug-mode .active-block {
+.bke-editor.bke-debug-mode .bke-block--active {
     border: 1px dashed #900;
 }
 
-.editor .block:empty::before {
+.bke-editor .bke-block:empty::before {
     content: attr(data-placeholder);
     color: #666;
     cursor: text;
 }
 
-.editor-toolbar {
+.bke-toolbar {
     display: flex;
     color: #999 !important;
 
@@ -38,11 +38,11 @@
     /*overflow-x: scroll;*/
 }
 
-.editor-toolbar i {
+.bke-toolbar i {
     color: #999;
 }
 
-.editor-toolbar button {
+.bke-toolbar button {
     color: #777;
     border: 0;
     background: none;
@@ -50,38 +50,38 @@
     padding: 2px 6px;
 }
 
-.editor-toolbar button:disabled {
+.bke-toolbar button:disabled {
     color: #aaa;
 }
 
-.editor-toolbar button:disabled i {
+.bke-toolbar button:disabled i {
     color: #ccc;
 }
 
-.editor-toolbar button:hover {
+.bke-toolbar button:hover {
     background-color: #f1f1f1;
 }
 
-.editor-toolbar-group {
+.bke-toolbar-group {
     border-right: 1px solid #ddd;
 
     padding: 2px 8px;
 }
 
 /* Toolbar dropdown — no Bootstrap dependency */
-.editor-toolbar-dropdown {
+.bke-toolbar-dropdown {
     position: relative;
     display: inline-block;
 }
 
 /* Trigger button inside dropdown (inherits base toolbar button styles) */
-.editor-toolbar-dropdown .editor-toolbar-btn {
+.bke-toolbar-dropdown .bke-toolbar-btn {
     display: inline-flex;
     align-items: center;
 }
 
 /* Dropdown menu — hidden by default */
-.editor-toolbar-dropdown-menu {
+.bke-toolbar-dropdown-menu {
     /* Base styles applied in both Popover and fallback cases */
     margin: 0;
     padding: 4px 0;
@@ -95,25 +95,25 @@
 }
 
 /* Popover API: UA hides [popover] by default; shown via :popover-open */
-.editor-toolbar-dropdown-menu[popover] {
+.bke-toolbar-dropdown-menu[popover] {
     /* position set dynamically via JS in the toggle handler */
 }
 
 /* Non-Popover fallback: hidden until --open class is added */
-.editor-toolbar-dropdown-menu:not([popover]) {
+.bke-toolbar-dropdown-menu:not([popover]) {
     display: none;
     position: fixed; /* escapes overflow:hidden ancestors */
 }
 
-.editor-toolbar-dropdown-menu--open {
+.bke-toolbar-dropdown-menu--open {
     display: block !important;
 }
 
-.editor-toolbar-dropdown-menu li {
+.bke-toolbar-dropdown-menu li {
     padding: 0;
 }
 
-.editor-toolbar-dropdown-menu button {
+.bke-toolbar-dropdown-menu button {
     display: block;
     width: 100%;
     text-align: left;
@@ -126,28 +126,28 @@
     white-space: nowrap;
 }
 
-.editor-toolbar-dropdown-menu button:hover {
+.bke-toolbar-dropdown-menu button:hover {
     background-color: #f1f1f1;
 }
 
-.editor-toolbar-dropdown-menu button:disabled {
+.bke-toolbar-dropdown-menu button:disabled {
     color: #bbb;
     cursor: not-allowed;
 }
 
 /* Task list (checkbox) styles */
-.editor .block[data-block-type="sq"] {
+.bke-editor .bke-block[data-block-type="sq"] {
     border: 1px dashed #b6b0ff;
     margin-bottom: 0.2em;
 }
 
-.editor .block[data-block-type="sq"] ul.task-list {
+.bke-editor .bke-block[data-block-type="sq"] ul.bke-task-list {
     list-style: none !important;
     margin: 0 !important;
     padding: 0 !important;
 }
 
-.editor .block[data-block-type="sq"] .task-list-item {
+.bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item {
     list-style: none !important;
     display: flex !important;
     align-items: flex-start !important;
@@ -156,37 +156,37 @@
     margin-bottom: 4px;
 }
 
-.editor .block[data-block-type="sq"] .task-list-item input[type="checkbox"] {
+.bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item input[type="checkbox"] {
     margin-right: 8px !important;
     margin-top: 2px !important;
     flex-shrink: 0 !important;
 }
 
-.editor .block[data-block-type="sq"] .task-list-item.task-completed {
+.bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item.bke-task-completed {
     opacity: 0.6;
 }
 
-.editor .block[data-block-type="sq"] .task-list-item.task-completed span {
+.bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item.bke-task-completed span {
     text-decoration: line-through;
 }
 
-.editor .block[data-block-type="sq"] .task-list-item span {
+.bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item span {
     flex: 1;
     outline: none;
 }
 
-.editor .block[data-block-type="sq"]:empty::before {
+.bke-editor .bke-block[data-block-type="sq"]:empty::before {
     content: attr(data-placeholder);
     color: #666;
 }
 
 /* Active state for task list blocks */
-.editor .block[data-block-type="sq"].active-block {
+.bke-editor .bke-block[data-block-type="sq"].bke-block--active {
     border: 1px dashed #900;
 }
 
 /* List styles for ul and ol - updated for div wrapper structure */
-.editor .block[data-block-type="ul"] ul {
+.bke-editor .bke-block[data-block-type="ul"] ul {
     list-style-type: disc;
     list-style-position: inside;
     margin-left: 0;
@@ -194,7 +194,7 @@
     margin: 0;
 }
 
-.editor .block[data-block-type="ol"] ol {
+.bke-editor .bke-block[data-block-type="ol"] ol {
     list-style-type: decimal;
     list-style-position: inside;
     margin-left: 0;
@@ -203,54 +203,54 @@
 }
 
 /* Table styles */
-.editor .block[data-block-type="table"] {
+.bke-editor .bke-block[data-block-type="table"] {
     overflow-x: auto;
 }
 
-.editor .block[data-block-type="table"] table {
+.bke-editor .bke-block[data-block-type="table"] table {
     border-collapse: collapse;
     width: 100%;
     margin: 5px 0;
 }
 
-.editor .block[data-block-type="table"] th,
-.editor .block[data-block-type="table"] td {
+.bke-editor .bke-block[data-block-type="table"] th,
+.bke-editor .bke-block[data-block-type="table"] td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
     min-width: 100px;
 }
 
-.editor .block[data-block-type="table"] th {
+.bke-editor .bke-block[data-block-type="table"] th {
     background-color: #f5f5f5;
     font-weight: bold;
 }
 
-.editor .block[data-block-type="table"] td:focus,
-.editor .block[data-block-type="table"] th:focus {
+.bke-editor .bke-block[data-block-type="table"] td:focus,
+.bke-editor .bke-block[data-block-type="table"] th:focus {
     outline: 2px solid #007cba;
     background-color: #f0f8ff;
 }
 
-.editor .block[data-block-type="table"] td:empty::before,
-.editor .block[data-block-type="table"] th:empty::before {
+.bke-editor .bke-block[data-block-type="table"] td:empty::before,
+.bke-editor .bke-block[data-block-type="table"] th:empty::before {
     content: attr(data-placeholder);
     color: #999;
     font-style: italic;
 }
 
 /* Image block styles */
-.editor .block[data-block-type="image"] {
+.bke-editor .bke-block[data-block-type="image"] {
     text-align: center;
     margin: 10px 0;
 }
 
-.editor .block[data-block-type="image"].drag-over {
+.bke-editor .bke-block[data-block-type="image"].bke-drag-over {
     background-color: #e3f2fd;
     border: 2px dashed #2196f3;
 }
 
-.editor .block[data-block-type="image"] .image-placeholder {
+.bke-editor .bke-block[data-block-type="image"] .bke-image-placeholder {
     border: 2px dashed #ccc;
     padding: 40px;
     background: #f9f9f9;
@@ -260,25 +260,25 @@
     transition: all 0.3s ease;
 }
 
-.editor .block[data-block-type="image"] .image-placeholder:hover {
+.bke-editor .bke-block[data-block-type="image"] .bke-image-placeholder:hover {
     border-color: #007cba;
     background: #f0f8ff;
 }
 
-.editor .block[data-block-type="image"] .image-container {
+.bke-editor .bke-block[data-block-type="image"] .bke-image-container {
     display: inline-block;
     position: relative;
     max-width: 100%;
 }
 
-.editor .block[data-block-type="image"] img {
+.bke-editor .bke-block[data-block-type="image"] img {
     max-width: 100%;
     height: auto;
     border-radius: 3px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.editor .block[data-block-type="image"] .resize-handle {
+.bke-editor .bke-block[data-block-type="image"] .bke-resize-handle {
     position: absolute;
     bottom: -5px;
     right: -5px;
@@ -291,20 +291,20 @@
     transition: opacity 0.3s ease;
 }
 
-.editor .block[data-block-type="image"] .image-container:hover .resize-handle {
+.bke-editor .bke-block[data-block-type="image"] .bke-image-container:hover .bke-resize-handle {
     opacity: 0.8;
 }
 
-.editor .block[data-block-type="image"] input[type="file"] {
+.bke-editor .bke-block[data-block-type="image"] input[type="file"] {
     max-width: 200px;
 }
 
 /* Code block styles */
-.editor .block[data-block-type="code"] {
+.bke-editor .bke-block[data-block-type="code"] {
     position: relative;
 }
 
-.editor .block[data-block-type="code"] pre {
+.bke-editor .bke-block[data-block-type="code"] pre {
     margin: 0;
     padding: 1em;
     background: #f6f8fa;
@@ -316,7 +316,7 @@
     line-height: 1.45;
 }
 
-.editor .block[data-block-type="code"] code {
+.bke-editor .bke-block[data-block-type="code"] code {
     background: none;
     padding: 0;
     border: none;
@@ -327,7 +327,7 @@
     color: inherit;
 }
 
-.editor .block[data-block-type="code"] .language-selector {
+.bke-editor .bke-block[data-block-type="code"] .bke-language-selector {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -342,11 +342,11 @@
     z-index: 10;
 }
 
-.editor .block[data-block-type="code"]:hover .language-selector {
+.bke-editor .bke-block[data-block-type="code"]:hover .bke-language-selector {
     opacity: 1;
 }
 
-.editor .block[data-block-type="code"] .language-selector select {
+.bke-editor .bke-block[data-block-type="code"] .bke-language-selector select {
     background: none;
     border: none;
     font-size: 12px;
@@ -357,7 +357,7 @@
 }
 
 /* Debug Mode Styles */
-.debug-tooltip {
+.bke-debug-tooltip {
     position: fixed;
     width: 280px;
     background: #f8f9fa;
@@ -373,7 +373,7 @@
     pointer-events: none; /* Allow clicks to pass through */
 }
 
-.debug-tooltip-header {
+.bke-debug-tooltip-header {
     font-weight: bold;
     color: #007bff;
     margin-bottom: 4px;
@@ -381,11 +381,11 @@
     padding-bottom: 2px;
 }
 
-.debug-tooltip-row {
+.bke-debug-tooltip-row {
     margin-bottom: 2px;
 }
 
-.debug-tooltip-content {
+.bke-debug-tooltip-content {
     background: #e9ecef;
     padding: 4px;
     border-radius: 2px;
@@ -396,20 +396,20 @@
     overflow: hidden;
 }
 
-.editor-toolbar-debug.active {
+.bke-toolbar-debug.active {
     background-color: #007bff !important;
     color: white !important;
 }
 
-.editor-toolbar-debug.active i {
+.bke-toolbar-debug.active i {
     color: white !important;
 }
 
 /* Position debug tooltips relative to blocks */
-.editor .block {
+.bke-editor .bke-block {
     position: relative;
 }
 
-.editor * {
+.bke-editor * {
     outline: none;
 }

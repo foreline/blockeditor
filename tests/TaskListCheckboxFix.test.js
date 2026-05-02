@@ -104,20 +104,20 @@ Regular list item should not become task:
         const checkbox = element.querySelector('input[type="checkbox"]');
         
         expect(checkbox.checked).toBe(false);
-        expect(element.classList.contains('task-completed')).toBe(false);
+        expect(element.classList.contains('bke-task-completed')).toBe(false);
         
         // Simulate checkbox click
         checkbox.checked = true;
         checkbox.dispatchEvent(new Event('change'));
         
         expect(taskBlock.isChecked()).toBe(true);
-        expect(element.classList.contains('task-completed')).toBe(true);
+        expect(element.classList.contains('bke-task-completed')).toBe(true);
         
         // Simulate unchecking
         checkbox.checked = false;
         checkbox.dispatchEvent(new Event('change'));
         
         expect(taskBlock.isChecked()).toBe(false);
-        expect(element.classList.contains('task-completed')).toBe(false);
+        expect(element.classList.contains('bke-task-completed')).toBe(false);
     });
 });

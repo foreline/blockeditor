@@ -79,19 +79,19 @@ export class ImageBlock extends BaseBlock
         element.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            element.classList.add('drag-over');
+            element.classList.add('bke-drag-over');
         });
 
         element.addEventListener('dragleave', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            element.classList.remove('drag-over');
+            element.classList.remove('bke-drag-over');
         });
 
         element.addEventListener('drop', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            element.classList.remove('drag-over');
+            element.classList.remove('bke-drag-over');
 
             const files = Array.from(e.dataTransfer.files);
             const imageFile = files.find(file => file.type.startsWith('image/'));
@@ -112,7 +112,7 @@ export class ImageBlock extends BaseBlock
         // Handle click on placeholder to trigger file selection
         element.addEventListener('click', (e) => {
             const fileInput = element.querySelector('input[type="file"]');
-            if (fileInput && e.target.closest('.image-placeholder')) {
+            if (fileInput && e.target.closest('.bke-image-placeholder')) {
                 fileInput.click();
             }
         });
@@ -249,7 +249,7 @@ export class ImageBlock extends BaseBlock
                 <div class="image-placeholder" style="border: 2px dashed #ccc; padding: 40px; text-align: center; background: #f9f9f9;">
                     <div>📷</div>
                     <div>Drag & drop an image here or click to select</div>
-                    <input type="file" accept="image/*" style="margin-top: 10px;" onchange="this.closest('.block').dispatchEvent(new CustomEvent('imageSelected', {detail: this.files[0]}))">
+                    <input type="file" accept="image/*" style="margin-top: 10px;" onchange="this.closest('.bke-block').dispatchEvent(new CustomEvent('imageSelected', {detail: this.files[0]}))">
                 </div>
             `;
         }
@@ -271,7 +271,7 @@ export class ImageBlock extends BaseBlock
      */
     static getToolbarConfig() {
         return {
-            class: 'editor-toolbar-image',
+            class: 'bke-toolbar-image',
             icon: 'fa-image',
             title: 'Image',
             group: 'media'
@@ -319,7 +319,7 @@ export class ImageBlock extends BaseBlock
      * @returns {Array<string>} - Array of disabled button classes
      */
     static getDisabledButtons() {
-        return ['editor-toolbar-bold', 'editor-toolbar-italic', 'editor-toolbar-ul', 'editor-toolbar-ol', 'editor-toolbar-sq'];
+        return ['bke-toolbar-bold', 'bke-toolbar-italic', 'bke-toolbar-ul', 'bke-toolbar-ol', 'bke-toolbar-sq'];
     }
 
     /**
@@ -381,8 +381,8 @@ export class ImageBlock extends BaseBlock
      */
     renderToElement() {
         let element = document.createElement('div');
-        element.classList.add('block');
-        element.classList.add('block-image');
+        element.classList.add('bke-block');
+        element.classList.add('bke-block--image');
         element.setAttribute('data-block-type', 'image');
         element.setAttribute('data-placeholder', 'Drag an image or paste URL');
         element.contentEditable = true;

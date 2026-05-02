@@ -24,7 +24,7 @@ describe('Block Conversion Feature', () => {
         document.body.appendChild(mockContainer);
 
         mockBlock = document.createElement('div');
-        mockBlock.className = 'block block-p';
+        mockBlock.className = 'bke-block bke-block--p';
         mockBlock.setAttribute('data-block-type', 'p');
         mockBlock.setAttribute('contenteditable', 'true');
         mockBlock.innerHTML = 'test content';

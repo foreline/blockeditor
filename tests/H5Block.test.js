@@ -56,7 +56,7 @@ describe('H5Block', () => {
     test('getToolbarConfig returns correct configuration', () => {
       const config = H5Block.getToolbarConfig();
       expect(config).toEqual({
-        class: 'editor-toolbar-header5',
+        class: 'bke-toolbar-header5',
         label: 'Heading 5',
         group: 'headers'
       });

@@ -3,6 +3,30 @@
  */
 
 declare module '@foreline/blockeditor' {
+
+  // Event name union
+  export type EditorEventName =
+    | 'content.changed'
+    | 'editor.updated'
+    | 'block.content.changed'
+    | 'focus'
+    | 'blur';
+
+  // Typed event payloads
+  export interface ContentChangedPayload {
+    html: string;
+    markdown: string;
+    timestamp: number;
+  }
+
+  export interface BlockContentChangedPayload {
+    blockId: string;
+    blockType: string;
+    content: string;
+    previousContent: string;
+    timestamp: number;
+  }
+
   export interface EditorOptions {
     id: string;
     placeholder?: string;
@@ -48,7 +72,10 @@ declare module '@foreline/blockeditor' {
     destroy(): void;
     
     // Event methods
-    on(event: string, callback: Function): void;
+    on(event: 'content.changed', callback: (data: ContentChangedPayload) => void): void;
+    on(event: 'block.content.changed', callback: (data: BlockContentChangedPayload) => void): void;
+    on(event: 'focus' | 'blur', callback: () => void): void;
+    on(event: EditorEventName, callback: Function): void;
     off(event: string, callback?: Function): void;
     emit(event: string, data?: any): void;
 

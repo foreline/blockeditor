@@ -124,6 +124,8 @@ export class Editor
     {
         log('initializeToolbar()', 'Editor.');
 
+        if (options.readonly) { return; }
+
         // Initialize toolbar - use the editor instance element's parent as container
         const toolbarContainer = this.instance.parentElement || this.instance;
         const defaultToolbarConfig = [
@@ -225,7 +227,15 @@ export class Editor
         }
 
         this.instance = document.getElementById(options.id);
-        this.instance.setAttribute('contenteditable', 'true');
+        this._readonly = !!options.readonly;
+
+        if (this._readonly) {
+            this.instance.removeAttribute('contenteditable');
+            this.instance.setAttribute('aria-readonly', 'true');
+            this.instance.style.userSelect = 'text';
+        } else {
+            this.instance.setAttribute('contenteditable', 'true');
+        }
 
         let content = options.text || this.instance.innerHTML || '';
         let blocks = Parser.parse(content);
@@ -272,7 +282,9 @@ export class Editor
     
         this.keyHandler = new KeyHandler(this);
         this._inlineMarkdownHandler = new InlineMarkdownHandler(this);
-        this.addListeners();
+        if (!this._readonly) {
+            this.addListeners();
+        }
         
         // @fixme focus only if empty content
         if ( 0 ) {
@@ -420,54 +432,23 @@ export class Editor
     }
     
     /**
-     * Destroy the editor instance and cleanup
-     */
-    destroy()
-    {
-        log('destroy()', 'Editor.');
-
-        // Stop debug update loop and remove tooltips
-        this.stopDebugUpdateLoop();
-        this.removeDebugTooltips();
-        this.removeDebugEventListeners();
-        
-        // Remove debug mode class
-        if (this.instance) {
-            this.instance.classList.remove('bke-debug-mode');
-        }
-        
-        // Cleanup event emitter
-        this.eventEmitter.cleanup();
-        
-        // Remove from instances registry
-        Editor._instances.delete(this.instance);
-        
-        // Remove DOM event listeners
-        // (Event listeners will be cleaned up when element is removed)
-        
-        // Clear instance properties
-        this.instance = null;
-        this.blocks = [];
-        this.currentBlock = null;
-        this._blockMap = new WeakMap();
-        this.rules = [];
-        this.keybuffer = [];
-    }
-    
-    /**
      * Adds event listeners to this editor instance
      */
     addListeners()
     {
         log('addListeners()', 'Editor.');
-        
-        this.instance.addEventListener('keydown', (e) => {
+
+        this._boundHandlers = {};
+
+        this._boundHandlers.keydown = (e) => {
             this.keyHandler.handleSpecialKeys(e);
-        });
+        };
+        this.instance.addEventListener('keydown', this._boundHandlers.keydown);
     
-        this.instance.addEventListener('keyup', (e) => {
+        this._boundHandlers.keyup = (e) => {
             this.keyHandler.handleKeyPress(e);
-        });
+        };
+        this.instance.addEventListener('keyup', this._boundHandlers.keyup);
         
         // BEFOREINPUT Event handler — intercept deletions that cross block boundaries.
         // The browser's native contenteditable handling can corrupt the block
@@ -482,7 +463,7 @@ export class Editor
         //   3. Remove empty/orphaned blocks
         //   4. Guarantee at least one block always exists
         //   5. Place the cursor exactly at the merge point
-        this.instance.addEventListener('beforeinput', (e) => {
+        this._boundHandlers.beforeinput = (e) => {
             if (!e.inputType.startsWith('delete')) return;
 
             const selection = window.getSelection();
@@ -587,16 +568,18 @@ export class Editor
             }
 
             this.update();
-        });
+        };
+        this.instance.addEventListener('beforeinput', this._boundHandlers.beforeinput);
 
         // PASTE TEXT/HTML Event handler
-        this.instance.addEventListener('paste', (e) => {
+        this._boundHandlers.paste = (e) => {
             this.paste(e);
             e.preventDefault();
-        });
+        };
+        this.instance.addEventListener('paste', this._boundHandlers.paste);
         
         // INPUT Event handler - catch content changes for block conversion
-        this.instance.addEventListener('input', (e) => {
+        this._boundHandlers.input = (e) => {
             // Only handle input events for this editor instance
             if (!e.target.closest(`#${this.instance.id}`)) {
                 return;
@@ -692,10 +675,11 @@ export class Editor
                     });
                 }
             }
-        });
+        };
+        this.instance.addEventListener('input', this._boundHandlers.input);
         
         // Primary handler for setting current block - handles both click and focus events
-        this.instance.addEventListener('click', (e) => {
+        this._boundHandlers.click = (e) => {
             // Only handle clicks for this editor instance
             if (!e.target.closest(`#${this.instance.id}`)) {
                 return;
@@ -711,10 +695,11 @@ export class Editor
             if ( block ) {
                 this.setCurrentBlock(block);
             }
-        });
+        };
+        this.instance.addEventListener('click', this._boundHandlers.click);
 
         // Handle focus events for keyboard navigation (only when not caused by mouse interaction)
-        this.instance.addEventListener('focusin', (e) => {
+        this._boundHandlers.focusin = (e) => {
             // Only handle focus events for this editor instance
             if (!e.target.closest(`#${this.instance.id}`)) {
                 return;
@@ -760,16 +745,18 @@ export class Editor
                     this.setCurrentBlock(firstBlock);
                 }
             }
-        });
+        };
+        this.instance.addEventListener('focusin', this._boundHandlers.focusin);
 
         // Track mouse clicks to prevent duplicate focus handling
         // and reset sticky column offset
-        this.instance.addEventListener('mousedown', () => {
+        this._boundHandlers.mousedown = () => {
             this._lastClickTime = Date.now();
             if (this.keyHandler) {
                 this.keyHandler._desiredOffset = null;
             }
-        });
+        };
+        this.instance.addEventListener('mousedown', this._boundHandlers.mousedown);
     }
 
     /**
@@ -2419,22 +2406,34 @@ export class Editor
      */
     destroy() {
         log('destroy()', 'Editor.');
-        
+
+        // Remove DOM event listeners
+        if (this._boundHandlers && this.instance) {
+            Object.entries(this._boundHandlers).forEach(([event, handler]) => {
+                this.instance.removeEventListener(event, handler);
+            });
+            this._boundHandlers = null;
+        }
+
+        // Cleanup event emitter
+        this.eventEmitter?.cleanup?.();
+
         // Disable debug tooltips if enabled
         if (this.debugTooltip) {
             this.debugTooltip.disable();
         }
-        
+
         // Remove this instance from the registry
         if (this.instance) {
             Editor._instances.delete(this.instance);
         }
-        
+
         // Clear references
         this.blocks = [];
         this.currentBlock = null;
         this._blockMap = new WeakMap();
         this.debugTooltip = null;
         this.eventEmitter = null;
+        this.instance = null;
     }
 }

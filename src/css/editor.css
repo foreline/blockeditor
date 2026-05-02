@@ -39,6 +39,12 @@
     line-height: var(--editor-line-height);
 }
 
+.bke-editor[aria-readonly="true"] {
+    pointer-events: none;
+    user-select: text;
+    cursor: default;
+}
+
 .bke-editor .bke-block {
     border: 1px dashed transparent;
     margin-bottom: 0.2em;

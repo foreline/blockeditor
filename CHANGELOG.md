@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.4.0] - 2026-05-02
+
+### Added
+- Icon abstraction layer: New `icons` constructor option allows consumers to customize toolbar icons. Supports custom SVG strings, functions, or FontAwesome class names. Enables flexible icon management without forced FontAwesome dependency.
+- Bundled inline SVG icons: Added src/icons.js containing optimized SVG icons for all toolbar actions (bold, italic, underline, strikethrough, heading, list, ordered list, etc.). Reduces external icon dependencies and improves bundle consistency.
+
 ## [v0.3.1] - 2026-05-02
 
 ### Fixed

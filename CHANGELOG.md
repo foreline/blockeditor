@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.6.4] - 2026-05-03
+
+### Added
+- `Editor.mount(element, options)` static method: Simplified API for mounting the editor directly onto an existing DOM element without requiring manual id management or container setup. Automatically generates element ids if absent.
+- CSS custom properties for theming: Exposed `--bke-font-family`, `--bke-h1-size` through `--bke-h6-size` CSS variables for easier customization of editor appearance within different design systems. Maintains backward compatibility with legacy `--editor-*` variables.
+- Optional `scrollOnFocus` parameter: Added to CursorManager for fine-grained control over smooth scroll behavior when focusing elements.
+
+### Fixed
+- `.bke-editor` class binding for `id:` API: Fixed critical issue where mount elements were missing the `.bke-editor` CSS class when using the `id:` option without `container:`, causing all scoped CSS to silently fail. The class is now properly added to the mount element.
+
 ## [v0.6.3] - 2026-05-03
 
 ### Fixed

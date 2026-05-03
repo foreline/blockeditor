@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.6.3] - 2026-05-03
+
+### Fixed
+- Multiple editor instances isolation: Fixed toolbar and editor sizing to be scoped per instance. Editor now applies minHeight/maxHeight to contentArea instead of instance element; toolbar debug button selector is scoped to container instead of global query; event listeners are managed per toolbar instance instead of relying on global state. This prevents multiple editors from interfering with each other's styling and event handling.
+
 ## [v0.6.2] - 2026-05-03
 
 ### Fixed

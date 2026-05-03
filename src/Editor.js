@@ -211,6 +211,10 @@ export class Editor
             this.contentArea.setAttribute('contenteditable', 'true');
         }
 
+        // Apply size constraints to the visible editor element.
+        if (options.minHeight) { this.instance.style.minHeight = options.minHeight; }
+        if (options.maxHeight) { this.instance.style.maxHeight = options.maxHeight; }
+
         // Clear the mount element and insert the content area.
         this.instance.innerHTML = '';
         this.instance.appendChild(this.contentArea);

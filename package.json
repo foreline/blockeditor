@@ -1,6 +1,6 @@
 {
   "name": "@foreline/blockeditor",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "type": "module",
   "description": "JavaScript WYSIWYG editor with block-based architecture",
   "main": "dist/blockeditor.cjs.js",

@@ -14,7 +14,10 @@ if (!fs.existsSync(distDir)) {
 }
 
 // Copy individual CSS files
-const cssFiles = ['editor.css', 'prism-theme.css'];
+const cssFiles = ['editor.css', 'content-defaults.css', 'prism-theme.css'];
+
+// style.css = chrome + structural only (prism and content-defaults are optional separate imports)
+const styleCssFiles = ['editor.css'];
 let combinedCss = '';
 
 cssFiles.forEach(file => {
@@ -22,10 +25,17 @@ cssFiles.forEach(file => {
     const destPath = path.join(distDir, file);
     
     if (fs.existsSync(srcPath)) {
-        const content = fs.readFileSync(srcPath, 'utf8');
         fs.copyFileSync(srcPath, destPath);
-        combinedCss += `/* ${file} */\n${content}\n\n`;
         console.log(`Copied ${file} to dist/`);
+    }
+});
+
+// Build combined style.css from chrome/structural files only
+styleCssFiles.forEach(file => {
+    const srcPath = path.join(srcCssDir, file);
+    if (fs.existsSync(srcPath)) {
+        const content = fs.readFileSync(srcPath, 'utf8');
+        combinedCss += `/* ${file} */\n${content}\n\n`;
     }
 });
 

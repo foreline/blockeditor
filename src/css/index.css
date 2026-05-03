@@ -1,10 +1,11 @@
 /**
  * JS Editor - Main Stylesheet
- * Import this file to get all editor styles
+ * Import this file to get all editor chrome and structural styles.
+ *
+ * For standalone / zero-CSS-framework pages, also import:
+ *   ./content-defaults.css   — heading sizes, list markers, table/code/image visual design
+ *   ./prism-theme.css         — syntax highlighting for code blocks (optional)
  */
 
-/* Core editor styles */
+/* Core editor styles — chrome + structural only */
 @import './editor.css';
-
-/* Syntax highlighting theme */
-@import './prism-theme.css';

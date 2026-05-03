@@ -1,4 +1,12 @@
-/* Scoped reset — neutralises host styles within the editor boundary */
+/* ============================================================
+   BlockEditor — editor.css
+   Scope: Chrome (toolbar / debug UI) + Structural (editing surface)
+   Content-area typography, colours, and visual design are NOT
+   included here. Use content-defaults.css for a standalone look,
+   or let the host page style the content.
+   ============================================================ */
+
+/* === STRUCTURAL: Box-sizing reset === */
 .bke-editor,
 .bke-editor *,
 .bke-editor *::before,
@@ -11,19 +19,17 @@
     display: none !important;
 }
 
-.bke-editor ul,
-.bke-editor ol {
+/* Scoped list reset — toolbar chrome ONLY, not the content area */
+.bke-toolbar ul,
+.bke-toolbar ol,
+.bke-toolbar li,
+.bke-dropdown-menu li {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.bke-editor li {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
+/* Button base reset — scoped to editor chrome */
 .bke-editor button {
     font-family: inherit;
     cursor: pointer;
@@ -32,22 +38,22 @@
     padding: 0;
 }
 
+/* Structural: collapse required for editing */
 .bke-editor table {
     border-collapse: collapse;
 }
 
+/* ============================================================
+   EDITOR ROOT — custom properties and base styles
+   ============================================================ */
 .bke-editor {
     --bke-font-family: inherit;
     --bke-font-size: 1rem;
     --bke-line-height: 1.5;
-    --bke-h1-size: 1.5em;
-    --bke-h2-size: 1.25em;
-    --bke-h3-size: 1.1em;
-    --bke-h4-size: 1em;
-    --bke-h5-size: 0.9em;
-    --bke-h6-size: 0.85em;
+    --bke-placeholder-color: #999;
+    --bke-focus-color: Highlight;
 
-    /* Keep legacy variable names as aliases for backward compatibility */
+    /* Legacy aliases — deprecated, kept for backward compatibility */
     --editor-font-size: var(--bke-font-size);
     --editor-line-height: var(--bke-line-height);
 
@@ -57,25 +63,33 @@
     line-height: var(--bke-line-height);
 }
 
-.bke-editor .bke-block[data-block-type="h1"] h1 { font-size: var(--bke-h1-size); }
-.bke-editor .bke-block[data-block-type="h2"] h2 { font-size: var(--bke-h2-size); }
-.bke-editor .bke-block[data-block-type="h3"] h3 { font-size: var(--bke-h3-size); }
-.bke-editor .bke-block[data-block-type="h4"] h4 { font-size: var(--bke-h4-size); }
-.bke-editor .bke-block[data-block-type="h5"] h5 { font-size: var(--bke-h5-size); }
-.bke-editor .bke-block[data-block-type="h6"] h6 { font-size: var(--bke-h6-size); }
+/* Suppress default focus outlines on all contenteditable children */
+.bke-editor * {
+    outline: none;
+}
 
+/* ============================================================
+   READONLY MODE
+   ============================================================ */
 .bke-editor[aria-readonly="true"] {
     pointer-events: none;
     user-select: text;
     cursor: default;
 }
 
+/* ============================================================
+   BLOCK STRUCTURAL
+   ============================================================ */
 .bke-editor .bke-block {
     border: 1px dashed transparent;
+    position: relative;
     margin-bottom: 0.2em;
     min-height: calc(1em * var(--editor-line-height));
 }
 
+/* ============================================================
+   DEBUG MODE
+   ============================================================ */
 .bke-editor.bke-debug-mode .bke-block {
     border: 1px dashed #b6b0ff;
 }
@@ -84,22 +98,24 @@
     border: 1px dashed #900;
 }
 
+/* ============================================================
+   PLACEHOLDER TEXT
+   ============================================================ */
 .bke-editor .bke-block:empty::before {
     content: attr(data-placeholder);
-    color: #666;
+    color: var(--bke-placeholder-color);
     cursor: text;
 }
 
+/* ============================================================
+   TOOLBAR CHROME — always ships
+   ============================================================ */
 .bke-toolbar {
     display: flex;
     color: #999 !important;
-
     border-bottom: 1px solid #ebebeb;
-
     padding-bottom: 0.8em;
     margin-bottom: 1em;
-
-    /*overflow-x: scroll;*/
 }
 
 .bke-toolbar i {
@@ -214,7 +230,9 @@
     cursor: not-allowed;
 }
 
-/* Task list (checkbox) styles */
+/* ============================================================
+   TASK LIST — structural (custom rendering, always ships)
+   ============================================================ */
 .bke-editor .bke-block[data-block-type="sq"] {
     border: 1px dashed #b6b0ff;
     margin-bottom: 0.2em;
@@ -256,7 +274,7 @@
 
 .bke-editor .bke-block[data-block-type="sq"]:empty::before {
     content: attr(data-placeholder);
-    color: #666;
+    color: var(--bke-placeholder-color);
 }
 
 /* Active state for task list blocks */
@@ -264,35 +282,9 @@
     border: 1px dashed #900;
 }
 
-/* List styles for ul and ol - updated for div wrapper structure */
-.bke-editor .bke-block[data-block-type="ul"] ul {
-    list-style-type: disc;
-    list-style-position: inside;
-    margin-left: 0;
-    padding-left: 0;
-    margin: 0;
-}
-
-/* Override scoped reset for list items inside ul/ol blocks */
-.bke-editor .bke-block[data-block-type="ul"] li {
-    list-style-type: disc;
-    list-style-position: inside;
-}
-
-.bke-editor .bke-block[data-block-type="ol"] ol {
-    list-style-type: decimal;
-    list-style-position: inside;
-    margin-left: 0;
-    padding-left: 0;
-    margin: 0;
-}
-
-.bke-editor .bke-block[data-block-type="ol"] li {
-    list-style-type: decimal;
-    list-style-position: inside;
-}
-
-/* Table styles */
+/* ============================================================
+   TABLE — structural only (visual design is consumer's responsibility)
+   ============================================================ */
 .bke-editor .bke-block[data-block-type="table"] {
     overflow-x: auto;
 }
@@ -305,31 +297,24 @@
 
 .bke-editor .bke-block[data-block-type="table"] th,
 .bke-editor .bke-block[data-block-type="table"] td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    min-width: 100px;
-}
-
-.bke-editor .bke-block[data-block-type="table"] th {
-    background-color: #f5f5f5;
-    font-weight: bold;
+    min-width: 60px; /* structural minimum for usability */
 }
 
 .bke-editor .bke-block[data-block-type="table"] td:focus,
 .bke-editor .bke-block[data-block-type="table"] th:focus {
-    outline: 2px solid #007cba;
-    background-color: #f0f8ff;
+    outline: 2px solid var(--bke-focus-color, Highlight);
 }
 
 .bke-editor .bke-block[data-block-type="table"] td:empty::before,
 .bke-editor .bke-block[data-block-type="table"] th:empty::before {
     content: attr(data-placeholder);
-    color: #999;
+    color: var(--bke-placeholder-color);
     font-style: italic;
 }
 
-/* Image block styles */
+/* ============================================================
+   IMAGE BLOCK — structural only
+   ============================================================ */
 .bke-editor .bke-block[data-block-type="image"] {
     text-align: center;
     margin: 10px 0;
@@ -343,16 +328,12 @@
 .bke-editor .bke-block[data-block-type="image"] .bke-image-placeholder {
     border: 2px dashed #ccc;
     padding: 40px;
-    background: #f9f9f9;
-    border-radius: 5px;
-    color: #666;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .bke-editor .bke-block[data-block-type="image"] .bke-image-placeholder:hover {
     border-color: #007cba;
-    background: #f0f8ff;
 }
 
 .bke-editor .bke-block[data-block-type="image"] .bke-image-container {
@@ -361,11 +342,11 @@
     max-width: 100%;
 }
 
+/* Responsive constraint — structural, keeps images within the editor */
 .bke-editor .bke-block[data-block-type="image"] img {
     max-width: 100%;
     height: auto;
-    border-radius: 3px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    /* border-radius, box-shadow → consumer's responsibility */
 }
 
 .bke-editor .bke-block[data-block-type="image"] .bke-resize-handle {
@@ -389,21 +370,18 @@
     max-width: 200px;
 }
 
-/* Code block styles */
+/* ============================================================
+   CODE BLOCK — structural only
+   ============================================================ */
 .bke-editor .bke-block[data-block-type="code"] {
     position: relative;
 }
 
 .bke-editor .bke-block[data-block-type="code"] pre {
     margin: 0;
-    padding: 1em;
-    background: #f6f8fa;
-    border: 1px solid #e1e4e8;
-    border-radius: 6px;
     overflow-x: auto;
-    font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", monospace;
-    font-size: 14px;
-    line-height: 1.45;
+    tab-size: 4;
+    /* font-family, background, border, border-radius, font-size → consumer's responsibility */
 }
 
 .bke-editor .bke-block[data-block-type="code"] code {
@@ -446,7 +424,9 @@
     cursor: pointer;
 }
 
-/* Debug Mode Styles */
+/* ============================================================
+   DEBUG TOOLTIP \u2014 always ships
+   ============================================================ */
 .bke-debug-tooltip {
     position: fixed;
     width: 280px;
@@ -495,16 +475,9 @@
     color: white !important;
 }
 
-/* Position debug tooltips relative to blocks */
-.bke-editor .bke-block {
-    position: relative;
-}
-
-.bke-editor * {
-    outline: none;
-}
-
-/* View mode containers — markdown and html views */
+/* ============================================================
+   VIEW MODE (markdown / HTML source views) — editor chrome
+   ============================================================ */
 .bke-editor-markdown,
 .bke-editor-html {
     width: 100%;
@@ -512,18 +485,17 @@
     border: 1px solid #e1e4e8;
     border-radius: 6px;
     overflow: hidden;
-    font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", monospace;
-    font-size: 14px;
+    /* font-family, font-size → consumer's responsibility */
 }
 
 .bke-editor-markdown pre,
 .bke-editor-html pre {
     margin: 0;
     padding: 1em;
-    background: #f6f8fa;
     overflow-x: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
+    /* background → consumer's responsibility */
 }
 
 /* View header with label and copy button */

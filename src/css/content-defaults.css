@@ -1,0 +1,122 @@
+/* ============================================================
+   BlockEditor — content-defaults.css
+   Optional standalone / legacy content styles.
+
+   Import this file ONLY if your host page does not provide its
+   own typography for the editor content area (e.g., plain HTML
+   pages without a CSS framework).
+
+   Usage (npm / ESM):
+     import '@foreline/blockeditor/dist/content-defaults.css';
+
+   Usage (HTML link tag):
+     <link rel="stylesheet" href="dist/content-defaults.css">
+
+   Do NOT import this alongside a CSS framework (Bootstrap,
+   Tailwind, etc.) without careful scoping — it may conflict.
+   ============================================================ */
+
+/* Heading sizes — provide visible hierarchy inside the editor */
+.bke-editor .bke-block[data-block-type="h1"] h1 { font-size: 1.75rem; font-weight: 700; margin: 0; }
+.bke-editor .bke-block[data-block-type="h2"] h2 { font-size: 1.5rem;  font-weight: 600; margin: 0; }
+.bke-editor .bke-block[data-block-type="h3"] h3 { font-size: 1.25rem; font-weight: 600; margin: 0; }
+.bke-editor .bke-block[data-block-type="h4"] h4 { font-size: 1.1rem;  font-weight: 600; margin: 0; }
+.bke-editor .bke-block[data-block-type="h5"] h5 { font-size: 1rem;    font-weight: 600; margin: 0; }
+.bke-editor .bke-block[data-block-type="h6"] h6 { font-size: 0.875rem; font-weight: 600; margin: 0; }
+
+/* List base reset — prevents host-page frameworks from collapsing markers */
+.bke-editor ul,
+.bke-editor ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.bke-editor li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* List block markers — restores visible bullets / numbers */
+.bke-editor .bke-block[data-block-type="ul"] ul {
+    list-style-type: disc;
+    list-style-position: inside;
+    margin: 0;
+    padding: 0;
+}
+
+.bke-editor .bke-block[data-block-type="ul"] li {
+    list-style-type: disc;
+    list-style-position: inside;
+}
+
+.bke-editor .bke-block[data-block-type="ol"] ol {
+    list-style-type: decimal;
+    list-style-position: inside;
+    margin: 0;
+    padding: 0;
+}
+
+.bke-editor .bke-block[data-block-type="ol"] li {
+    list-style-type: decimal;
+    list-style-position: inside;
+}
+
+/* Table visual design */
+.bke-editor .bke-block[data-block-type="table"] th,
+.bke-editor .bke-block[data-block-type="table"] td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    min-width: 100px;
+}
+
+.bke-editor .bke-block[data-block-type="table"] th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+.bke-editor .bke-block[data-block-type="table"] td:focus,
+.bke-editor .bke-block[data-block-type="table"] th:focus {
+    background-color: #f0f8ff;
+}
+
+/* Image aesthetic styles */
+.bke-editor .bke-block[data-block-type="image"] img {
+    border-radius: 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bke-editor .bke-block[data-block-type="image"] .bke-image-placeholder {
+    background: #f9f9f9;
+    border-radius: 5px;
+    color: #666;
+}
+
+.bke-editor .bke-block[data-block-type="image"] .bke-image-placeholder:hover {
+    background: #f0f8ff;
+}
+
+/* Code block visual design */
+.bke-editor .bke-block[data-block-type="code"] pre {
+    padding: 1em;
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", monospace;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+/* View mode (markdown / HTML source views) visual design */
+.bke-editor-markdown,
+.bke-editor-html {
+    font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", monospace;
+    font-size: 14px;
+}
+
+.bke-editor-markdown pre,
+.bke-editor-html pre {
+    background: #f6f8fa;
+}

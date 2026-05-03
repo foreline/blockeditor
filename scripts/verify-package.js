@@ -16,6 +16,7 @@ const requiredFiles = [
     'dist/index.d.ts',
     'dist/style.css',
     'dist/editor.css',
+    'dist/content-defaults.css',
     'dist/prism-theme.css',
     'package.json',
     'README.md',

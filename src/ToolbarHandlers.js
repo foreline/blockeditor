@@ -4,7 +4,8 @@ import {eventEmitter, EVENTS} from "@/utils/eventEmitter.js";
 
 export const ToolbarHandlers = {
   /**
-   * Store event listeners for cleanup
+   * Store event listeners per toolbar container for cleanup.
+   * Map<HTMLElement (container), Array<{element, event, handler}>>
    */
   eventListeners: new Map(),
 
@@ -32,267 +33,128 @@ export const ToolbarHandlers = {
 
   /**
    * Handles the click event for the toolbar button.
+   * Scoped to toolbar.container so multiple editor instances on the same
+   * page do not interfere with each other.
    * @param {Object} toolbar - The Toolbar instance to delegate actions to.
    * @return {void}
    */
   init: (toolbar) => {
-    // Clear existing event listeners before adding new ones
-    ToolbarHandlers.cleanup();
-    
+    const container = toolbar.container;
+
+    // Clear only this instance's previous listeners before re-binding
+    ToolbarHandlers.cleanup(container);
+
+    // Track all listeners registered during this init under the container key
+    const listeners = [];
+    ToolbarHandlers.eventListeners.set(container, listeners);
+
+    // Helper: bind a click handler scoped to this toolbar container
+    const on = (selector, handler) => {
+        container.querySelectorAll(selector).forEach(btn => {
+            btn.addEventListener('click', handler);
+            listeners.push({ element: btn, event: 'click', handler });
+        });
+    };
+
     // Place <p> instead of <div>
     document.execCommand('defaultParagraphSeparator', false, 'p');
 
     /*
     * UNDO | REDO
     */
-
-    document
-        .querySelectorAll('.bke-toolbar-undo')
-        .forEach(btn => {
-            const handler = ToolbarHandlers.createToolbarHandler('undo', () => toolbar.undo());
-            btn.addEventListener('click', handler);
-            ToolbarHandlers.eventListeners.set(btn, { event: 'click', handler });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-redo')
-        .forEach(btn => {
-            const handler = ToolbarHandlers.createToolbarHandler('redo', () => toolbar.redo());
-            btn.addEventListener('click', handler);
-            ToolbarHandlers.eventListeners.set(btn, { event: 'click', handler });
-        });
+    on('.bke-toolbar-undo', ToolbarHandlers.createToolbarHandler('undo', () => toolbar.undo()));
+    on('.bke-toolbar-redo', ToolbarHandlers.createToolbarHandler('redo', () => toolbar.redo()));
 
     /*
     * HEADERs | PARAGRAPH
     */
-
-    document
-        .querySelectorAll('.bke-toolbar-header1')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.h1();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-header2')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.h2();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-header3')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.h3();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-header4')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.h4();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-header5')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.h5();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-header6')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.h6();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-paragraph')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.paragraph();
-            });
-        });
+    on('.bke-toolbar-header1',  (e) => { e.preventDefault(); toolbar.h1(); });
+    on('.bke-toolbar-header2',  (e) => { e.preventDefault(); toolbar.h2(); });
+    on('.bke-toolbar-header3',  (e) => { e.preventDefault(); toolbar.h3(); });
+    on('.bke-toolbar-header4',  (e) => { e.preventDefault(); toolbar.h4(); });
+    on('.bke-toolbar-header5',  (e) => { e.preventDefault(); toolbar.h5(); });
+    on('.bke-toolbar-header6',  (e) => { e.preventDefault(); toolbar.h6(); });
+    on('.bke-toolbar-paragraph',(e) => { e.preventDefault(); toolbar.paragraph(); });
 
     /*
     * BOLD | ITALIC | UNDERLINE | STRIKETHROUGH
     */
-
-    document
-        .querySelectorAll('.bke-toolbar-bold')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.bold();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-italic')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.italic();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-underline')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.underline();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-strikethrough')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.strikethrough();
-            });
-        });
+    on('.bke-toolbar-bold',          (e) => { e.preventDefault(); toolbar.bold(); });
+    on('.bke-toolbar-italic',        (e) => { e.preventDefault(); toolbar.italic(); });
+    on('.bke-toolbar-underline',     (e) => { e.preventDefault(); toolbar.underline(); });
+    on('.bke-toolbar-strikethrough', (e) => { e.preventDefault(); toolbar.strikethrough(); });
 
     /*
-    * UL | OL |
+    * UL | OL | SQ
     */
-
-    document
-        .querySelectorAll('.bke-toolbar-ul')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.ul();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-ol')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.ol();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-sq')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.sq();
-            });
-        });
+    on('.bke-toolbar-ul', (e) => { e.preventDefault(); toolbar.ul(); });
+    on('.bke-toolbar-ol', (e) => { e.preventDefault(); toolbar.ol(); });
+    on('.bke-toolbar-sq', (e) => { e.preventDefault(); toolbar.sq(); });
 
     /*
     * CODE
     */
-
-    document
-        .querySelectorAll('.bke-toolbar-code')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.code();
-            });
-        });
+    on('.bke-toolbar-code', (e) => { e.preventDefault(); toolbar.code(); });
 
     /*
     * TABLE
     */
-
-    document
-        .querySelectorAll('.bke-toolbar-table')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.table();
-            });
-        });
+    on('.bke-toolbar-table', (e) => { e.preventDefault(); toolbar.table(); });
 
     /*
     * TEXT | MARKDOWN | HTML
     */
-
-    document
-        .querySelectorAll('.bke-toolbar-text')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.text();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-markdown')
-        .forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                toolbar.markdown();
-            });
-        });
-
-    document
-        .querySelectorAll('.bke-toolbar-html')
-        .forEach(btn => {
-            const handler = (e) => {
-                e.preventDefault();
-                toolbar.html();
-            };
-            btn.addEventListener('click', handler);
-            ToolbarHandlers.eventListeners.set(btn, { event: 'click', handler });
-        });
+    on('.bke-toolbar-text',     (e) => { e.preventDefault(); toolbar.text(); });
+    on('.bke-toolbar-markdown', (e) => { e.preventDefault(); toolbar.markdown(); });
+    on('.bke-toolbar-html',     (e) => { e.preventDefault(); toolbar.html(); });
 
     /*
     * DEBUG MODE TOGGLE
     */
-    document
-        .querySelectorAll('.bke-toolbar-debug')
-        .forEach(btn => {
-            const handler = ToolbarHandlers.createToolbarHandler('debug', () => toolbar.debug());
-            btn.addEventListener('click', handler);
-            ToolbarHandlers.eventListeners.set(btn, { event: 'click', handler });
-        });
+    on('.bke-toolbar-debug', ToolbarHandlers.createToolbarHandler('debug', () => toolbar.debug()));
   },
 
   /**
-   * Add event listener and track it for cleanup
-   * @param {Element} element 
-   * @param {string} event 
-   * @param {Function} handler 
+   * Add event listener and track it for cleanup under the given container.
+   * @param {Element} element
+   * @param {string} event
+   * @param {Function} handler
+   * @param {HTMLElement} [container] - The toolbar container to track under
    */
-  addEventListenerWithTracking: (element, event, handler) => {
+  addEventListenerWithTracking: (element, event, handler, container) => {
     element.addEventListener(event, handler);
-    ToolbarHandlers.eventListeners.set(element, { event, handler });
+    if (container) {
+      const listeners = ToolbarHandlers.eventListeners.get(container) || [];
+      listeners.push({ element, event, handler });
+      ToolbarHandlers.eventListeners.set(container, listeners);
+    }
   },
 
   /**
-   * Clean up all event listeners to prevent memory leaks
+   * Clean up event listeners to prevent memory leaks.
+   * @param {HTMLElement} [container] - If provided, only removes listeners for that
+   *   toolbar container. If omitted, removes all tracked listeners.
    */
-  cleanup: () => {
-    ToolbarHandlers.eventListeners.forEach((listenerInfo, element) => {
-      try {
-        element.removeEventListener(listenerInfo.event, listenerInfo.handler);
-      } catch (error) {
-        console.warn('Failed to remove event listener:', error);
+  cleanup: (container) => {
+    if (container) {
+      const listeners = ToolbarHandlers.eventListeners.get(container);
+      if (listeners) {
+        listeners.forEach(({ element, event, handler }) => {
+          try { element.removeEventListener(event, handler); } catch (error) {
+            console.warn('Failed to remove event listener:', error);
+          }
+        });
+        ToolbarHandlers.eventListeners.delete(container);
       }
-    });
-    ToolbarHandlers.eventListeners.clear();
+    } else {
+      ToolbarHandlers.eventListeners.forEach((listeners) => {
+        listeners.forEach(({ element, event, handler }) => {
+          try { element.removeEventListener(event, handler); } catch (error) {
+            console.warn('Failed to remove event listener:', error);
+          }
+        });
+      });
+      ToolbarHandlers.eventListeners.clear();
+    }
   }
 };

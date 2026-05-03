@@ -475,7 +475,7 @@ export class Toolbar
         if (this.editorInstance) {
             this.editorInstance.toggleDebugMode();
             
-            const debugBtn = document.querySelector('.bke-toolbar-debug');
+            const debugBtn = this.container.querySelector('.bke-toolbar-debug');
             if (debugBtn) {
                 const isActive = this.editorInstance.debugMode;
                 if (isActive) {

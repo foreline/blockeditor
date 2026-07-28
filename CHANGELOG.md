@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to the BlockEditor project will be documented in this file.
 
@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [v0.7.0] - 2026-07-27
+
+### Added
+- Detached element support: `Editor.mount(element, options)` and the constructor now accept an element that is not yet attached to the document. The constructor resolves the mount point from a new `options.element` reference (taking precedence over the `id` lookup) instead of relying solely on `document.getElementById`, which previously crashed with `Cannot read properties of null (reading 'innerHTML')` when the element had not been inserted into the DOM. This enables insert-then-mount and mount-then-insert integration patterns equally.
 
 ## [v0.6.5] - 2026-05-03
 

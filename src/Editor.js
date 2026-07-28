@@ -40,10 +40,11 @@ export class Editor
     constructor(options = {})
     {
         log('construct()', 'Editor.'); console.log({options});
-        
+
         const elementId = options.id ?? null;
-        
-        if ( !elementId ) {
+        const element   = Editor._isElement(options.element) ? options.element : null;
+
+        if ( !element && !elementId ) {
             return console.warn('Element id is not set.');
         }
 
@@ -191,7 +192,11 @@ export class Editor
             }
         }
 
-        this.instance = document.getElementById(options.id);
+        // Prefer a directly passed element (supports detached elements that
+        // are not yet in the document); fall back to an id lookup.
+        this.instance = Editor._isElement(options.element)
+            ? options.element
+            : document.getElementById(options.id);
         // Ensure the mount element always carries the .bke-editor class so all
         // library CSS (scoped to .bke-editor) applies when using the id: API
         // without a container: option.
@@ -361,6 +366,10 @@ export class Editor
      * Equivalent to `new Editor({ id, ...options })` but accepts an element
      * reference instead of an id string, adding the id automatically if absent.
      *
+     * The element does NOT need to be attached to the document — the instance
+     * is passed straight to the constructor, so no document.getElementById
+     * lookup is required.
+     *
      * @param {HTMLElement} element - The DOM element to mount the editor on
      * @param {object} [options={}] - Editor options (same as constructor, without `id`)
      * @returns {Editor} The new editor instance
@@ -373,7 +382,21 @@ export class Editor
         if (!element.id) {
             element.id = 'bke-' + Math.random().toString(36).slice(2, 9);
         }
-        return new Editor({ ...options, id: element.id });
+        return new Editor({ ...options, id: element.id, element });
+    }
+
+    /**
+     * Checks whether a value is a DOM element usable as an editor mount point.
+     * Duck-typed (nodeType) instead of instanceof so cross-realm elements
+     * (e.g. from an iframe) are accepted as well.
+     *
+     * @param {*} value
+     * @returns {boolean}
+     * @private
+     */
+    static _isElement(value)
+    {
+        return !!value && typeof value === 'object' && value.nodeType === 1;
     }
 
     /**

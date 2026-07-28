@@ -29,6 +29,12 @@ declare module '@foreline/blockeditor' {
 
   export interface EditorOptions {
     id: string;
+    /**
+     * Mount element passed directly (used by Editor.mount). When provided,
+     * it takes precedence over the `id` lookup and may be detached from the
+     * document at construction time.
+     */
+    element?: HTMLElement;
     container?: HTMLElement | HTMLElement[];
     placeholder?: string;
     debug?: boolean;

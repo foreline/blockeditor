@@ -55,3 +55,16 @@ test('retains horizontal rules and inline-code-only paragraphs', () => {
     expect(blocks).toHaveLength(1);
     expect(Parser.html(blocks[0]).querySelector('code').textContent).toBe('hello');
 });
+
+test('preserves all task states through render, HTML and markdown round trips', () => {
+    const md = '- [x] first\n- [ ] second\n- [x] third';
+    const block = Parser.parse(md)[0];
+    expect(block.toMarkdown()).toBe(md);
+    const element = block.renderToElement();
+    expect(Array.from(element.querySelectorAll('input')).map(c => c.checked)).toEqual([true, false, true]);
+    expect(TaskListBlock.parseFromHtml(element.innerHTML).toMarkdown()).toBe(md);
+    expect(Parser.parseHtml(element.innerHTML)[0].toMarkdown()).toBe(md);
+    expect(TaskListBlock.parseFromHtml(block.toHtml()).toMarkdown()).toBe(md);
+    const manager = new BlockManager({editor: {eventEmitter: {emit: jest.fn()}}});
+    expect(Array.from(manager.createBlockElement(block).querySelectorAll('input')).map(c => c.checked)).toEqual([true, false, true]);
+});

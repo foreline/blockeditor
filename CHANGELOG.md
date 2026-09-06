@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sanitize clipboard HTML and Markdown-generated links, removing active elements, event handlers, and unsafe URL schemes.
 - Preserve literal text when converting a block to a paragraph instead of interpreting it as HTML.
 - Keep horizontal rules and paragraphs containing only inline code when parsing Markdown.
+- Retain every task checkbox state through parsing, rendering, export, and pasted block creation; recognize task lists before ordinary lists.
 
 ## [v0.7.0] - 2026-07-27
 

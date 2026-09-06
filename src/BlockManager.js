@@ -28,7 +28,7 @@ export class BlockManager {
      */
     createBlockElement(block) {
         try {
-            const blockInstance = block._blockInstance || BlockFactory.createBlock(
+            const blockInstance = block._blockInstance || (typeof block.renderToElement === 'function' ? block : null) || BlockFactory.createBlock(
                 block.type,
                 block.content,
                 block.html,

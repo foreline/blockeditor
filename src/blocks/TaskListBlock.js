@@ -11,7 +11,8 @@ export class TaskListBlock extends ListBlock
 {
     constructor(content = '', html = '', nested = false) {
         super(BlockType.SQ, content, html, nested);
-        this._checked = false; // Track checkbox state - must be after super() call
+        this._checked = false; // Legacy first-item state
+        this._checkedStates = [];
     }
 
     /**
@@ -81,6 +82,7 @@ export class TaskListBlock extends ListBlock
         
         // Toggle checkbox state
         checkbox.checked = !checkbox.checked;
+        checkbox.defaultChecked = checkbox.checked;
         this._checked = checkbox.checked;
         
         // Update visual state
@@ -225,12 +227,14 @@ export class TaskListBlock extends ListBlock
         if (!this._element) return;
         const items = this._element.querySelectorAll('li');
         const texts = [];
+        this._checkedStates = [];
         Array.from(items).forEach((li, index) => {
             const checkbox = li.querySelector('input[type="checkbox"]');
             const textNode = li.querySelector('.task-text, span') || li;
             let text = textNode.textContent || '';
             text = text.replace(/^\s+/, '');
             texts.push(text);
+            this._checkedStates.push(!!checkbox?.checked);
             if (index === 0 && checkbox) {
                 this._checked = checkbox.checked;
             }
@@ -244,7 +248,7 @@ export class TaskListBlock extends ListBlock
      */
     toMarkdown() {
         this.syncFromElement();
-        const tasks = this._content ? this._content.split('\n').filter(task => task.trim()) : [''];
+        const tasks = this._content ? this._content.split('\n') : [''];
         
         if (tasks.length === 0 || (tasks.length === 1 && !tasks[0].trim())) {
             // Single empty or single task
@@ -254,8 +258,7 @@ export class TaskListBlock extends ListBlock
         
         // Multiple tasks
         return tasks.map((task, index) => {
-            // For now, use the block's checked state for the first item only
-            const isChecked = index === 0 ? this._checked : false;
+            const isChecked = index === 0 ? this._checked : (this._checkedStates[index] || false);
             const checkbox = isChecked ? '[x]' : '[ ]';
             return `- ${checkbox} ${task.trim()}`;
         }).join('\n');
@@ -267,7 +270,7 @@ export class TaskListBlock extends ListBlock
      */
     toHtml() {
         this.syncFromElement();
-        const tasks = this._content ? this._content.split('\n').filter(task => task.trim()) : [''];
+        const tasks = this._content ? this._content.split('\n') : [''];
         
         if (tasks.length === 0 || (tasks.length === 1 && !tasks[0].trim())) {
             // Single empty task
@@ -277,8 +280,7 @@ export class TaskListBlock extends ListBlock
         
         // Multiple tasks
         const listItems = tasks.map((task, index) => {
-            // For now, use the block's checked state for the first item only
-            const isChecked = index === 0 ? this._checked : false;
+            const isChecked = index === 0 ? this._checked : (this._checkedStates[index] || false);
             const checked = isChecked ? ' checked' : '';
             const completedClass = isChecked ? ' bke-task-completed' : '';
             return `<li class="bke-task-list-item${completedClass}"><input type="checkbox"${checked}> ${task.trim()}</li>`;
@@ -293,6 +295,7 @@ export class TaskListBlock extends ListBlock
      */
     setChecked(checked) {
         this._checked = checked;
+        this._checkedStates[0] = !!checked;
     }
 
     /**
@@ -327,7 +330,7 @@ export class TaskListBlock extends ListBlock
         }
         
         // Parse content to create multiple task items if needed
-        const tasks = this._content ? this._content.split('\n').filter(task => task.trim()) : [''];
+        const tasks = this._content ? this._content.split('\n') : [''];
         
         if (tasks.length === 0 || (tasks.length === 1 && !tasks[0].trim())) {
             // Create single empty task item
@@ -338,10 +341,8 @@ export class TaskListBlock extends ListBlock
         } else {
             // Create task items for each line
             tasks.forEach((taskText, index) => {
-                // For now, use the block's checked state for all items
-                // In the future, this could be enhanced to track individual item states
-                const isChecked = index === 0 ? this._checked : false;
-                const listItem = this.createTaskListItem(taskText.trim(), isChecked);
+                const isChecked = index === 0 ? this._checked : (this._checkedStates[index] || false);
+                const listItem = this.createTaskListItem(taskText.trim(), isChecked, index);
                 if (ulElement && typeof ulElement.appendChild === 'function') {
                     ulElement.appendChild(listItem);
                 }
@@ -362,7 +363,7 @@ export class TaskListBlock extends ListBlock
      * @param {boolean} isChecked - Whether the task is checked
      * @returns {HTMLElement} - li element with checkbox and text
      */
-    createTaskListItem(taskText, isChecked = false) {
+    createTaskListItem(taskText, isChecked = false, index = 0) {
         const listItem = document.createElement('li');
         
         // Add class safely
@@ -388,6 +389,7 @@ export class TaskListBlock extends ListBlock
         if (checkbox) {
             checkbox.type = 'checkbox';
             checkbox.checked = isChecked;
+            checkbox.defaultChecked = isChecked;
             
             if (checkbox.style) {
                 checkbox.style.marginRight = '8px';
@@ -443,7 +445,9 @@ export class TaskListBlock extends ListBlock
                 }
                 
                 // Update block state if this is the first/main item
-                this._checked = isChecked;
+                this._checkedStates[index] = isChecked;
+                if (index === 0) this._checked = isChecked;
+                checkbox.defaultChecked = isChecked;
                 
                 // Trigger editor update
                 Editor.getInstanceFromElement(listItem)?.update();
@@ -486,7 +490,7 @@ export class TaskListBlock extends ListBlock
         const doc = parser.parseFromString(htmlString, 'text/html');
         
         // Look for task list items
-        const taskItems = doc.querySelectorAll('li.bke-task-list-item, li[data-block-type="sq"]');
+        const taskItems = doc.querySelectorAll('li');
         
         if (taskItems.length === 0) {
             // Try to parse a single checkbox input
@@ -513,6 +517,7 @@ export class TaskListBlock extends ListBlock
         
         const taskBlock = new TaskListBlock(content, htmlString);
         taskBlock.setChecked(firstTask.isChecked);
+        taskBlock._checkedStates = tasks.map(task => task.isChecked);
         return taskBlock;
     }
 

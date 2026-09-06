@@ -13,7 +13,7 @@ test.describe('BlockEditor — Initialization', () => {
   });
 
   test('should render editor container', async ({ page }) => {
-    const editor = page.locator('.editor');
+    const editor = page.locator('.bke-editor');
     await expect(editor).toBeVisible();
   });
 
@@ -308,34 +308,27 @@ test.describe('BlockEditor — Export', () => {
     await expect(h1Block).toContainText('My Heading');
   });
 
-  test('getMarkdown() returns empty after typing @bug', async ({ page }) => {
-    // BUG: this.blocks is never synced from DOM after init.
-    // getMarkdown() iterates this.blocks and calls block.toMarkdown(),
-    // which returns stale _content from construction time.
-    // Typed content lives only in the DOM, not in block objects.
+  test('getMarkdown() exports typed text', async ({ page }) => {
     const block = page.locator('[contenteditable="true"]').first();
     await block.click();
     await page.keyboard.type('Export test content');
     await page.waitForTimeout(300);
 
     const markdown = await page.evaluate(() => window.editor.getMarkdown());
-    // This should contain typed text but returns empty due to the bug:
-    expect(markdown).toBe('');
+    expect(markdown).toBe('Export test content');
   });
 
-  test('getHtml() returns empty after typing @bug', async ({ page }) => {
-    // BUG: Same as getMarkdown — this.blocks not synced from DOM.
+  test('getHtml() exports typed text', async ({ page }) => {
     const block = page.locator('[contenteditable="true"]').first();
     await block.click();
     await page.keyboard.type('HTML export test');
     await page.waitForTimeout(300);
 
     const html = await page.evaluate(() => window.editor.getHtml());
-    expect(html).toBe('');
+    expect(html).toBe('<p>HTML export test</p>');
   });
 
-  test('getMarkdown() returns empty for heading @bug', async ({ page }) => {
-    // BUG: Same underlying issue — blocks not synced from DOM.
+  test('getMarkdown() exports headings', async ({ page }) => {
     const block = page.locator('[contenteditable="true"]').first();
     await block.click();
     await page.keyboard.type('# ');
@@ -344,11 +337,10 @@ test.describe('BlockEditor — Export', () => {
     await page.waitForTimeout(300);
 
     const markdown = await page.evaluate(() => window.editor.getMarkdown());
-    expect(markdown).toBe('');
+    expect(markdown).toBe('# My Heading');
   });
 
-  test('getHtml() returns empty for heading @bug', async ({ page }) => {
-    // BUG: Same underlying issue — blocks not synced from DOM.
+  test('getHtml() exports headings', async ({ page }) => {
     const block = page.locator('[contenteditable="true"]').first();
     await block.click();
     await page.keyboard.type('# ');
@@ -357,7 +349,7 @@ test.describe('BlockEditor — Export', () => {
     await page.waitForTimeout(300);
 
     const html = await page.evaluate(() => window.editor.getHtml());
-    expect(html).toBe('');
+    expect(html).toMatch(/^<h1(?:\s[^>]*)?>My Heading<\/h1>$/);
   });
 });
 

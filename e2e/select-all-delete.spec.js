@@ -83,7 +83,7 @@ test.describe('Select All + Delete — Block Recovery', () => {
 
     // Check that no stray <br> or text nodes exist outside .block in the container
     const strayContent = await page.evaluate(() => {
-      const container = document.querySelector('.bke-editor');
+      const container = document.querySelector('.bke-content-area');
       if (!container) return { brCount: 0, textNodes: 0 };
 
       let brCount = 0;
@@ -172,7 +172,7 @@ test.describe('Select All + Delete — Enter Creates New Blocks', () => {
 
     // No content should exist outside .block elements
     const strayElements = await page.evaluate(() => {
-      const container = document.querySelector('.bke-editor');
+      const container = document.querySelector('.bke-content-area');
       let strayCount = 0;
       for (const child of container.childNodes) {
         if (child.nodeType === Node.ELEMENT_NODE && !child.classList.contains('bke-block')) {
@@ -375,7 +375,7 @@ test.describe('Select All + Delete — Editor State Integrity', () => {
 
     // The editor's blocks container should only contain .block elements
     const containerState = await page.evaluate(() => {
-      const container = document.querySelector('.bke-editor');
+      const container = document.querySelector('.bke-content-area');
       const children = Array.from(container.children);
       const allAreBlocks = children.every(
         el => el.classList.contains('bke-block') || el.classList.contains('bke-toolbar')

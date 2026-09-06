@@ -60,7 +60,7 @@ export class ParagraphBlock extends BaseBlock
         targetElement.setAttribute('data-placeholder', '');
 
         // Replace content with plain text
-        targetElement.innerHTML = existingContent;
+        targetElement.textContent = existingContent;
 
         // Focus the block
         requestAnimationFrame(() => {

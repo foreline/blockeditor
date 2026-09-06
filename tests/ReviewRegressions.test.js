@@ -38,3 +38,12 @@ test('keeps safe formatting and links', () => {
     expect(sanitizePasteHtml('<p><strong>bold</strong> <a href="https://example.com">link</a></p>'))
         .toBe('<p><strong>bold</strong> <a href="https://example.com">link</a></p>');
 });
+
+test('paragraph conversion keeps HTML-looking text inert', () => {
+    const el = document.createElement('div');
+    const text = '<img src=x onerror=alert(1)> & text';
+    el.textContent = text;
+    new ParagraphBlock().applyTransformation(el);
+    expect(el.textContent).toBe(text);
+    expect(el.querySelector('img')).toBeNull();
+});

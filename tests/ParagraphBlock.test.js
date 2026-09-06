@@ -107,7 +107,7 @@ describe('ParagraphBlock', () => {
       expect(mockBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'p');
       expect(mockBlock.className).toBe('bke-block bke-block--p');
       expect(mockBlock.setAttribute).toHaveBeenCalledWith('contenteditable', 'true');
-      expect(mockBlock.innerHTML).toBe('existing content');
+      expect(mockBlock.textContent).toBe('existing content');
     });
 
     test('calls editor update after transformation', () => {

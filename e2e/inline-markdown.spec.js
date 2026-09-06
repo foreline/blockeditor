@@ -71,6 +71,8 @@ test.describe('BlockEditor — Inline Markdown Replacements', () => {
         const code = block.locator('code');
         await expect(code).toBeVisible();
         await expect(code).toHaveText('console.log()');
+        const text = await block.textContent();
+        expect(text.replace(/\u200B/g, '').replace(/\u00A0/g, ' ')).toBe('use console.log() here');
     });
 
     // -- Strikethrough -----------------------------------------------

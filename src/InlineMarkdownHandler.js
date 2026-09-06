@@ -177,6 +177,14 @@ export class InlineMarkdownHandler
         const content = match[1];
         const after = textNode.nodeValue.substring(match.index + match[0].length);
 
+        // Input checks run on the next animation frame. More characters may
+        // already have been typed, so preserve the current selection instead
+        // of moving it back to the end of the markdown match.
+        const selection = window.getSelection();
+        const savedRange = selection?.rangeCount ? selection.getRangeAt(0).cloneRange() : null;
+        const startOffset = savedRange?.startContainer === textNode ? savedRange.startOffset : null;
+        const endOffset = savedRange?.endContainer === textNode ? savedRange.endOffset : null;
+
         const parent = textNode.parentNode;
 
         // Build the formatted element
@@ -184,19 +192,32 @@ export class InlineMarkdownHandler
         formatted.textContent = content;
 
         // Insert before / formatted / after, then remove original
-        if (before) {
-            parent.insertBefore(document.createTextNode(before), textNode);
-        }
+        const beforeNode = document.createTextNode(before);
+        parent.insertBefore(beforeNode, textNode);
         parent.insertBefore(formatted, textNode);
-
-        if (after) {
-            parent.insertBefore(document.createTextNode(after), textNode);
-        }
+        const matchEnd = match.index + match[0].length;
+        // A boundary at offset zero can be normalized back into the preceding
+        // inline element by the browser. Give that boundary a text position.
+        const spacer = !after || startOffset === matchEnd || endOffset === matchEnd ? '\u200B' : '';
+        const afterNode = document.createTextNode(spacer + after);
+        parent.insertBefore(afterNode, textNode);
 
         parent.removeChild(textNode);
 
-        // Position cursor right after the formatted element
-        this._placeCursorAfter(formatted);
+        if (savedRange) {
+            const position = offset => {
+                if (offset >= matchEnd) return [afterNode, spacer.length + offset - matchEnd];
+                if (offset <= match.index) return [beforeNode, offset];
+                const markerLength = (match[0].length - content.length) / 2;
+                return [formatted.firstChild, Math.max(0, Math.min(content.length, offset - match.index - markerLength))];
+            };
+            if (startOffset !== null) savedRange.setStart(...position(startOffset));
+            if (endOffset !== null) savedRange.setEnd(...position(endOffset));
+            selection.removeAllRanges();
+            selection.addRange(savedRange);
+        } else {
+            this._placeCursorAfter(formatted);
+        }
     }
 
     /**

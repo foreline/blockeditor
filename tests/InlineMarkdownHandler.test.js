@@ -57,6 +57,51 @@ describe('InlineMarkdownHandler', () => {
 
     // ── Bold (**) ──────────────────────────────────────────────────
 
+    describe('selection preservation during deferred formatting', () => {
+        test.each(['', ' h', ' here'])('preserves the caret after a typed suffix %j', suffix => {
+            const block = createBlock('use `console.log()`' + suffix);
+            const range = document.createRange();
+            range.setStart(block.firstChild, block.textContent.length);
+            range.collapse(true);
+            let currentRange = range;
+            const originalSelection = window.getSelection;
+            window.getSelection = () => ({
+                rangeCount: 1,
+                getRangeAt: () => currentRange,
+                removeAllRanges() {},
+                addRange(next) { currentRange = next; }
+            });
+            try {
+                expect(handler.checkAndApply(block)).toBe(true);
+                currentRange.insertNode(document.createTextNode('!'));
+                expect(block.querySelector('code').textContent).toBe('console.log()');
+                expect(block.textContent.replace(/\u200B/g, '')).toBe('use console.log()' + suffix + '!');
+            } finally {
+                window.getSelection = originalSelection;
+            }
+        });
+
+        test('does not move a selection in a different block', () => {
+            const block = createBlock('`code`');
+            const other = createBlock('other text');
+            let range = document.createRange();
+            range.setStart(other.firstChild, 2);
+            range.setEnd(other.firstChild, 5);
+            const originalSelection = window.getSelection;
+            window.getSelection = () => ({
+                rangeCount: 1, getRangeAt: () => range,
+                removeAllRanges() {}, addRange(next) { range = next; }
+            });
+            try {
+                handler.checkAndApply(block);
+                expect(range.startContainer).toBe(other.firstChild);
+                expect(range.toString()).toBe('her');
+            } finally {
+                window.getSelection = originalSelection;
+            }
+        });
+    });
+
     describe('bold (**)', () => {
         test('converts **text** to <strong>text</strong>', () => {
             const block = createBlock('hello **world** foo');

@@ -44,7 +44,7 @@ export class Parser
      */
     static extractHtmlBlocks(htmlString) {
         const blocks = [];
-        const blockTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'pre', 'blockquote', 'ul', 'ol', 'table', 'img', 'del'];
+        const blockTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div', 'pre', 'blockquote', 'ul', 'ol', 'table', 'img', 'del', 'hr'];
         const selfClosingTags = ['img', 'hr', 'br'];
         
         let currentPos = 0;
@@ -209,7 +209,6 @@ export class Parser
         let cleaned = html
             .replace(/~~(.*?)~~/g, '<del>$1</del>')
             .replace(/<blockquote>\s*<p>(.*?)<\/p>\s*<\/blockquote>/gs, '<blockquote>$1</blockquote>')
-            .replace(/<p><code>(.*?)<\/code><\/p>/g, '<code>$1</code>')
             .replace(/<task-item data-checked="(true|false)">(.*?)<\/task-item>/g, (match, checked, text) => {
                 const checkedAttr = checked === 'true' ? ' checked' : '';
                 const completedClass = checked === 'true' ? ' bke-task-completed' : '';

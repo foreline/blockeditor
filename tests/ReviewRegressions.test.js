@@ -47,3 +47,11 @@ test('paragraph conversion keeps HTML-looking text inert', () => {
     expect(el.textContent).toBe(text);
     expect(el.querySelector('img')).toBeNull();
 });
+
+test('retains horizontal rules and inline-code-only paragraphs', () => {
+    expect(Parser.parse('---').map(b => b.type)).toEqual(['delimiter']);
+    expect(Parser.parse('before\n\n---\n\nafter').map(b => b.type)).toEqual(['paragraph', 'delimiter', 'paragraph']);
+    const blocks = Parser.parse('`hello`');
+    expect(blocks).toHaveLength(1);
+    expect(Parser.html(blocks[0]).querySelector('code').textContent).toBe('hello');
+});

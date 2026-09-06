@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Sanitize clipboard HTML and Markdown-generated links, removing active elements, event handlers, and unsafe URL schemes.
+
 ## [v0.7.0] - 2026-07-27
 
 ### Added
@@ -309,4 +312,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Throttling for user interaction events (key presses, focus changes)
   - Structured event types with categories (CONTENT, BLOCK, EDITOR, TOOLBAR, USER)
   - Block content change tracking with timestamps using `data-timestamp` attributes
-

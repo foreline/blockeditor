@@ -5,6 +5,7 @@ import {EVENTS} from "@/utils/eventEmitter.js";
 import {Parser} from "@/Parser.js";
 import {Utils} from "./Utils.js";
 import {md2html} from "./ContentSerializer.js";
+import {sanitizePasteHtml} from "./utils/sanitizePasteHtml.js";
 
 /**
  * Handles clipboard paste events for the editor.
@@ -40,12 +41,7 @@ export class PasteHandler
         }
 
         if (htmlData && htmlData.trim() !== '') {
-            // Basic HTML sanitization — remove script tags and event handlers
-            htmlData = htmlData
-                .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-                .replace(/on\w+="[^"]*"/gi, '')
-                .replace(/on\w+='[^']*'/gi, '')
-                .replace(/javascript:/gi, '');
+            htmlData = sanitizePasteHtml(htmlData);
 
             try {
                 const blocks = Parser.parseHtml(htmlData);
@@ -159,7 +155,7 @@ export class PasteHandler
         let insertAfterBlock = currentBlock;
 
         if (currentBlock && editor.isBlockEmpty(currentBlock)) {
-            const firstLineHtml = md2html(Utils.escapeHTML(lines[0]));
+            const firstLineHtml = sanitizePasteHtml(md2html(Utils.escapeHTML(lines[0])));
             const firstBlockElement = editor.createParagraphBlock(firstLineHtml);
 
             if (firstBlockElement) {
@@ -171,7 +167,7 @@ export class PasteHandler
         }
 
         lines.forEach((line, index) => {
-            const lineHtml = md2html(Utils.escapeHTML(line));
+            const lineHtml = sanitizePasteHtml(md2html(Utils.escapeHTML(line)));
             const blockElement = editor.createParagraphBlock(lineHtml);
 
             if (blockElement && insertAfterBlock) {
@@ -195,6 +191,8 @@ export class PasteHandler
     _insertInlineContent(html, selection)
     {
         if (!selection.rangeCount) return;
+
+        html = sanitizePasteHtml(html);
 
         const range = selection.getRangeAt(0);
 

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.7.1] - 2026-09-06
+
 ### Fixed
 - Sanitize clipboard HTML and Markdown-generated links, removing active elements, event handlers, and unsafe URL schemes.
 - Preserve literal text when converting a block to a paragraph instead of interpreting it as HTML.

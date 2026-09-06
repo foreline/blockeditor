@@ -68,3 +68,51 @@ test('preserves all task states through render, HTML and markdown round trips', 
     const manager = new BlockManager({editor: {eventEmitter: {emit: jest.fn()}}});
     expect(Array.from(manager.createBlockElement(block).querySelectorAll('input')).map(c => c.checked)).toEqual([true, false, true]);
 });
+
+function pasteFixture(html, startIndex, startOffset, endIndex, endOffset, clipboard) {
+    const area = document.createElement('div');
+    area.innerHTML = html;
+    document.body.appendChild(area);
+    const range = document.createRange();
+    range.setStart(area.children[startIndex].querySelector('p').firstChild, startOffset);
+    range.setEnd(area.children[endIndex].querySelector('p').firstChild, endOffset);
+    const selection = {rangeCount: 1, getRangeAt: () => range, removeAllRanges: jest.fn(), addRange: jest.fn()};
+    window.getSelection = () => selection;
+    const editor = {
+        contentArea: area, currentBlock: area.firstElementChild,
+        createBlockElement: block => Parser.html(block),
+        createParagraphBlock: html => new ParagraphBlock('', html).renderToElement(),
+        setCurrentBlock: jest.fn(), transaction: fn => fn(), update: jest.fn(), eventEmitter: {emit: jest.fn()}
+    };
+    new PasteHandler({editor}).handle({preventDefault() {}, clipboardData: {getData: type => clipboard[type] || ''}});
+    return {area, range};
+}
+const paragraph = text => `<div class="bke-block" data-block-type="paragraph"><p>${text}</p></div>`;
+
+test.each([
+    {text: 'X\nY'},
+    {'text/html': '<p>X</p><p>Y</p>'}
+])('multiline paste replaces selected text and preserves the suffix: %j', clipboard => {
+    const {area, range} = pasteFixture(paragraph('abcdef'), 0, 2, 0, 4, clipboard);
+    expect(Array.from(area.children).map(b => b.textContent)).toEqual(['abX', 'Yef']);
+    const remaining = range.cloneRange();
+    remaining.setEndAfter(area.lastChild);
+    expect(remaining.toString()).toBe('ef');
+});
+
+test('multiline paste replaces a selection crossing blocks', () => {
+    const {area} = pasteFixture(paragraph('abc') + paragraph('middle') + paragraph('def'), 0, 2, 2, 1, {text: 'X\nY'});
+    expect(Array.from(area.children).map(b => b.textContent)).toEqual(['abX', 'Yef']);
+});
+
+test('multiline paste splits at a collapsed caret', () => {
+    const {area} = pasteFixture(paragraph('abcd'), 0, 2, 0, 2, {text: 'X\nY'});
+    expect(Array.from(area.children).map(b => b.textContent)).toEqual(['abX', 'Ycd']);
+});
+
+test('paste sanitizes HTML and links generated from plain markdown', () => {
+    const {area} = pasteFixture(paragraph('text'), 0, 0, 0, 0, {'text/html': '<p><span onmouseover=alert(1)>safe</span></p>'});
+    expect(area.querySelector('span').hasAttribute('onmouseover')).toBe(false);
+    const result = pasteFixture(paragraph('text'), 0, 0, 0, 0, {text: '[link](javascript:alert(1))'});
+    expect(result.area.querySelector('a').hasAttribute('href')).toBe(false);
+});

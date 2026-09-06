@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Preserve literal text when converting a block to a paragraph instead of interpreting it as HTML.
 - Keep horizontal rules and paragraphs containing only inline code when parsing Markdown.
 - Retain every task checkbox state through parsing, rendering, export, and pasted block creation; recognize task lists before ordinary lists.
+- Replace selected content during multiline paste while preserving surrounding text and placing the caret before the retained suffix.
 
 ## [v0.7.0] - 2026-07-27
 

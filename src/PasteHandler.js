@@ -111,6 +111,8 @@ export class PasteHandler
     {
         log('_insertMultipleBlocks()', 'PasteHandler');
 
+        if (this._replaceSelectionWithBlocks(() => blocks.map(block => this.editor.createBlockElement(block)))) return;
+
         const editor = this.editor;
         const currentBlock = editor.currentBlock;
         let insertAfterBlock = currentBlock;
@@ -150,6 +152,9 @@ export class PasteHandler
     {
         log('_insertMultipleLinesAsBlocks()', 'PasteHandler');
 
+        if (this._replaceSelectionWithBlocks(() => lines.map(line =>
+            this.editor.createParagraphBlock(sanitizePasteHtml(md2html(Utils.escapeHTML(line))))))) return;
+
         const editor = this.editor;
         const currentBlock = editor.currentBlock;
         let insertAfterBlock = currentBlock;
@@ -180,6 +185,77 @@ export class PasteHandler
                 }
             }
         });
+    }
+
+    /** Replace the selection while preserving the surrounding block fragments. */
+    _replaceSelectionWithBlocks(createElements)
+    {
+        const selection = window.getSelection();
+        const area = this.editor.contentArea;
+        if (!selection?.rangeCount || !area) return false;
+        const range = selection.getRangeAt(0);
+        if (!range.startContainer || !area.contains(range.startContainer) || !area.contains(range.endContainer)) return false;
+        const blockAt = (node, offset, end) => {
+            if (node === area) return area.children[end ? offset - 1 : offset];
+            return (node.nodeType === Node.TEXT_NODE ? node.parentElement : node).closest('.bke-block');
+        };
+        const first = blockAt(range.startContainer, range.startOffset, false);
+        const last = blockAt(range.endContainer, range.endOffset, true);
+        const elements = createElements().filter(Boolean);
+        if (!elements.length) return true;
+
+        // A caret directly in the editing host is already between blocks.
+        if (range.collapsed && range.startContainer === area) {
+            const fragment = document.createDocumentFragment();
+            elements.forEach(el => fragment.appendChild(el));
+            range.insertNode(fragment);
+        } else {
+            if (!first || !last || first.parentNode !== area || last.parentNode !== area) return false;
+            const prefixRange = range.cloneRange();
+            prefixRange.selectNodeContents(first);
+            if (range.startContainer === area) prefixRange.collapse(true);
+            else prefixRange.setEnd(range.startContainer, range.startOffset);
+            const suffixRange = range.cloneRange();
+            suffixRange.selectNodeContents(last);
+            if (range.endContainer === area) suffixRange.collapse(false);
+            else suffixRange.setStart(range.endContainer, range.endOffset);
+            const prefix = first.cloneNode(false);
+            const suffix = last.cloneNode(false);
+            prefix.appendChild(prefixRange.cloneContents());
+            suffix.appendChild(suffixRange.cloneContents());
+            const paragraph = el => ['p', 'paragraph'].includes(el.getAttribute('data-block-type'));
+            const content = el => el.children.length === 1 && el.firstElementChild.tagName === 'P' ? el.firstElementChild : el;
+            const hasContent = el => el.textContent.length > 0 || el.querySelector('img, input, table, hr');
+            if (hasContent(prefix) && paragraph(prefix) && paragraph(elements[0])) {
+                content(elements[0]).prepend(...content(prefix).childNodes);
+            } else if (hasContent(prefix)) elements.unshift(prefix);
+            const tail = elements[elements.length - 1];
+            const caret = document.createTextNode('');
+            content(tail).appendChild(caret);
+            if (hasContent(suffix) && paragraph(suffix) && paragraph(tail)) {
+                content(tail).append(...content(suffix).childNodes);
+            } else if (hasContent(suffix)) elements.push(suffix);
+            range.setStartBefore(first);
+            range.setEndAfter(last);
+            range.deleteContents();
+            const fragment = document.createDocumentFragment();
+            elements.forEach(el => fragment.appendChild(el));
+            range.insertNode(fragment);
+            range.setStartBefore(caret);
+            range.collapse(true);
+            caret.remove();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            this.editor.setCurrentBlock(tail);
+            return true;
+        }
+        const tail = elements[elements.length - 1];
+        range.selectNodeContents(tail);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        this.editor.setCurrentBlock(tail);
+        return true;
     }
 
     /**

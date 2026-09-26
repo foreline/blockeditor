@@ -114,6 +114,7 @@
    ============================================================ */
 .bke-toolbar {
     display: flex;
+    background: var(--bke-toolbar-background, #fff);
     color: #999 !important;
     border-bottom: 1px solid #ebebeb;
     padding-bottom: 0.8em;
@@ -562,4 +563,27 @@
 .bke-copy-btn:hover {
     background: #e1e4e8;
     color: #24292e;
+}
+.bke-toolbar--pinned {
+    position: sticky;
+    top: var(--bke-toolbar-top, 0px);
+    z-index: 20;
+}
+
+.bke-toolbar .bke-toolbar-pin {
+    margin-left: auto;
+    align-self: flex-start;
+    flex-shrink: 0;
+}
+
+.bke-toolbar-pin[aria-pressed="true"] {
+    color: #0969da;
+}
+
+.bke-toolbar-pin[aria-pressed="false"] svg {
+    transform: rotate(45deg);
+}
+
+.bke-toolbar .bke-toolbar-pin:focus-visible {
+    outline: 2px solid var(--bke-focus-color, Highlight);
 }

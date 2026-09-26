@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Preserve native undo references and handle Enter and Tab only once during keyboard navigation.
 - Keep block conversion and caret placement synchronous, recognize typed horizontal rules, and recover a writable paragraph after deleting mixed content.
 
+### Added
+- Keep the toolbar pinned and visible by default, with a right-hand pin toggle and a pinned option for integrations.
+
 ## [v0.7.1] - 2026-09-06
 
 ### Fixed

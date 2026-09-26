@@ -112,6 +112,10 @@ export const ToolbarHandlers = {
     * DEBUG MODE TOGGLE
     */
     on('.bke-toolbar-debug', ToolbarHandlers.createToolbarHandler('debug', () => toolbar.debug()));
+    on('.bke-toolbar-pin', ToolbarHandlers.createToolbarHandler('pin', () => toolbar.togglePinned()));
+    container.querySelectorAll('.bke-toolbar-pin').forEach(button => {
+      ToolbarHandlers.addEventListenerWithTracking(button, 'mousedown', e => e.preventDefault(), container);
+    });
   },
 
   /**

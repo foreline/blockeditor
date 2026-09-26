@@ -49,6 +49,8 @@ declare module '@foreline/blockeditor' {
   }
 
   export interface ToolbarOptions {
+    /** Keep the toolbar visible while scrolling. Defaults to true. */
+    pinned?: boolean;
     groups?: string[];
     sticky?: boolean;
     hideOnFocus?: boolean;
@@ -140,6 +142,9 @@ declare module '@foreline/blockeditor' {
     destroy(): void;
     
     readonly element: HTMLElement;
+    setPinned(pinned: boolean): void;
+    togglePinned(): void;
+    readonly pinned: boolean;
     readonly editor: Editor;
   }
 

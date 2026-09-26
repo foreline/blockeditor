@@ -164,7 +164,8 @@ export class Editor
                 config: toolbarConfig,
                 debug: this.debug,
                 editorInstance: this,
-                icons: options.icons ?? {}
+                icons: options.icons ?? {},
+                pinned: options.toolbar?.pinned ?? options.toolbar?.sticky ?? true
             };
             this.toolbar = new Toolbar(toolbarOptions);
         }

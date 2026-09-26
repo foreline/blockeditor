@@ -52,6 +52,7 @@ export class Toolbar
         this.container = container;
         this.editorInstance = editorInstance;
         this.customIcons = icons ?? {};
+        this.pinned = options.pinned ?? true;
         
         this.createToolbar(container, config, debug, this.customIcons);
         ToolbarHandlers.init(this);
@@ -62,6 +63,21 @@ export class Toolbar
             toolbarConfig: config,
             timestamp: Date.now()
         }, { source: 'toolbar.init' });
+    }
+
+    /** Keep the toolbar visible while scrolling within the editor. */
+    setPinned(pinned) {
+        this.pinned = Boolean(pinned);
+        this.element.classList.toggle('bke-toolbar--pinned', this.pinned);
+        const button = this.element.querySelector('.bke-toolbar-pin');
+        if (button) {
+            button.setAttribute('aria-pressed', String(this.pinned));
+            button.title = this.pinned ? (this.messages?.unpin || 'Unpin toolbar') : (this.messages?.pin || 'Pin toolbar');
+        }
+    }
+
+    togglePinned() {
+        this.setPinned(!this.pinned);
     }
 
     /*
@@ -624,6 +640,13 @@ export class Toolbar
             toolbar.appendChild(debugGroup);
         }
         
+        const pinButton = document.createElement('button');
+        pinButton.type = 'button';
+        pinButton.className = 'bke-toolbar-pin';
+        pinButton.innerHTML = renderIcon('bke-pin', customIcons);
+        toolbar.appendChild(pinButton);
+        this.element = toolbar;
+        this.setPinned(this.pinned ?? true);
         container.insertBefore(toolbar, container.firstChild);
     }
 

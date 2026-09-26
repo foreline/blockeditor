@@ -62,12 +62,13 @@ export class OrderedListBlock extends ListBlock
         const li = document.createElement('li');
         li.contentEditable = true;
         li.textContent = existingContent;
+        if (!existingContent) li.appendChild(document.createElement('br'));
         ol.appendChild(li);
 
         targetElement.innerHTML = '';
         targetElement.appendChild(ol);
 
-        requestAnimationFrame(() => {
+        {
             try {
                 li.focus();
                 if (li.textContent.length) {
@@ -79,7 +80,7 @@ export class OrderedListBlock extends ListBlock
                     sel.addRange(range);
                 }
             } catch (_) { /* noop in tests */ }
-        });
+        }
     }
 
     /**
@@ -100,6 +101,7 @@ export class OrderedListBlock extends ListBlock
         // Create new list item
         const newListItem = document.createElement('li');
         newListItem.contentEditable = true;
+        newListItem.appendChild(document.createElement('br'));
         
         // Append to the ol element
         olElement.appendChild(newListItem);
@@ -110,8 +112,8 @@ export class OrderedListBlock extends ListBlock
             editorInstance.setCurrentBlock(currentBlock); // Keep the same block
         }
         
-        // Use requestAnimationFrame to ensure DOM is updated before focusing
-        requestAnimationFrame(() => {
+        // Set the caret before the next input can reach the previous item.
+        {
             newListItem.focus();
             
             // Place cursor at the beginning of the new list item
@@ -127,7 +129,7 @@ export class OrderedListBlock extends ListBlock
                     // Silently fail for cursor positioning if it fails (e.g., in tests)
                 }
             }
-        });
+        }
         
         return true;
     }
@@ -194,6 +196,7 @@ export class OrderedListBlock extends ListBlock
         if (items.length === 0) {
             const li = document.createElement('li');
             li.contentEditable = true;
+            li.appendChild(document.createElement('br'));
             olElement.appendChild(li);
         } else {
             items.forEach(item => {

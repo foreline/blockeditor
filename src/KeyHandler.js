@@ -312,10 +312,25 @@ export class KeyHandler
         }
     }
 
+    /** Focus the editable boundary adjacent to a deleted empty block. */
+    focusDeletionBoundary(block, atEnd) {
+        // Keep an editable paragraph beside media, which cannot host a caret.
+        if (['image', 'delimiter'].includes(block.dataset?.blockType)) return false;
+        const items = block.querySelectorAll('li, td, th');
+        const item = atEnd ? items[items.length - 1] : items[0];
+        const target = item?.querySelector('[contenteditable="true"]') || item ||
+            block.querySelector('code[contenteditable="true"], [contenteditable="true"]') || block;
+        this.editorInstance.setCurrentBlock(block);
+        target.focus();
+        if (atEnd) this.editorInstance.placeCursorAtEnd(target);
+        else this.editorInstance.placeCursorAtStart(target);
+        return true;
+    }
+
     /**
      * Calculate the cursor's character offset from the start of a block.
      * @param {HTMLElement} block
-     * @param {Range} range - A collapsed range (cursor position)
+     * @param {Range} range - A collapsed range (cursor position, not selection)
      * @returns {number}
      */
     static getCursorOffsetInBlock(block, range) {
@@ -392,6 +407,13 @@ export class KeyHandler
         // language selector option text as content.
         let text;
         const blockType = currentBlock.dataset?.blockType;
+        // Task items are separate editing hosts. Handle their boundaries before
+        // the whole-block empty check, including a lone empty task.
+        if (blockType === 'sq') {
+            const block = BlockFactory.createBlock(blockType);
+            if (block.handleBackspaceKey?.(e)) this.editorInstance.update();
+            return;
+        }
         if (blockType === 'code') {
             const code = currentBlock.querySelector('code');
             text = (code ? code.textContent : '').trim();
@@ -412,9 +434,8 @@ export class KeyHandler
             
             // Remove the empty block and focus on previous block
             if (previousBlock && previousBlock.classList.contains('bke-block')) {
-                this.editorInstance.setCurrentBlock(previousBlock);
+                if (!this.focusDeletionBoundary(previousBlock, true)) { e.preventDefault(); return; }
                 currentBlock.remove();
-                this.editorInstance.focus(previousBlock);
                 this.editorInstance.update();
                 e.preventDefault();
                 return;
@@ -422,9 +443,8 @@ export class KeyHandler
                 // If no previous block, focus on next block (if exists)
                 const nextBlock = currentBlock.nextElementSibling;
                 if (nextBlock && nextBlock.classList.contains('bke-block')) {
-                    this.editorInstance.setCurrentBlock(nextBlock);
+                    if (!this.focusDeletionBoundary(nextBlock, false)) { e.preventDefault(); return; }
                     currentBlock.remove();
-                    this.editorInstance.focus(nextBlock);
                     this.editorInstance.update();
                     e.preventDefault();
                     return;
@@ -473,9 +493,8 @@ export class KeyHandler
             
             // Remove the empty block and focus on next block
             if (nextBlock && nextBlock.classList.contains('bke-block')) {
-                this.editorInstance.setCurrentBlock(nextBlock);
+                if (!this.focusDeletionBoundary(nextBlock, false)) { e.preventDefault(); return; }
                 currentBlock.remove();
-                this.editorInstance.focus(nextBlock);
                 this.editorInstance.update();
                 e.preventDefault();
                 return;
@@ -483,9 +502,8 @@ export class KeyHandler
                 // If no next block, focus on previous block (if exists)
                 const previousBlock = currentBlock.previousElementSibling;
                 if (previousBlock && previousBlock.classList.contains('bke-block')) {
-                    this.editorInstance.setCurrentBlock(previousBlock);
+                    if (!this.focusDeletionBoundary(previousBlock, true)) { e.preventDefault(); return; }
                     currentBlock.remove();
-                    this.editorInstance.focus(previousBlock);
                     this.editorInstance.update();
                     e.preventDefault();
                     return;

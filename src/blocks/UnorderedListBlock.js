@@ -62,6 +62,7 @@ export class UnorderedListBlock extends ListBlock
         const li = document.createElement('li');
         li.contentEditable = true;
         li.textContent = existingContent;
+        if (!existingContent) li.appendChild(document.createElement('br'));
         ul.appendChild(li);
 
         // Replace inner content
@@ -69,7 +70,7 @@ export class UnorderedListBlock extends ListBlock
         targetElement.appendChild(ul);
 
         // Focus the LI
-        requestAnimationFrame(() => {
+        {
             try {
                 li.focus();
                 if (li.textContent.length) {
@@ -81,7 +82,7 @@ export class UnorderedListBlock extends ListBlock
                     sel.addRange(range);
                 }
             } catch (_) { /* noop in tests */ }
-        });
+        }
     }
 
     /**
@@ -102,6 +103,9 @@ export class UnorderedListBlock extends ListBlock
         // Create new list item
         const newListItem = document.createElement('li');
         newListItem.contentEditable = true;
+        // Give an empty item a text line after its inside bullet. Without it,
+        // Chromium paints the caret at the item's left edge, before the marker.
+        newListItem.appendChild(document.createElement('br'));
         
         // Append to the ul element
         ulElement.appendChild(newListItem);
@@ -112,8 +116,8 @@ export class UnorderedListBlock extends ListBlock
             editorInstance.setCurrentBlock(currentBlock); // Keep the same block
         }
         
-        // Use requestAnimationFrame to ensure DOM is updated before focusing
-        requestAnimationFrame(() => {
+        // Move the caret before the next keystroke can reach the previous item.
+        {
             newListItem.focus();
             
             // Place cursor at the beginning of the new list item
@@ -129,7 +133,7 @@ export class UnorderedListBlock extends ListBlock
                     // Silently fail for cursor positioning if it fails (e.g., in tests)
                 }
             }
-        });
+        }
         
         return true;
     }
@@ -196,6 +200,7 @@ export class UnorderedListBlock extends ListBlock
         if (items.length === 0) {
             const li = document.createElement('li');
             li.contentEditable = true;
+            li.appendChild(document.createElement('br'));
             ulElement.appendChild(li);
         } else {
             items.forEach(item => {

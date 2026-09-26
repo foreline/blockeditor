@@ -38,30 +38,7 @@
     padding: 0;
 }
 
-/* List block markers — restores visible bullets / numbers */
-.bke-editor .bke-block[data-block-type="ul"] ul {
-    list-style-type: disc;
-    list-style-position: inside;
-    margin: 0;
-    padding: 0;
-}
-
-.bke-editor .bke-block[data-block-type="ul"] li {
-    list-style-type: disc;
-    list-style-position: inside;
-}
-
-.bke-editor .bke-block[data-block-type="ol"] ol {
-    list-style-type: decimal;
-    list-style-position: inside;
-    margin: 0;
-    padding: 0;
-}
-
-.bke-editor .bke-block[data-block-type="ol"] li {
-    list-style-type: decimal;
-    list-style-position: inside;
-}
+/* List marker gutters are shared structural styles in editor.css. */
 
 /* Table visual design */
 .bke-editor .bke-block[data-block-type="table"] th,

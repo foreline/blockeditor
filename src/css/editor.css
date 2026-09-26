@@ -52,6 +52,8 @@
     --bke-line-height: 1.5;
     --bke-placeholder-color: #999;
     --bke-focus-color: Highlight;
+    --bke-list-marker-width: 1.25em;
+    --bke-list-marker-gap: 0.5em;
 
     /* Legacy aliases — deprecated, kept for backward compatibility */
     --editor-font-size: var(--bke-font-size);
@@ -231,12 +233,32 @@
 }
 
 /* ============================================================
-   TASK LIST — structural (custom rendering, always ships)
+   LISTS — shared marker gutters and checkbox layout
    ============================================================ */
-.bke-editor .bke-block[data-block-type="sq"] {
-    border: 1px dashed #b6b0ff;
-    margin-bottom: 0.2em;
+.bke-editor .bke-block[data-block-type="ul"] ul,
+.bke-editor .bke-block[data-block-type="ol"] ol {
+    margin: 0;
+    padding: 0;
 }
+
+.bke-editor .bke-block[data-block-type="ul"] li,
+.bke-editor .bke-block[data-block-type="ol"] li {
+    position: relative;
+    list-style: none;
+    padding-inline-start: calc(var(--bke-list-marker-width) + var(--bke-list-marker-gap));
+}
+
+.bke-editor .bke-block[data-block-type="ul"] li::before,
+.bke-editor .bke-block[data-block-type="ol"] li::before {
+    position: absolute;
+    inset-inline-start: 0;
+    width: var(--bke-list-marker-width);
+    text-align: center;
+    pointer-events: none;
+}
+
+.bke-editor .bke-block[data-block-type="ul"] li::before { content: '\2022'; }
+.bke-editor .bke-block[data-block-type="ol"] li::before { content: counter(list-item) '.'; }
 
 .bke-editor .bke-block[data-block-type="sq"] ul.bke-task-list {
     list-style: none !important;
@@ -254,8 +276,13 @@
 }
 
 .bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item input[type="checkbox"] {
-    margin-right: 8px !important;
-    margin-top: 2px !important;
+    font-size: inherit;
+    width: 1em;
+    height: 1em;
+    /* Center on the first text line, including when the task wraps or is empty. */
+    margin: calc((1em * var(--bke-line-height) - 1em) / 2) 0 0 !important;
+    margin-inline-start: calc((var(--bke-list-marker-width) - 1em) / 2) !important;
+    margin-inline-end: calc(var(--bke-list-marker-gap) + (var(--bke-list-marker-width) - 1em) / 2) !important;
     flex-shrink: 0 !important;
 }
 
@@ -267,19 +294,16 @@
     text-decoration: line-through;
 }
 
-.bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item span {
+.bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item > span[contenteditable] {
     flex: 1;
+    min-width: 0;
+    min-height: calc(1em * var(--bke-line-height));
     outline: none;
 }
 
 .bke-editor .bke-block[data-block-type="sq"]:empty::before {
     content: attr(data-placeholder);
     color: var(--bke-placeholder-color);
-}
-
-/* Active state for task list blocks */
-.bke-editor .bke-block[data-block-type="sq"].bke-block--active {
-    border: 1px dashed #900;
 }
 
 /* ============================================================

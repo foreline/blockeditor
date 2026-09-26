@@ -31,6 +31,48 @@ export class TaskListBlock extends ListBlock
         return false;
     }
 
+    /** Remove a task boundary without deleting its text or other checkboxes. */
+    handleBackspaceKey(event) {
+        const selection = window.getSelection();
+        if (!selection?.rangeCount || !selection.isCollapsed) return false;
+        const range = selection.getRangeAt(0);
+        const anchor = range.startContainer.nodeType === Node.TEXT_NODE
+            ? range.startContainer.parentElement : range.startContainer;
+        const text = anchor.closest?.('span[contenteditable="true"]');
+        const item = text?.closest('.bke-task-list-item');
+        const block = item?.closest('.bke-block');
+        const editor = block && Editor.getInstanceFromElement(block);
+        if (!editor || !text) return false;
+        const prefix = range.cloneRange();
+        prefix.selectNodeContents(text);
+        prefix.setEnd(range.startContainer, range.startOffset);
+        if (prefix.toString().length > 0) return false;
+
+        const previousText = item.previousElementSibling?.querySelector('span[contenteditable="true"]');
+        const paragraph = previousText ? null : editor.createParagraphBlock(text.innerHTML);
+        if (!previousText && !paragraph) return false;
+        event.preventDefault();
+        editor.transaction(() => {
+            if (previousText) {
+                const offset = previousText.textContent.length;
+                if (!offset) previousText.replaceChildren();
+                while (text.firstChild) previousText.appendChild(text.firstChild);
+                item.remove();
+                previousText.focus();
+                editor.cursor.placeCursorAtOffset(previousText, offset);
+            } else {
+                block.before(paragraph);
+                item.remove();
+                if (!block.querySelector('.bke-task-list-item')) block.remove();
+                editor.setCurrentBlock(paragraph);
+                const editable = editor.findEditableElementInBlock(paragraph);
+                editable.focus();
+                editor.cursor.placeCursorAtStart(editable);
+            }
+        });
+        return true;
+    }
+
     /**
      * Toggle checkbox state for the task list item
      * @param {HTMLElement} currentBlock
@@ -147,22 +189,18 @@ export class TaskListBlock extends ListBlock
             editorInstance.setCurrentBlock(currentBlock); // Keep the block reference
         }
         
-        // Use requestAnimationFrame to ensure DOM is updated before focusing
-        if (typeof requestAnimationFrame === 'function') {
-            requestAnimationFrame(() => {
-                if (textContainer && typeof textContainer.focus === 'function') {
-                    textContainer.focus();
-                    // Place cursor at the start of the text container
-                    if (typeof window !== 'undefined' && window.getSelection) {
-                        const selection = window.getSelection();
-                        const range = document.createRange();
-                        range.setStart(textContainer, 0);
-                        range.collapse(true);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                    }
-                }
-            });
+        // Focus synchronously so immediate typing or Backspace reaches this item.
+        if (textContainer && typeof textContainer.focus === 'function') {
+            textContainer.focus();
+            // Place cursor at the start of the text container
+            if (typeof window !== 'undefined' && window.getSelection) {
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.setStart(textContainer, 0);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
         }
         
         return true;
@@ -184,22 +222,18 @@ export class TaskListBlock extends ListBlock
         // Get current block and convert to task list
         if (!targetElement) return;
         
-        // Set block type
+        // Use the same list/item structure as parsed task lists so editing,
+        // checkbox changes, and serialization all operate on the same nodes.
         targetElement.setAttribute('data-block-type', 'sq');
-        
-        // Clear existing content
+        targetElement.className = 'bke-block bke-block--sq';
+        targetElement.setAttribute('contenteditable', 'false');
         const existingText = targetElement.textContent.trim();
         targetElement.innerHTML = '';
-        
-        // Create checkbox
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.addEventListener('change', (e) => {
-            this.toggleCheckbox(targetElement);
-        });
-        
-        targetElement.appendChild(checkbox);
-        targetElement.appendChild(document.createTextNode(' ' + existingText));
+        const list = document.createElement('ul');
+        list.className = 'bke-task-list';
+        const item = this.createTaskListItem(existingText, this._checked);
+        list.appendChild(item);
+        targetElement.appendChild(list);
         
         if (editorInstance) {
             editorInstance.setCurrentBlock(targetElement);

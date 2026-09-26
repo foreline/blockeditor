@@ -99,12 +99,18 @@ describe('ParagraphBlock', () => {
   });
 
   describe('applyTransformation', () => {
+    beforeEach(() => {
+      const element = global._originalCreateElement('div');
+      element.textContent = 'existing content';
+      jest.spyOn(element, 'setAttribute');
+      Editor._mockCurrentBlock = element;
+    });
     test('performs direct DOM transformation', () => {
       const mockBlock = Editor._mockCurrentBlock;
       const mockEditor = { update: Editor._mockUpdate };
       paragraphBlock.applyTransformation(mockBlock, mockEditor);
       
-      expect(mockBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'p');
+      expect(mockBlock.setAttribute).toHaveBeenCalledWith('data-block-type', 'paragraph');
       expect(mockBlock.className).toBe('bke-block bke-block--p');
       expect(mockBlock.setAttribute).toHaveBeenCalledWith('contenteditable', 'true');
       expect(mockBlock.textContent).toBe('existing content');

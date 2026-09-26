@@ -447,6 +447,26 @@ export class Editor
         this._boundHandlers = {};
 
         this._boundHandlers.keydown = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' &&
+                !e.target.closest('input, textarea, select, button')) {
+                // Nested editing hosts otherwise limit Select All to one block.
+                e.preventDefault();
+                const range = document.createRange();
+                range.selectNodeContents(this.contentArea);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                return;
+            }
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+                // Some browsers do not emit beforeinput for selections spanning
+                // separate contenteditable hosts. Handle that selection here too.
+                this._handleCrossBlockDelete({
+                    inputType: e.key === 'Backspace' ? 'deleteContentBackward' : 'deleteContentForward',
+                    preventDefault: () => e.preventDefault()
+                });
+                if (e.defaultPrevented) return;
+            }
             this.keyHandler.handleSpecialKeys(e);
         };
         this.contentArea.addEventListener('keydown', this._boundHandlers.keydown);
@@ -547,16 +567,15 @@ export class Editor
                     const textContent = decoded.replace(/^\s+/, '');
                     
                     // Only check for conversion if text contains potential triggers
-                    // Support: headings, unordered (* - +), task [- [ ]], ordered (1. / 1) ), quote, fences
-                    if (textContent.match(/^(#{1,6}\s|[\*\-\+]\s|[\*\-]\s*\[[x\s]\]\s*|\d+[\.)]?\s|>\s|```|~~~)/)) {
+                    // Support headings, lists, quotes, fences, and standalone horizontal rules.
+                    if (textContent.match(/^(#{1,6}\s|[\*\-\+]\s|[\*\-]\s*\[[x\s]\]\s*|\d+[\.)]?\s|>\s|```|~~~)/)
+                        || /^(?:-{3,}|\*{3,}|_{3,})\s*$/.test(textContent)) {
                         // Check if this block should be converted to a different type
                         // The input event fires after the character is inserted, so we can check immediately
-                        // Use requestAnimationFrame to ensure DOM is fully updated
-                        requestAnimationFrame(() => {
-                            if (this.checkAndConvertBlock(block)) {
-                                this.update();
-                            }
-                        });
+                        // Finish conversion and caret placement before the next input.
+                        if (this.checkAndConvertBlock(block)) {
+                            this.update();
+                        }
                         // Block-level trigger matched — skip inline check
                         return;
                     }
@@ -566,11 +585,9 @@ export class Editor
                 // Runs for all non-code block types, after block-level triggers
                 const inlineBlockType = block.getAttribute('data-block-type');
                 if (inlineBlockType !== 'code') {
-                    requestAnimationFrame(() => {
-                        if (this._inlineMarkdownHandler.checkAndApply(block)) {
-                            this.update();
-                        }
-                    });
+                    if (this._inlineMarkdownHandler.checkAndApply(block)) {
+                        this.update();
+                    }
                 }
             }
         };
@@ -755,7 +772,14 @@ export class Editor
 
         // --- 7. Ensure at least one block always exists -------------------
         remainingBlocks = this.instance.querySelectorAll('.bke-block');
-        if (remainingBlocks.length === 0) {
+        if (remainingBlocks.length === 1 && remainingBlocks[0] === firstBlock &&
+            !firstBlock.textContent.trim() && !firstBlock.querySelector('img, input, table, hr')) {
+            // Deleting a mixed document may leave its first heading/list wrapper.
+            // Reset it to an editable paragraph, including its toolbar state.
+            remainingBlocks[0].remove();
+            this.currentBlock = null;
+            this.addDefaultBlock();
+        } else if (remainingBlocks.length === 0) {
             this.currentBlock = null;
             this.addDefaultBlock();
         } else if (firstBlock.isConnected) {

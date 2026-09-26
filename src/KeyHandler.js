@@ -47,6 +47,13 @@ export class KeyHandler
             timestamp: Date.now(),
             blockId: this.editorInstance.currentBlock ? (this.editorInstance.currentBlock.getAttribute('data-block-id') || this.editorInstance.currentBlock.id) : null
         }, { throttle: 50, source: 'user.keypress' });
+
+        // Keep the key buffer and update events, but do not repeat keydown
+        // actions (which would skip table cells or insert duplicate tabs/rows).
+        if (e.key === 'Tab' || e.key === 'Enter') {
+            this.editorInstance.update();
+            return;
+        }
         
         if (!this.editorInstance.currentBlock) {
             return;

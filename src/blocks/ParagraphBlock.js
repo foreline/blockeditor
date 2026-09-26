@@ -54,7 +54,7 @@ export class ParagraphBlock extends BaseBlock
         const existingContent = targetElement.textContent || '';
 
         // Update block attributes
-        targetElement.setAttribute('data-block-type', 'p');
+        targetElement.setAttribute('data-block-type', BlockType.PARAGRAPH);
         targetElement.className = 'bke-block bke-block--p';
         targetElement.setAttribute('contenteditable', 'true');
         targetElement.setAttribute('data-placeholder', '');
@@ -63,15 +63,13 @@ export class ParagraphBlock extends BaseBlock
         targetElement.textContent = existingContent;
 
         // Focus the block
-        requestAnimationFrame(() => {
-            targetElement.focus();
-            const range = document.createRange();
-            const selection = window.getSelection();
-            range.selectNodeContents(targetElement);
-            range.collapse(false);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        });
+        targetElement.focus();
+        const range = document.createRange();
+        const selection = window.getSelection();
+        range.selectNodeContents(targetElement);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
 
         // Update the editor
         if (editorInstance) {

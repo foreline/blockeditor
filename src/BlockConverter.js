@@ -49,7 +49,13 @@ export class BlockConverter
 
         if (currentBlockType !== 'p' && currentBlockType !== 'paragraph') return false;
 
-        return this.convertType(blockElement, targetBlockType, textContent);
+        const converted = this.convertType(blockElement, targetBlockType, textContent);
+        if (converted && targetBlockType === BlockType.DELIMITER && this.editor.currentBlock === blockElement) {
+            // A horizontal rule cannot host a caret. Continue typing below it,
+            // after the conversion has finished its state transition.
+            this.editor.addDefaultBlock();
+        }
+        return converted;
     }
 
     /**
@@ -94,17 +100,16 @@ export class BlockConverter
 
             newBlock.element = blockElement;
             editor._blockMap.set(blockElement, newBlock);
+            editor.updateToolbarButtonStates?.();
 
             if (wasFocused) {
-                requestAnimationFrame(() => {
-                    const editableElement = editor.findEditableElementInBlock(blockElement);
-                    if (editableElement) {
-                        editableElement.focus();
-                        if (remainingContent.trim()) {
-                            editor.placeCursorAtEnd(editableElement);
-                        }
+                const editableElement = editor.findEditableElementInBlock(blockElement);
+                if (editableElement) {
+                    editableElement.focus();
+                    if (remainingContent.trim()) {
+                        editor.placeCursorAtEnd(editableElement);
                     }
-                });
+                }
             }
 
             editor.eventEmitter.emit(EVENTS.BLOCK_CONVERTED, {

@@ -37,6 +37,14 @@ export class DelimiterBlock extends BaseBlock
         return ['---', '***', '___'];
     }
 
+    static matchesMarkdownTrigger(text) {
+        return this.canParseMarkdown(text);
+    }
+
+    static computeRemainingContent() {
+        return '';
+    }
+
     applyTransformation(targetElement, editorInstance) {
         if (!targetElement) return;
 

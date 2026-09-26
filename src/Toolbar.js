@@ -153,7 +153,13 @@ export class Toolbar
     paragraph()
     {
         log('paragraph()', 'Toolbar.');
-        document.execCommand('formatBlock', false, '<p>');
+        const editor = this.editorInstance;
+        if (editor?.currentBlock) {
+            const editable = editor.findEditableElementInBlock(editor.currentBlock);
+            editor.convertBlockType(editor.currentBlock, 'paragraph', editable?.textContent || '');
+        } else {
+            document.execCommand('formatBlock', false, '<p>');
+        }
         this.after();
     }
     

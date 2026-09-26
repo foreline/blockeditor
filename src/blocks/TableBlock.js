@@ -196,6 +196,8 @@ export class TableBlock extends BaseBlock
         ];
         
         targetElement.setAttribute('data-block-type', 'table');
+        targetElement.setAttribute('contenteditable', 'false');
+        targetElement.className = 'bke-block bke-block--table';
         targetElement.innerHTML = this.generateTableHTML();
         
         // Ensure cells are properly editable
@@ -231,9 +233,7 @@ export class TableBlock extends BaseBlock
         // Focus on first cell if it exists
         const firstCell = table.querySelector('td, th');
         if (firstCell) {
-            setTimeout(() => {
-                firstCell.focus();
-            }, 100);
+            firstCell.focus();
         }
     }
 

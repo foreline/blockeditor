@@ -73,6 +73,10 @@ describe('KeyHandler', () => {
     });
 
     describe('handleKeyPress', () => {
+        it.each(['Tab', 'Enter'])('does not repeat %s actions on keyup', key => {
+            keyHandler.handleKeyPress({ ...mockEvent, key });
+            expect(BlockFactory.createBlock).not.toHaveBeenCalled();
+        });
         it('should add key to keybuffer', () => {
             keyHandler.handleKeyPress(mockEvent);
             expect(mockEditorInstance.keybuffer).toContain('a');

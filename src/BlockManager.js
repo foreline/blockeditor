@@ -153,7 +153,9 @@ export class BlockManager {
         } else if (allBlocks.length === 1 && this.isEditorEmpty(allBlocks)) {
             const onlyBlock = allBlocks[0];
             if (this.isParagraphBlock(onlyBlock)) {
-                needsDefault = true;
+                // Keep the browser's undo/redo references to a valid empty block.
+                // Replacing it on every update destroys the native edit history.
+                return onlyBlock;
             }
         }
 
@@ -235,12 +237,10 @@ export class BlockManager {
             timestamp: Date.now()
         }, { source: 'editor.create' });
 
-        requestAnimationFrame(() => {
-            if (htmlBlock.isConnected) {
-                this.editor.focus(htmlBlock);
-            }
-            this.editor._stateMachine.finishCreating();
-        });
+        if (htmlBlock.isConnected) {
+            this.editor.focus(htmlBlock);
+        }
+        this.editor._stateMachine.finishCreating();
 
         return htmlBlock;
     }

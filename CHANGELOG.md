@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Preserve native undo references and handle Enter and Tab only once during keyboard navigation.
+- Keep block conversion and caret placement synchronous, recognize typed horizontal rules, and recover a writable paragraph after deleting mixed content.
+
 ## [v0.7.1] - 2026-09-06
 
 ### Fixed

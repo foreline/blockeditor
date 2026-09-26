@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WYSIWYG Editor</title>
     <style>
+        :root { color-scheme: light dark; }
+        html body { background: #fff; color: #24292f; }
+        @media (prefers-color-scheme: dark) {
+            html body { background: #161b22; color: #e6edf3; }
+        }
         .editor-container {
             max-width: 800px;
             margin: 20px auto;

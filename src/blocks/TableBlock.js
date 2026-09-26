@@ -151,7 +151,7 @@ export class TableBlock extends BaseBlock
         for (let i = 0; i < this._headers.length; i++) {
             const cell = document.createElement('td');
             cell.contentEditable = true;
-            cell.style.border = '1px solid #ddd';
+            cell.style.border = '1px solid var(--bke-border, #ddd)';
             cell.style.padding = '8px';
             cell.tabIndex = 0;
             newRow.appendChild(cell);
@@ -259,8 +259,8 @@ export class TableBlock extends BaseBlock
      */
     handleCellFocus(event) {
         const cell = event.target;
-        cell.style.outline = '2px solid #007cba';
-        cell.style.backgroundColor = '#f0f8ff';
+        cell.style.outline = '2px solid var(--bke-accent, #007cba)';
+        cell.style.backgroundColor = 'var(--bke-selection, #f0f8ff)';
         
         // Show table controls when any cell is focused
         this.showTableControls(cell);
@@ -328,7 +328,7 @@ export class TableBlock extends BaseBlock
         if (this._headers.length > 0) {
             html += '<thead><tr>';
             this._headers.forEach(header => {
-                html += `<th contenteditable="true" style="border: 1px solid #ddd; padding: 8px; background: #f5f5f5;">${header}</th>`;
+                html += `<th contenteditable="true" style="border: 1px solid var(--bke-border, #ddd); padding: 8px; background: var(--bke-surface, #f5f5f5);">${header}</th>`;
             });
             html += '</tr></thead>';
         }
@@ -339,7 +339,7 @@ export class TableBlock extends BaseBlock
             this._rows.forEach(row => {
                 html += '<tr>';
                 row.forEach(cell => {
-                    html += `<td contenteditable="true" style="border: 1px solid #ddd; padding: 8px;">${cell}</td>`;
+                    html += `<td contenteditable="true" style="border: 1px solid var(--bke-border, #ddd); padding: 8px;">${cell}</td>`;
                 });
                 html += '</tr>';
             });
@@ -386,8 +386,8 @@ export class TableBlock extends BaseBlock
             left: -35px;
             width: 30px;
             height: 30px;
-            background: white;
-            border: 2px solid #ddd;
+            background: var(--bke-background, white);
+            border: 2px solid var(--bke-border, #ddd);
             border-radius: 4px;
             display: flex;
             align-items: center;
@@ -478,7 +478,7 @@ export class TableBlock extends BaseBlock
         });
         
         topLeftControl.addEventListener('mouseenter', () => {
-            topLeftControl.style.background = '#f0f0f0';
+            topLeftControl.style.background = 'var(--bke-hover, #f0f0f0)';
         });
         topLeftControl.addEventListener('mouseleave', () => {
             topLeftControl.style.background = 'white';
@@ -511,8 +511,8 @@ export class TableBlock extends BaseBlock
             position: absolute;
             top: 35px;
             left: 0;
-            background: white;
-            border: 1px solid #ddd;
+            background: var(--bke-background, white);
+            border: 1px solid var(--bke-border, #ddd);
             border-radius: 4px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             z-index: 1001;
@@ -559,7 +559,7 @@ export class TableBlock extends BaseBlock
                 const divider = document.createElement('div');
                 divider.style.cssText = `
                     height: 1px;
-                    background: #eee;
+                    background: var(--bke-border, #eee);
                     margin: 4px 0;
                 `;
                 menu.appendChild(divider);
@@ -572,15 +572,15 @@ export class TableBlock extends BaseBlock
                     cursor: pointer;
                     font-size: 13px;
                     border-radius: 2px;
-                    ${item.className === 'danger' ? 'color: #dc3545;' : ''}
+                    ${item.className === 'danger' ? 'color: var(--bke-error, #dc3545);' : ''}
                 `;
                 
                 menuItem.addEventListener('mouseenter', () => {
-                    menuItem.style.background = item.className === 'danger' ? '#fff5f5' : '#f0f0f0';
+                    menuItem.style.background = item.className === 'danger' ? 'var(--bke-hover, #fff5f5)' : 'var(--bke-hover, #f0f0f0)';
                 });
                 
                 menuItem.addEventListener('mouseleave', () => {
-                    menuItem.style.background = 'white';
+                    menuItem.style.background = 'var(--bke-background, white)';
                 });
                 
                 menuItem.addEventListener('click', (e) => {
@@ -660,9 +660,9 @@ export class TableBlock extends BaseBlock
         if (headerRow) {
             const newHeader = document.createElement('th');
             newHeader.contentEditable = true;
-            newHeader.style.border = '1px solid #ddd';
+            newHeader.style.border = '1px solid var(--bke-border, #ddd)';
             newHeader.style.padding = '8px';
-            newHeader.style.background = '#f5f5f5';
+            newHeader.style.background = 'var(--bke-surface, #f5f5f5)';
             newHeader.tabIndex = 0;
             const columnCount = headerRow.children.length;
             newHeader.textContent = `Column ${columnCount + 1}`;
@@ -676,7 +676,7 @@ export class TableBlock extends BaseBlock
         bodyRows.forEach(row => {
             const newCell = document.createElement('td');
             newCell.contentEditable = true;
-            newCell.style.border = '1px solid #ddd';
+            newCell.style.border = '1px solid var(--bke-border, #ddd)';
             newCell.style.padding = '8px';
             newCell.tabIndex = 0;
             newCell.textContent = '';
@@ -748,9 +748,9 @@ export class TableBlock extends BaseBlock
         if (headerRow) {
             const newHeader = document.createElement('th');
             newHeader.contentEditable = true;
-            newHeader.style.border = '1px solid #ddd';
+            newHeader.style.border = '1px solid var(--bke-border, #ddd)';
             newHeader.style.padding = '8px';
-            newHeader.style.background = '#f5f5f5';
+            newHeader.style.background = 'var(--bke-surface, #f5f5f5)';
             newHeader.tabIndex = 0;
             newHeader.textContent = 'New Column';
             headerRow.insertBefore(newHeader, headerRow.firstChild);
@@ -763,7 +763,7 @@ export class TableBlock extends BaseBlock
         bodyRows.forEach(row => {
             const newCell = document.createElement('td');
             newCell.contentEditable = true;
-            newCell.style.border = '1px solid #ddd';
+            newCell.style.border = '1px solid var(--bke-border, #ddd)';
             newCell.style.padding = '8px';
             newCell.tabIndex = 0;
             newCell.textContent = '';
@@ -799,7 +799,7 @@ export class TableBlock extends BaseBlock
         for (let i = 0; i < this._headers.length; i++) {
             const cell = document.createElement('td');
             cell.contentEditable = true;
-            cell.style.border = '1px solid #ddd';
+            cell.style.border = '1px solid var(--bke-border, #ddd)';
             cell.style.padding = '8px';
             cell.tabIndex = 0;
             cell.textContent = '';

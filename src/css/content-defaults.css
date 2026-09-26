@@ -43,20 +43,20 @@
 /* Table visual design */
 .bke-editor .bke-block[data-block-type="table"] th,
 .bke-editor .bke-block[data-block-type="table"] td {
-    border: 1px solid #ddd;
+    border: 1px solid var(--bke-border);
     padding: 8px;
     text-align: left;
     min-width: 100px;
 }
 
 .bke-editor .bke-block[data-block-type="table"] th {
-    background-color: #f5f5f5;
+    background-color: var(--bke-surface);
     font-weight: bold;
 }
 
 .bke-editor .bke-block[data-block-type="table"] td:focus,
 .bke-editor .bke-block[data-block-type="table"] th:focus {
-    background-color: #f0f8ff;
+    background-color: var(--bke-selection);
 }
 
 /* Image aesthetic styles */
@@ -66,20 +66,20 @@
 }
 
 .bke-editor .bke-block[data-block-type="image"] .bke-image-placeholder {
-    background: #f9f9f9;
+    background: var(--bke-surface);
     border-radius: 5px;
-    color: #666;
+    color: var(--bke-muted);
 }
 
 .bke-editor .bke-block[data-block-type="image"] .bke-image-placeholder:hover {
-    background: #f0f8ff;
+    background: var(--bke-selection);
 }
 
 /* Code block visual design */
 .bke-editor .bke-block[data-block-type="code"] pre {
     padding: 1em;
-    background: #f6f8fa;
-    border: 1px solid #e1e4e8;
+    background: var(--bke-code-background);
+    border: 1px solid var(--bke-border);
     border-radius: 6px;
     font-family: "SFMono-Regular", "Consolas", "Liberation Mono", "Menlo", monospace;
     font-size: 14px;
@@ -95,18 +95,26 @@
 
 .bke-editor-markdown pre,
 .bke-editor-html pre {
-    background: #f6f8fa;
+    background: var(--bke-code-background);
 }
 
 /* Quotes stay quiet and readable, with a clear inset and leading rule. */
 .bke-editor .bke-block[data-block-type="quote"] blockquote {
     margin: 0.5em 0;
     padding: 0.65em 1em;
-    border-inline-start: 3px solid var(--bke-accent, #0969da);
+    border-inline-start: 3px solid var(--bke-accent);
     border-radius: 0 6px 6px 0;
-    background: var(--bke-quote-background, #f6f8fa);
-    color: var(--bke-foreground, #24292f);
+    background: var(--bke-quote-background);
+    color: var(--bke-foreground);
     line-height: 1.6;
     overflow-wrap: anywhere;
 }
 .bke-editor .bke-block[data-block-type="quote"] blockquote > :last-child { margin-bottom: 0; }
+.bke-editor .bke-content-area :not(pre) > code:not([contenteditable]) {
+    padding: 0.1em 0.3em;
+    border-radius: 4px;
+    color: var(--bke-code-foreground);
+    background: var(--bke-surface);
+}
+.bke-editor .bke-block[data-block-type="code"] pre,
+.bke-editor-markdown pre, .bke-editor-html pre { color: var(--bke-code-foreground); }

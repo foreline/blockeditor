@@ -1,5 +1,7 @@
 'use strict';
 
+import {getCodeText} from '@/utils/codeText.js';
+
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
 import {SyntaxHighlighter} from "@/utils/syntaxHighlighter";
@@ -88,7 +90,7 @@ export class CodeBlock extends BaseBlock
      */
     handleEnterKey(event) {
         // Don't call preventDefault — let the browser insert a newline.
-        // Return true so KeyHandler knows we handled it and won't create a new block.
+        // Return true so KeyHandler knows it handled it and won't create a new block.
         return true;
     }
 
@@ -198,7 +200,7 @@ export class CodeBlock extends BaseBlock
         if (!this._element) return;
         const code = this._element.querySelector('code');
         if (code) {
-            this._content = code.textContent || '';
+            this._content = getCodeText(code);
             const langMatch = code.className?.match(/language-(\w+)/);
             if (langMatch) {
                 this._language = langMatch[1];
@@ -339,7 +341,7 @@ export class CodeBlock extends BaseBlock
         const code = element.querySelector('code');
         if (code) {
             // Sync content from DOM before re-highlighting
-            this._content = code.textContent || '';
+            this._content = getCodeText(code);
 
             // Remove old language classes
             code.className = '';

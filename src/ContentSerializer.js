@@ -1,5 +1,7 @@
 'use strict';
 
+import {getCodeText} from './utils/codeText.js';
+
 import showdown from "showdown";
 import {log, logWarning} from "./utils/log.js";
 import {Utils} from "./Utils.js";
@@ -159,7 +161,7 @@ export class ContentSerializer
             }
             case 'code': {
                 const code = blockEl.querySelector('code');
-                const text = code?.textContent || blockEl.textContent || '';
+                const text = getCodeText(code || blockEl);
                 const langMatch = code?.className?.match(/language-(\w+)/);
                 const lang = langMatch ? langMatch[1] : '';
                 return '```' + lang + '\n' + text + '\n```';

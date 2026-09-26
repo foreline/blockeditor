@@ -385,6 +385,8 @@
 }
 
 .bke-editor .bke-block[data-block-type="code"] code {
+    display: block;
+    min-height: 1em;
     background: none;
     padding: 0;
     border: none;

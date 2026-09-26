@@ -230,13 +230,7 @@ test.describe('Select All + Delete — Mixed Block Types', () => {
     await page.waitForFunction(() => window.editorReady === true, { timeout: 10000 });
   });
 
-  test('Ctrl+A > Backspace on heading + paragraph — heading contenteditable nesting @known-issue', async ({ page }) => {
-    // KNOWN ISSUE: Heading blocks use contenteditable="false" on the wrapper
-    // with contenteditable="true" on the inner <h1>. This causes Ctrl+A to
-    // only select the heading text, NOT the entire editor content.
-    // As a result, Backspace only clears the heading text — the paragraph
-    // block survives untouched. This is a separate issue from the main
-    // select-all-delete bug (which is fixed for standard blocks).
+  test('Ctrl+A > Backspace clears headings and paragraphs', async ({ page }) => {
     const block = page.locator('[contenteditable="true"]').first();
     await block.click();
 
@@ -256,20 +250,15 @@ test.describe('Select All + Delete — Mixed Block Types', () => {
     const totalBlocks = await page.locator('.bke-block').count();
     expect(totalBlocks).toBeGreaterThanOrEqual(2);
 
-    // Select all and delete — Ctrl+A only selects heading text due to
-    // contenteditable nesting, so only heading text is deleted
     await selectAllAndDelete(page);
 
-    // Due to the heading contenteditable nesting, we get 2 blocks:
-    // an empty heading + the untouched paragraph
     const blocks = page.locator('.bke-block');
     const count = await blocks.count();
-    expect(count).toBe(2); // Ideally should be 1 when heading CE nesting is fixed
+    expect(count).toBe(1);
+    await expect(blocks.first()).toHaveAttribute('data-block-type', 'paragraph');
   });
 
-  test('Enter after Ctrl+A > Backspace on mixed content — heading contenteditable nesting @known-issue', async ({ page }) => {
-    // KNOWN ISSUE: Same heading contenteditable nesting as above.
-    // Ctrl+A doesn't truly select all, so we get an extra block.
+  test('Enter after clearing mixed content creates normal paragraphs', async ({ page }) => {
     const block = page.locator('[contenteditable="true"]').first();
     await block.click();
 
@@ -282,7 +271,6 @@ test.describe('Select All + Delete — Mixed Block Types', () => {
     await page.keyboard.type('Paragraph text');
     await page.waitForTimeout(300);
 
-    // Select all and delete (only heading text actually selected)
     await selectAllAndDelete(page);
 
     // Press Enter twice
@@ -293,9 +281,7 @@ test.describe('Select All + Delete — Mixed Block Types', () => {
 
     const blocks = page.locator('.bke-block');
     const count = await blocks.count();
-    // 4 blocks: empty heading + paragraph + 2 from Enter presses
-    // Ideally 3 when heading CE nesting is fixed
-    expect(count).toBe(4);
+    expect(count).toBe(3);
   });
 });
 

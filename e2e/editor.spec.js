@@ -141,11 +141,7 @@ test.describe('BlockEditor — Markdown Triggers', () => {
     await expect(olBlock).toBeVisible();
   });
 
-  test('code block trigger: ``` + Enter > code block @bug', async ({ page }) => {
-    // BUG: CodeBlock.applyTransformation() is a no-op — the conversion
-    // sets text but never transforms the DOM into an actual code block.
-    // See CodeBlock.js line ~95: "Don't call Toolbar.code() to avoid circular dependency"
-    test.fixme();
+  test('code block trigger: ``` + Enter > code block', async ({ page }) => {
 
     const block = page.locator('[contenteditable="true"]').first();
     await block.click();
@@ -157,10 +153,7 @@ test.describe('BlockEditor — Markdown Triggers', () => {
     await expect(codeBlock).toBeVisible();
   });
 
-  test('quote trigger: > + space > blockquote @bug', async ({ page }) => {
-    // BUG: Browser encodes ">" as "&gt;" in contenteditable.
-    // The trigger pattern '> ' doesn't match the HTML entity '&gt; '.
-    test.fixme();
+  test('quote trigger: > + space > blockquote', async ({ page }) => {
 
     const block = page.locator('[contenteditable="true"]').first();
     await block.click();
@@ -262,10 +255,7 @@ test.describe('BlockEditor — Toolbar Formatting', () => {
     await expect(ulBlock).toContainText('List item');
   });
 
-  test('should convert block to code block via toolbar @bug', async ({ page }) => {
-    // BUG: CodeBlock.applyTransformation() is a no-op, so toolbar conversion
-    // also fails silently. The block is not transformed into a code block.
-    test.fixme();
+  test('should convert block to code block via toolbar', async ({ page }) => {
 
     const block = page.locator('[contenteditable="true"]').first();
     await block.click();

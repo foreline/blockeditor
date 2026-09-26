@@ -9,6 +9,13 @@ import {TaskListBlock} from '../src/blocks/TaskListBlock.js';
 import {PasteHandler} from '../src/PasteHandler.js';
 import {sanitizePasteHtml} from '../src/utils/sanitizePasteHtml.js';
 import {BlockManager} from '../src/BlockManager.js';
+import {getCodeText} from '../src/utils/codeText.js';
+import {DelimiterBlock} from '../src/blocks/DelimiterBlock.js';
+import {UnorderedListBlock} from '../src/blocks/UnorderedListBlock.js';
+import {BlockFactory} from '../src/blocks/BlockFactory.js';
+import {Editor} from '../src/Editor.js';
+import {OrderedListBlock} from '../src/blocks/OrderedListBlock.js';
+import {ImageBlock} from '../src/blocks/ImageBlock.js';
 
 beforeAll(() => {
     document.createElement = global._originalCreateElement;
@@ -18,6 +25,115 @@ beforeAll(() => {
 });
 
 afterEach(() => { document.body.innerHTML = ''; });
+
+test('horizontal rule triggers accept whole marker lines without consuming ordinary text', () => {
+    for (const marker of ['---', '****', '_____', '--- ']) {
+        expect(BlockFactory.findBlockClassForTrigger(marker)).toBe(DelimiterBlock);
+        expect(DelimiterBlock.computeRemainingContent(marker)).toBe('');
+    }
+    for (const text of ['--', '**', '__', '---text', '***bold***', '___word___', 'before ---']) {
+        expect(DelimiterBlock.matchesMarkdownTrigger(text)).toBe(false);
+    }
+});
+
+test('empty bullet items render an editable line without adding characters to exports', () => {
+    const block = new UnorderedListBlock();
+    const element = block.renderToElement();
+    expect(element.querySelector('li br')).not.toBeNull();
+    block.applyTransformation(element);
+    expect(element.querySelector('li br')).not.toBeNull();
+    block.createNewListItem(element, element.querySelector('li'));
+    expect(element.querySelectorAll('li br')).toHaveLength(2);
+    block.element = element;
+    expect(block.toMarkdown()).toBe('- \n- ');
+    expect(block.toHtml()).not.toContain('<br>');
+});
+
+test('empty numbered items have a text line and keep numbering in exports', () => {
+    const block = new OrderedListBlock();
+    const element = block.renderToElement();
+    expect(element.querySelector('li br')).not.toBeNull();
+    block.applyTransformation(element);
+    block.createNewListItem(element, element.querySelector('li'));
+    expect(element.querySelectorAll('li br')).toHaveLength(2);
+    block.element = element;
+    expect(block.toMarkdown()).toBe('1. \n2. ');
+});
+
+test('Backspace on the first task preserves formatting and later checked items', () => {
+    const block = new TaskListBlock('First\nSecond');
+    const element = block.renderToElement();
+    document.body.appendChild(element);
+    const text = element.querySelector('span');
+    // jsdom does not reflect the contentEditable property into an attribute.
+    text.setAttribute('contenteditable', 'true');
+    text.innerHTML = '<strong>First</strong>';
+    element.querySelectorAll('input')[1].checked = true;
+    const range = document.createRange();
+    range.setStart(text, 0);
+    range.collapse(true);
+    const getSelection = window.getSelection;
+    window.getSelection = () => ({ rangeCount: 1, isCollapsed: true, getRangeAt: () => range });
+    const editor = {
+        createParagraphBlock: html => new ParagraphBlock('', html).renderToElement(),
+        transaction: fn => fn(), setCurrentBlock: jest.fn(),
+        findEditableElementInBlock: el => el.querySelector('p') || el,
+        cursor: { placeCursorAtStart: jest.fn() }
+    };
+    const lookup = jest.spyOn(Editor, 'getInstanceFromElement').mockReturnValue(editor);
+    try {
+        const event = { preventDefault: jest.fn() };
+        expect(block.handleBackspaceKey(event)).toBe(true);
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(element.previousElementSibling.querySelector('strong').textContent).toBe('First');
+        expect(element.querySelectorAll('li')).toHaveLength(1);
+        expect(element.querySelector('input').checked).toBe(true);
+        expect(element.textContent).toBe('Second');
+    } finally {
+        lookup.mockRestore();
+        window.getSelection = getSelection;
+    }
+});
+
+test.each([
+    ['first<p>second</p>', 'first\nsecond'],
+    ['first<div><br></div><div>third</div>', 'first\n\nthird'],
+    ['<span>first</span><br><span>second</span>', 'first\nsecond'],
+    ['first\n  second', 'first\n  second'],
+    ['<p>first</p><p>second</p>', 'first\nsecond']
+])('code export preserves browser line breaks: %s', (html, expected) => {
+    const code = document.createElement('code');
+    code.innerHTML = html;
+    expect(getCodeText(code)).toBe(expected);
+});
+
+test('toolbar-created task lists keep checkbox state and text in both exports', () => {
+    const element = document.createElement('div');
+    element.textContent = 'Ship release';
+    const block = new TaskListBlock();
+    block.applyTransformation(element);
+    block.element = element;
+    const checkbox = element.querySelector('li input');
+    checkbox.checked = true;
+    checkbox.dispatchEvent(new Event('change'));
+    expect(checkbox.checked).toBe(true);
+    expect(block.toMarkdown()).toBe('- [x] Ship release');
+    expect(block.toHtml()).toContain('checked');
+    checkbox.checked = false;
+    checkbox.dispatchEvent(new Event('change'));
+    expect(block.toMarkdown()).toBe('- [ ] Ship release');
+});
+
+test('empty-editor protection preserves an existing paragraph node for browser undo', () => {
+    const instance = document.createElement('div');
+    instance.innerHTML = '<div class="bke-block" data-block-type="paragraph"><br></div>';
+    const paragraph = instance.firstChild;
+    const editor = { instance, addDefaultBlock: jest.fn() };
+    const manager = new BlockManager({ editor });
+    expect(manager.ensureDefaultBlock()).toBe(paragraph);
+    expect(instance.firstChild).toBe(paragraph);
+    expect(editor.addDefaultBlock).not.toHaveBeenCalled();
+});
 
 test.each([
     '<p><span onmouseover=alert(1)>text</span></p>',
@@ -54,6 +170,18 @@ test('retains horizontal rules and inline-code-only paragraphs', () => {
     const blocks = Parser.parse('`hello`');
     expect(blocks).toHaveLength(1);
     expect(Parser.html(blocks[0]).querySelector('code').textContent).toBe('hello');
+});
+
+test('image rendering escapes attributes and attaches resizing to a real image', () => {
+    const block = new ImageBlock();
+    block.setSrc('https://example.test/image.png?x="quoted"');
+    block.setAlt('" onerror="bad');
+    const element = block.renderToElement();
+    expect(element.querySelector('img').getAttribute('alt')).toBe('" onerror="bad');
+    expect(element.querySelector('img').hasAttribute('onerror')).toBe(false);
+    expect(element.querySelector('.bke-resize-handle')).not.toBeNull();
+    expect(element.querySelector('img').draggable).toBe(false);
+    expect(element.style.cursor).not.toBe('nw-resize');
 });
 
 test('preserves all task states through render, HTML and markdown round trips', () => {
@@ -108,6 +236,17 @@ test('multiline paste replaces a selection crossing blocks', () => {
 test('multiline paste splits at a collapsed caret', () => {
     const {area} = pasteFixture(paragraph('abcd'), 0, 2, 0, 2, {text: 'X\nY'});
     expect(Array.from(area.children).map(b => b.textContent)).toEqual(['abX', 'Ycd']);
+});
+
+test('pasting a standalone image preserves the text around the insertion point', () => {
+    const {area} = pasteFixture(paragraph('beforeafter'), 0, 6, 0, 6, {
+        'text/html': '<img src="https://example.test/large.png" width="2400" height="1200">'
+    });
+    expect(Array.from(area.children).map(block => block.getAttribute('data-block-type')))
+        .toEqual(['paragraph', 'image', 'paragraph']);
+    expect(area.firstElementChild.textContent).toBe('before');
+    expect(area.lastElementChild.textContent).toBe('after');
+    expect(area.querySelector('img').getAttribute('src')).toBe('https://example.test/large.png');
 });
 
 test('paste sanitizes HTML and links generated from plain markdown', () => {

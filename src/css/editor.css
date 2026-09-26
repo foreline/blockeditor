@@ -235,6 +235,8 @@
 /* ============================================================
    LISTS — shared marker gutters and checkbox layout
    ============================================================ */
+.bke-editor .bke-image-container img { display: block; }
+
 .bke-editor .bke-block[data-block-type="ul"] ul,
 .bke-editor .bke-block[data-block-type="ol"] ol {
     margin: 0;
@@ -367,21 +369,23 @@
 }
 
 /* Responsive constraint — structural, keeps images within the editor */
-.bke-editor .bke-block[data-block-type="image"] img {
-    max-width: 100%;
-    height: auto;
+.bke-editor .bke-content-area img {
+    max-width: 100% !important;
+    height: auto !important;
+    cursor: default;
     /* border-radius, box-shadow → consumer's responsibility */
 }
 
 .bke-editor .bke-block[data-block-type="image"] .bke-resize-handle {
     position: absolute;
-    bottom: -5px;
-    right: -5px;
+    bottom: 0;
+    right: 0;
     width: 15px;
     height: 15px;
     background: #007cba;
     border-radius: 50%;
-    cursor: nw-resize;
+    cursor: nwse-resize;
+    touch-action: none;
     opacity: 0;
     transition: opacity 0.3s ease;
 }

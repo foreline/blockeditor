@@ -3,6 +3,7 @@
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
 import {Editor} from "@/Editor";
+import {Utils} from "@/Utils";
 
 /**
  * Image block for handling images with drag & drop and resizing
@@ -15,6 +16,7 @@ export class ImageBlock extends BaseBlock
         this._alt = '';
         this._width = null;
         this._height = null;
+        this._resizableImages = new WeakSet();
         
         // Parse content if provided (should be image URL or markdown image syntax)
         if (content) {
@@ -131,6 +133,7 @@ export class ImageBlock extends BaseBlock
             this._alt = file.name;
             
             // Update the image element
+            if (!element.querySelector('img')) element.innerHTML = this.generateImageHTML();
             const img = element.querySelector('img');
             if (img) {
                 img.src = this._src;
@@ -149,55 +152,37 @@ export class ImageBlock extends BaseBlock
      * @param {HTMLImageElement} img - The image element
      */
     setupImageResizing(img) {
-        // Make image resizable by adding resize handles
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
-        img.style.cursor = 'nw-resize';
-        
-        let isResizing = false;
-        let startX, startY, startWidth, startHeight;
-
-        img.addEventListener('mousedown', (e) => {
-            // Only resize if clicking near the bottom-right corner
+        if (!img || img.tagName !== 'IMG' || this._resizableImages.has(img)) return;
+        this._resizableImages.add(img);
+        img.draggable = false;
+        const handle = img.parentElement.querySelector('.bke-resize-handle');
+        if (!handle) return;
+        let start = null;
+        handle.addEventListener('pointerdown', event => {
+            if (event.button !== 0) return;
             const rect = img.getBoundingClientRect();
-            const threshold = 20; // 20px threshold from corner
-            
-            if (e.clientX > rect.right - threshold && e.clientY > rect.bottom - threshold) {
-                isResizing = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                startWidth = parseInt(getComputedStyle(img).width, 10);
-                startHeight = parseInt(getComputedStyle(img).height, 10);
-                
-                e.preventDefault();
-                
-                document.addEventListener('mousemove', doResize);
-                document.addEventListener('mouseup', stopResize);
-            }
+            if (!rect.width) return;
+            event.preventDefault();
+            start = { x: event.clientX, width: rect.width, ratio: rect.height / rect.width };
+            handle.setPointerCapture(event.pointerId);
         });
-
-        const doResize = (e) => {
-            if (!isResizing) return;
-            
-            const newWidth = startWidth + e.clientX - startX;
-            const aspectRatio = startHeight / startWidth;
-            const newHeight = newWidth * aspectRatio;
-            
-            if (newWidth > 50) { // Minimum width
-                img.style.width = newWidth + 'px';
-                img.style.height = newHeight + 'px';
-                
-                this._width = newWidth;
-                this._height = newHeight;
-            }
-        };
-
-        const stopResize = () => {
-            isResizing = false;
-            document.removeEventListener('mousemove', doResize);
-            document.removeEventListener('mouseup', stopResize);
+        handle.addEventListener('pointermove', event => {
+            if (!start) return;
+            const maximum = img.closest('.bke-block').clientWidth;
+            const width = Math.min(maximum, Math.max(Math.min(50, maximum), start.width + event.clientX - start.x));
+            img.style.width = `${width}px`;
+            img.style.height = 'auto';
+            this._width = width;
+            this._height = width * start.ratio;
+        });
+        const finish = () => {
+            if (!start) return;
+            start = null;
             Editor.getInstanceFromElement(img)?.update();
         };
+        handle.addEventListener('pointerup', finish);
+        handle.addEventListener('pointercancel', finish);
+        handle.addEventListener('lostpointercapture', finish);
     }
 
     /**
@@ -222,6 +207,7 @@ export class ImageBlock extends BaseBlock
         }
         
         targetElement.setAttribute('data-block-type', 'image');
+        targetElement.setAttribute('contenteditable', 'false');
         targetElement.innerHTML = this.generateImageHTML();
         
         // Set up drag and drop
@@ -230,7 +216,7 @@ export class ImageBlock extends BaseBlock
         // Set up resizing for the image
         const img = targetElement.querySelector('img');
         if (img) {
-            img.onload = () => this.setupImageResizing(img);
+            this.setupImageResizing(img);
         }
         
         if (editorInstance) {
@@ -246,7 +232,7 @@ export class ImageBlock extends BaseBlock
     generateImageHTML() {
         if (!this._src) {
             return `
-                <div class="image-placeholder" style="border: 2px dashed #ccc; padding: 40px; text-align: center; background: #f9f9f9;">
+                <div class="bke-image-placeholder" style="border: 2px dashed #ccc; padding: 40px; text-align: center; background: #f9f9f9;">
                     <div>📷</div>
                     <div>Drag & drop an image here or click to select</div>
                     <input type="file" accept="image/*" style="margin-top: 10px;" onchange="this.closest('.bke-block').dispatchEvent(new CustomEvent('imageSelected', {detail: this.files[0]}))">
@@ -255,12 +241,12 @@ export class ImageBlock extends BaseBlock
         }
         
         const widthStyle = this._width ? `width: ${this._width}px;` : 'max-width: 100%;';
-        const heightStyle = this._height ? `height: ${this._height}px;` : 'height: auto;';
+        const heightStyle = 'height: auto;';
         
         return `
-            <div class="image-container" style="position: relative; display: inline-block;">
-                <img src="${this._src}" alt="${this._alt}" style="${widthStyle} ${heightStyle} display: block; cursor: nw-resize;">
-                <div class="resize-handle" style="position: absolute; bottom: 0; right: 0; width: 20px; height: 20px; background: #007cba; cursor: nw-resize; opacity: 0.7;"></div>
+            <div class="bke-image-container">
+                <img src="${Utils.escapeHTML(this._src)}" alt="${Utils.escapeHTML(this._alt)}" style="${widthStyle} ${heightStyle}">
+                <span class="bke-resize-handle" title="Resize image" aria-hidden="true"></span>
             </div>
         `;
     }
@@ -319,7 +305,7 @@ export class ImageBlock extends BaseBlock
      * @returns {Array<string>} - Array of disabled button classes
      */
     static getDisabledButtons() {
-        return ['bke-toolbar-bold', 'bke-toolbar-italic', 'bke-toolbar-ul', 'bke-toolbar-ol', 'bke-toolbar-sq'];
+        return ['bke-toolbar-bold', 'bke-toolbar-italic', 'bke-toolbar-inline', 'bke-toolbar-ul', 'bke-toolbar-ol', 'bke-toolbar-sq'];
     }
 
     /**
@@ -385,29 +371,10 @@ export class ImageBlock extends BaseBlock
         element.classList.add('bke-block--image');
         element.setAttribute('data-block-type', 'image');
         element.setAttribute('data-placeholder', 'Drag an image or paste URL');
-        element.contentEditable = true;
-        
-        if (this._src) {
-            const img = document.createElement('img');
-            img.src = this._src;
-            img.alt = this._alt || 'Image';
-            
-            if (this._width) img.style.width = this._width + 'px';
-            if (this._height) img.style.height = this._height + 'px';
-            
-            element.appendChild(img);
-            element.contentEditable = false;
-        } else {
-            element.textContent = this._content || '';
-        }
-        
-        // Set up drag and drop and resizing
-        setTimeout(() => {
-            this.setupDragAndDrop(element);
-            if (this._src) {
-                this.setupImageResizing(element);
-            }
-        }, 0);
+        element.contentEditable = false;
+        element.innerHTML = this.generateImageHTML();
+        this.setupDragAndDrop(element);
+        this.setupImageResizing(element.querySelector('img'));
         
         return element;
     }

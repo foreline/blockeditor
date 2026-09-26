@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Paste clipboard image files and image links without overflowing the editor; constrain resizing and use the resize cursor only on the image handle.
 - Remove or merge task items with Backspace and restore the caret to adjacent editable content when an empty paragraph is deleted.
 - Align bullet, number, and checkbox gutters; place new-item carets after markers and show task borders only in debug mode.
 - Preserve browser-created line breaks when editing, highlighting, and exporting code blocks.

@@ -6,6 +6,7 @@ import {Parser} from "@/Parser.js";
 import {Utils} from "./Utils.js";
 import {md2html} from "./ContentSerializer.js";
 import {sanitizePasteHtml} from "./utils/sanitizePasteHtml.js";
+import {ImageBlock} from "@/blocks/ImageBlock.js";
 
 /**
  * Handles clipboard paste events for the editor.
@@ -40,6 +41,17 @@ export class PasteHandler
             return false;
         }
 
+        const files = Array.from(e.clipboardData?.files || [])
+            .filter(file => /^image\/(png|jpeg|gif|webp|avif|bmp)$/.test(file.type));
+        if (files.length && !htmlData) {
+            // Insert at the original caret before asynchronous file reads.
+            const blocks = files.map(() => new ImageBlock());
+            const elements = this._insertImages(blocks);
+            elements.forEach((element, index) => blocks[index].handleImageFile(files[index], element));
+            this.editor.eventEmitter.emit(EVENTS.USER_PASTE, { imagesCount: files.length, timestamp: Date.now() }, { source: 'user.paste' });
+            return;
+        }
+
         if (htmlData && htmlData.trim() !== '') {
             htmlData = sanitizePasteHtml(htmlData);
 
@@ -61,7 +73,8 @@ export class PasteHandler
                     return;
                 } else if (blocks.length === 1) {
                     const block = blocks[0];
-                    this._insertInlineContent(block.html || block.content, selection);
+                    if (block.type === 'image') this._insertImages(blocks);
+                    else this._insertInlineContent(block.html || block.content, selection);
                 } else {
                     const finalHtml = md2html(Utils.escapeHTML(text));
                     this._insertInlineContent(finalHtml, selection);
@@ -89,7 +102,9 @@ export class PasteHandler
                 return;
             } else {
                 const finalHtml = md2html(Utils.escapeHTML(text));
-                this._insertInlineContent(finalHtml, selection);
+                const parsed = Parser.parseHtml(sanitizePasteHtml(finalHtml));
+                if (parsed.length === 1 && parsed[0].type === 'image') this._insertImages(parsed);
+                else this._insertInlineContent(finalHtml, selection);
             }
         }
 
@@ -107,6 +122,14 @@ export class PasteHandler
      * @param {Array} blocks
      * @private
      */
+    _insertImages(blocks) {
+        const elements = blocks.map(block => this.editor.createBlockElement(block)).filter(Boolean);
+        this.editor.transaction(() => {
+            this._replaceSelectionWithBlocks(() => [...elements, this.editor.createParagraphBlock('')]);
+        });
+        return elements;
+    }
+
     _insertMultipleBlocks(blocks)
     {
         log('_insertMultipleBlocks()', 'PasteHandler');
@@ -152,16 +175,24 @@ export class PasteHandler
     {
         log('_insertMultipleLinesAsBlocks()', 'PasteHandler');
 
-        if (this._replaceSelectionWithBlocks(() => lines.map(line =>
-            this.editor.createParagraphBlock(sanitizePasteHtml(md2html(Utils.escapeHTML(line))))))) return;
-
         const editor = this.editor;
+        const createLineBlock = line => {
+            const html = sanitizePasteHtml(md2html(Utils.escapeHTML(line)));
+            const parsed = Parser.parseHtml(html);
+            const block = parsed[0];
+            // Preserve semantic block types instead of nesting headings in paragraphs.
+            return block && !['p', 'paragraph'].includes(block.type)
+                ? editor.createBlockElement(block)
+                : editor.createParagraphBlock(html);
+        };
+
+        if (this._replaceSelectionWithBlocks(() => lines.map(createLineBlock))) return;
+
         const currentBlock = editor.currentBlock;
         let insertAfterBlock = currentBlock;
 
         if (currentBlock && editor.isBlockEmpty(currentBlock)) {
-            const firstLineHtml = sanitizePasteHtml(md2html(Utils.escapeHTML(lines[0])));
-            const firstBlockElement = editor.createParagraphBlock(firstLineHtml);
+            const firstBlockElement = createLineBlock(lines[0]);
 
             if (firstBlockElement) {
                 currentBlock.parentNode.replaceChild(firstBlockElement, currentBlock);
@@ -172,8 +203,7 @@ export class PasteHandler
         }
 
         lines.forEach((line, index) => {
-            const lineHtml = sanitizePasteHtml(md2html(Utils.escapeHTML(line)));
-            const blockElement = editor.createParagraphBlock(lineHtml);
+            const blockElement = createLineBlock(line);
 
             if (blockElement && insertAfterBlock) {
                 insertAfterBlock.after(blockElement);

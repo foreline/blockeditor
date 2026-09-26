@@ -1,6 +1,6 @@
 {
   "name": "@foreline/blockeditor",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "type": "module",
   "description": "JavaScript WYSIWYG editor with block-based architecture",
   "main": "dist/blockeditor.cjs.js",
@@ -64,7 +64,9 @@
     "@fortawesome/fontawesome-free": ">=6"
   },
   "peerDependenciesMeta": {
-    "@fortawesome/fontawesome-free": { "optional": true }
+    "@fortawesome/fontawesome-free": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.7.2] - 2026-09-26
+
 ### Fixed
 - Preserve the editing selection and scroll position when applying or dismissing the link panel.
 - Retain inline formatting and links when exporting headings, lists, quotes, and table cells.

@@ -95,6 +95,7 @@ export const ToolbarHandlers = {
     * CODE
     */
     on('.bke-toolbar-code', (e) => { e.preventDefault(); toolbar.code(); });
+    on('.bke-toolbar-inline', (e) => { e.preventDefault(); toolbar.inline(); });
 
     /*
     * TABLE
@@ -113,7 +114,7 @@ export const ToolbarHandlers = {
     */
     on('.bke-toolbar-debug', ToolbarHandlers.createToolbarHandler('debug', () => toolbar.debug()));
     on('.bke-toolbar-pin', ToolbarHandlers.createToolbarHandler('pin', () => toolbar.togglePinned()));
-    container.querySelectorAll('.bke-toolbar-pin').forEach(button => {
+    container.querySelectorAll('.bke-toolbar-pin, .bke-toolbar-inline').forEach(button => {
       ToolbarHandlers.addEventListenerWithTracking(button, 'mousedown', e => e.preventDefault(), container);
     });
   },

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Retain inline formatting and links when exporting headings, lists, quotes, and table cells.
 - Paste clipboard image files and image links without overflowing the editor; constrain resizing and use the resize cursor only on the image handle.
 - Remove or merge task items with Backspace and restore the caret to adjacent editable content when an empty paragraph is deleted.
 - Align bullet, number, and checkbox gutters; place new-item carets after markers and show task borders only in debug mode.
@@ -16,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keep block conversion and caret placement synchronous, recognize typed horizontal rules, and recover a writable paragraph after deleting mixed content.
 
 ### Added
+- Format selected text as inline code with a dedicated toolbar button beside the code-block control.
 - Keep the toolbar pinned and visible by default, with a right-hand pin toggle and a pinned option for integrations.
 
 ## [v0.7.1] - 2026-09-06

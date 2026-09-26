@@ -144,6 +144,7 @@ declare module '@foreline/blockeditor' {
     readonly element: HTMLElement;
     setPinned(pinned: boolean): void;
     togglePinned(): void;
+    inline(): void;
     readonly pinned: boolean;
     readonly editor: Editor;
   }

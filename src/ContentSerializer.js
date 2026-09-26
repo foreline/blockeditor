@@ -124,13 +124,19 @@ export class ContentSerializer
      * @returns {string|null}
      * @private
      */
+    _inlineMarkdown(element) {
+        return element.querySelector?.('a, code, strong, b, em, i, del, s')
+            ? html2md('<p>' + element.innerHTML + '</p>').trim()
+            : (element.textContent || '');
+    }
+
     _blockElementToMarkdown(blockEl, blockType)
     {
         switch (blockType) {
             case 'h1': case 'h2': case 'h3': case 'h4': case 'h5': case 'h6': {
                 const level = parseInt(blockType[1]);
                 const heading = blockEl.querySelector(`h${level}`) || blockEl;
-                return '#'.repeat(level) + ' ' + (heading.textContent || '');
+                return '#'.repeat(level) + ' ' + this._inlineMarkdown(heading);
             }
             case 'p': case 'paragraph': {
                 const innerHTML = blockEl.innerHTML || '';
@@ -142,11 +148,11 @@ export class ContentSerializer
             }
             case 'ul': {
                 const items = blockEl.querySelectorAll('li');
-                return Array.from(items).map(li => `- ${li.textContent || ''}`).join('\n');
+                return Array.from(items).map(li => `- ${this._inlineMarkdown(li)}`).join('\n');
             }
             case 'ol': {
                 const items = blockEl.querySelectorAll('li');
-                return Array.from(items).map((li, i) => `${i + 1}. ${li.textContent || ''}`).join('\n');
+                return Array.from(items).map((li, i) => `${i + 1}. ${this._inlineMarkdown(li)}`).join('\n');
             }
             case 'sq': {
                 const items = blockEl.querySelectorAll('li');
@@ -154,7 +160,7 @@ export class ContentSerializer
                     const checkbox = li.querySelector('input[type="checkbox"]');
                     const checked = checkbox?.checked ? 'x' : ' ';
                     const textNode = li.querySelector('.task-text, span') || li;
-                    let text = textNode.textContent || '';
+                    let text = this._inlineMarkdown(textNode);
                     text = text.replace(/^\s+/, '');
                     return `- [${checked}] ${text}`;
                 }).join('\n');
@@ -168,14 +174,14 @@ export class ContentSerializer
             }
             case 'quote': {
                 const bq = blockEl.querySelector('blockquote') || blockEl;
-                return '> ' + (bq.textContent || '');
+                return '> ' + this._inlineMarkdown(bq);
             }
             case 'delimiter':
                 return '---';
             case 'table': {
-                const headers = Array.from(blockEl.querySelectorAll('th')).map(th => th.textContent || '');
+                const headers = Array.from(blockEl.querySelectorAll('th')).map(th => this._inlineMarkdown(th));
                 const rows = Array.from(blockEl.querySelectorAll('tbody tr')).map(tr =>
-                    Array.from(tr.querySelectorAll('td')).map(td => td.textContent || '')
+                    Array.from(tr.querySelectorAll('td')).map(td => this._inlineMarkdown(td))
                 );
                 if (headers.length === 0) return '';
                 let md = '| ' + headers.join(' | ') + ' |\n';

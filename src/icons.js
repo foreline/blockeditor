@@ -15,6 +15,7 @@ const svg = (viewBox, path) =>
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" aria-hidden="true" focusable="false">${path}</svg>`;
 
 export const ICONS = {
+    'bke-inline-code': svg('0 0 24 24', '<path d="m8 7-5 5 5 5m8-10 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'),
     // Original pin outline; both states share the icon and expose aria-pressed.
     'bke-pin': svg('0 0 24 24', '<path d="M8 3h8M9 3v6l-3 4v2h12v-2l-3-4V3M12 15v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'),
     'fa-bold': svg(

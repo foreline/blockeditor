@@ -46,6 +46,7 @@ export const defaultToolbarConfig = [
     },
     {
         group: [
+            { class: 'bke-toolbar-inline', icon: 'bke-inline-code', titleKey: 'inline', title: 'Inline code (select text)' },
             { class: 'bke-toolbar-code', icon: 'fa-code', title: 'code block' }
         ]
     },

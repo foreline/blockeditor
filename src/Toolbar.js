@@ -281,10 +281,38 @@ export class Toolbar
      */
     inline()
     {
-        log('inline()', 'Toolbar.');
-    
-        document.execCommand('formatBlock', false, '<code>');
-        
+        const selection = window.getSelection();
+        const area = this.editorInstance?.contentArea;
+        if (!selection?.rangeCount || !area) return;
+        const range = selection.getRangeAt(0);
+        if (!area.contains(range.startContainer) || !area.contains(range.endContainer)) return;
+        const parent = node => node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+        const start = parent(range.startContainer);
+        const end = parent(range.endContainer);
+        if (start.closest('pre') || end.closest('pre')) return;
+        // Inline formatting must not swallow list items, cells, or block boundaries.
+        const host = node => node.closest('li, td, th, .bke-block');
+        if (!host(start) || host(start) !== host(end)) return;
+        const existing = start.closest('code');
+        if (existing && existing === end.closest('code')) {
+            range.selectNode(existing);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            document.execCommand('removeFormat', false, null);
+        } else {
+            if (range.collapsed) return;
+            const code = document.createElement('code');
+            code.id = `bke-inline-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+            code.textContent = selection.toString();
+            document.execCommand('insertHTML', false, code.outerHTML);
+            const inserted = area.querySelector(`#${code.id}`);
+            if (inserted) {
+                inserted.removeAttribute('id');
+                range.selectNodeContents(inserted);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
         this.after();
     }
     

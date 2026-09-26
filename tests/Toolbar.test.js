@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 import { Toolbar } from '../src/Toolbar.js';
 import { ToolbarHandlers } from '../src/ToolbarHandlers.js';
@@ -43,6 +43,8 @@ function makeToolbar(editorOverrides = {}) {
     };
     const mockEditorInstance = {
         convertCurrentBlockOrCreate: jest.fn().mockReturnValue(false),
+        convertBlockType: jest.fn().mockReturnValue(true),
+        findEditableElementInBlock: jest.fn().mockReturnValue({ textContent: 'Heading text' }),
         currentBlock: { id: 'block-1' },
         update: jest.fn(),
         getMarkdown: jest.fn().mockReturnValue('# Test'),
@@ -67,6 +69,7 @@ describe('Toolbar', () => {
             addEventListener: jest.fn(),
             setAttribute: jest.fn(),
             getAttribute: jest.fn(),
+            querySelector: jest.fn().mockReturnValue(null),
             innerHTML: '',
             textContent: '',
             style: {}
@@ -83,6 +86,18 @@ describe('Toolbar', () => {
     });
 
     describe('constructor', () => {
+        it('pins toolbars by default and keeps each instance toggle independent', () => {
+            document.createElement = global._originalCreateElement;
+            const first = new Toolbar({ container: document.createElement('div'), config: [] });
+            const second = new Toolbar({ container: document.createElement('div'), config: [], pinned: false });
+            expect(first.element.classList.contains('bke-toolbar--pinned')).toBe(true);
+            expect(second.element.classList.contains('bke-toolbar--pinned')).toBe(false);
+            first.togglePinned();
+            expect(first.element.querySelector('.bke-toolbar-pin').getAttribute('aria-pressed')).toBe('false');
+            second.togglePinned();
+            expect(second.element.querySelector('.bke-toolbar-pin').getAttribute('aria-label')).toBe('Unpin toolbar');
+            expect(first.pinned).toBe(false);
+        });
         it('should call createToolbar, ToolbarHandlers.init and emit EDITOR_INITIALIZED', () => {
             const createToolbarSpy = jest.spyOn(Toolbar.prototype, 'createToolbar').mockImplementation(() => {});
             const container = { appendChild: jest.fn() };
@@ -127,10 +142,11 @@ describe('Toolbar', () => {
             toolbar.h1();
             expect(document.execCommand).toHaveBeenCalledWith('formatBlock', false, '<h1>');
         });
-        it('paragraph() calls execCommand with formatBlock p', () => {
+        it('paragraph() converts the tracked block instead of only its DOM appearance', () => {
             const { toolbar, mockEditorInstance } = makeToolbar();
             toolbar.paragraph();
-            expect(document.execCommand).toHaveBeenCalledWith('formatBlock', false, '<p>');
+            expect(mockEditorInstance.convertBlockType).toHaveBeenCalledWith(mockEditorInstance.currentBlock, 'paragraph', 'Heading text');
+            expect(document.execCommand).not.toHaveBeenCalled();
             expect(mockEditorInstance.update).toHaveBeenCalled();
         });
     });
@@ -273,23 +289,27 @@ describe('Toolbar', () => {
             const container = { insertBefore: jest.fn(), firstChild: null };
             const toolbar = Object.create(Toolbar.prototype);
             toolbar.customIcons = {};
-            const mockDiv = { className: '', appendChild: jest.fn() };
-            document.createElement.mockReturnValue(mockDiv);
+            document.createElement = global._originalCreateElement;
             toolbar.createToolbar(container, [], false, {});
-            expect(mockDiv.className).toBe('bke-toolbar');
-            expect(container.insertBefore).toHaveBeenCalledWith(mockDiv, null);
+            expect(toolbar.element.classList.contains('bke-toolbar')).toBe(true);
+            expect(container.insertBefore).toHaveBeenCalledWith(toolbar.element, null);
         });
         it('handles config.config format', () => {
             const container = { insertBefore: jest.fn(), firstChild: null };
             const toolbar = Object.create(Toolbar.prototype);
             toolbar.customIcons = {};
-            const mockDiv = { className: '', appendChild: jest.fn() };
-            document.createElement.mockReturnValue(mockDiv);
+            document.createElement = global._originalCreateElement;
             toolbar.createToolbar(container, { config: [] }, false, {});
-            expect(container.insertBefore).toHaveBeenCalledWith(mockDiv, null);
+            expect(container.insertBefore).toHaveBeenCalledWith(toolbar.element, null);
         });
-        it('creates dropdown sections (smoke test)', () => {
-            expect(true).toBe(true);
+        it('renders labels on standalone toolbar buttons', () => {
+            const container = { insertBefore: jest.fn(), firstChild: null };
+            const toolbar = Object.create(Toolbar.prototype);
+            toolbar.createToolbar(container, [{ group: [{ class: 'bke-toolbar-header1', label: 'H1' }] }]);
+            const button = document.createElement.mock.results.map(result => result.value)
+                .find(element => element.className === 'bke-toolbar-header1');
+            expect(button.textContent).toBe('H1');
+            expect(button.type).toBe('button');
         });
     });
 });

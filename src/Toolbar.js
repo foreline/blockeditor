@@ -3,6 +3,7 @@
 'use strict';
 
 import { ToolbarPanels } from './ToolbarPanels.js';
+import { toolbarHint } from './config/toolbarHints.js';
 import { toolbarMessages } from './config/toolbarMessages.js';
 import { ToolbarHandlers } from "./ToolbarHandlers.js";
 import { BlockFactory } from "./blocks/BlockFactory.js";
@@ -71,8 +72,12 @@ export class Toolbar
     }
 
     setButtonTooltip(button, label) {
-        button.title = label || '';
-        button.setAttribute('aria-label', button.title);
+        const action = button.className.split(/\s+/).find(name => name.startsWith('bke-toolbar-'))?.replace('bke-toolbar-', '');
+        const hint = toolbarHint(action, this.locale);
+        const title = label || (this.locale === 'ru' ? 'Действие редактора' : 'Editor action');
+        button.title = hint ? title + ' — ' + hint : title;
+        button.setAttribute('aria-label', title);
+        if (hint) button.setAttribute('aria-description', hint);
     }
 
     /** Keep the toolbar visible while scrolling within the editor. */

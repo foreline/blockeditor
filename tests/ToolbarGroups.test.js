@@ -16,7 +16,8 @@ jest.mock('../src/utils/log.js', () => ({
 // Mock ToolbarHandlers
 jest.mock('../src/ToolbarHandlers.js', () => ({
     ToolbarHandlers: {
-        init: jest.fn()
+        init: jest.fn(),
+        addEventListenerWithTracking: jest.fn()
     }
 }));
 
@@ -50,6 +51,8 @@ describe('Toolbar Groups', () => {
             const element = {
                 tagName: tagName.toUpperCase(),
                 className: '',
+                classList: { toggle: jest.fn() },
+                querySelector: jest.fn().mockReturnValue(null),
                 innerHTML: '',
                 textContent: '',
                 disabled: false,
@@ -104,9 +107,9 @@ describe('Toolbar Groups', () => {
         const groupDivs = mockCreatedElements.filter(el => el.className === 'bke-toolbar-group');
         expect(groupDivs).toHaveLength(2);
 
-        // Should create four buttons (2 per group)
+        // Four configured buttons and the persistent pin control.
         const buttons = mockCreatedElements.filter(el => el.tagName === 'BUTTON');
-        expect(buttons).toHaveLength(4);
+        expect(buttons).toHaveLength(6);
 
         // Check button classes
         expect(buttons.some(btn => btn.className === 'bke-toolbar-undo')).toBe(true);

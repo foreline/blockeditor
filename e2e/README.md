@@ -2,6 +2,10 @@
 
 This directory contains end-to-end tests for the BlockEditor using Playwright.
 
+See [TEST-PLAN.md](TEST-PLAN.md) for the user journey, acceptance criteria,
+regressions, and remaining coverage. See [TEST-RUN.md](TEST-RUN.md) for the latest
+verified results. The full document journey is in `writing-journey.spec.js`.
+
 ## Running Tests
 
 ### Standard test run

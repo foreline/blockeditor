@@ -11,12 +11,14 @@ WYSIWYG editor built with JavaScript, featuring a comprehensive toolbar and bloc
 - **Block-based architecture**: Modular content management with individual block types.
 - **Content export**: Export editor content as markdown (`Editor.getMarkdown()`) or HTML (`Editor.getHtml()`).
 - **BlockInterface contract**: Consistent behavior across all block types with standardized methods.
-- **Comprehensive toolbar**: Text formatting, lists, blockquotes, and code blocks.
+- **Comprehensive toolbar**: Text formatting, lists, blockquotes, and code blocks. Pinned by default, with a right-hand pin toggle.
 - **Markdown support**: Full markdown parsing and conversion using Showdown.
 - **Advanced key handling**: Smart Enter/Backspace behavior for different block types.
 - **Clipboard integration**: Paste support with markdown conversion and XSS protection.
 - **Block type system**: Support for paragraphs, headings (H1-H6), lists (ul/ol), checklists, tables, images, and special blocks.
 - **Interactive checklists**: Task lists with clickable checkboxes supporting markdown syntax `- [ ]` and `- [x]`.
+- **Inline code control**: Select text and click the `<>` toolbar button; click again within inline code to remove it. This preserves the surrounding paragraph and supports native undo.
+- **Responsive pasted images**: HTML images and clipboard image files fit the editor width. Image blocks resize proportionally from their bottom-right handle.
 - **Table support**: Markdown tables with Tab navigation, cell editing, and dynamic row creation.
 - **Image support**: Drag & drop image upload, URL insertion, and resizable images with markdown syntax `![alt](src)`.
 - **Universal library**: Available as CommonJS and ES modules for easy integration.
@@ -39,6 +41,36 @@ const editor = new Editor({
 ```
 
 See [LIBRARY.md](./LIBRARY.md) for complete documentation.
+
+### Automatic light and dark themes
+
+The editor follows the browser/OS `prefers-color-scheme` setting, including changes made while it is open. Toolbar controls, panels, tables, quotations, inline code, and code/source views use matching colors. Import `content-defaults.css` for the quotation inset and other standalone content styling, and `prism-theme.css` for syntax highlighting in both themes. These styles are scoped to the editor.
+
+Theme colors can be customized through `--bke-background`, `--bke-foreground`, `--bke-surface`, `--bke-border`, `--bke-accent`, `--bke-code-background`, and `--bke-code-foreground`. Toolbar icons have native tooltips with available keyboard or Markdown shortcuts; Command is shown on macOS and Ctrl elsewhere.
+
+### Links, help, and language
+
+The chain button opens a small link panel. Select text to link it, or place the caret to insert the address as text. Open it within an existing link to edit or remove the link. Enter applies; Escape cancels and restores the editing selection. Link operations support native undo. Selections must stay within one paragraph, heading, list item, or table cell.
+
+The help button, immediately before the pin toggle, shows editing tips and Markdown shortcuts. Set `toolbar: { locale: 'ru' }` for Russian help, link-panel text, and pin labels; the library defaults to English. Override individual messages with `toolbar.labels`, for example `{ pin: 'Закрепить', unpin: 'Открепить' }`. Custom toolbar configurations still control their own button titles. The demo uses Russian.
+
+Custom toolbars can add `{ class: 'bke-toolbar-link', icon: 'bke-link', title: 'Вставить или изменить ссылку' }`. Inline code now sits beside the code-block button.
+
+### Toolbar pinning
+
+The toolbar stays visible at the top of the scrolling area while its editor is in view. Use the pin icon at the right to switch between pinned and normal scrolling. Each editor keeps its own setting for its lifetime; reloading restores the configured default.
+
+```javascript
+const editor = new Editor({
+    id: 'my-editor',
+    toolbar: { pinned: false } // Optional: start unpinned (default is true).
+});
+editor.toolbar.setPinned(true);
+```
+
+For a page with a fixed header, set `--bke-toolbar-top` on `.bke-editor` to the header's height. `--bke-toolbar-background` sets the toolbar's opaque background. Pinning uses CSS sticky positioning within the editor's scroll container.
+
+Bullet, numbered, and checkbox lists share a marker column and text gutter. Customize them with `--bke-list-marker-width` (default `1.25em`) and `--bke-list-marker-gap` (default `0.5em`). Custom toolbars can opt into inline code with `{ class: 'bke-toolbar-inline', icon: 'bke-inline-code', title: 'Inline code (select text)' }`.
 
 ## Development Setup
 

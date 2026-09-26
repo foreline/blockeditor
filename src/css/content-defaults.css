@@ -97,3 +97,16 @@
 .bke-editor-html pre {
     background: #f6f8fa;
 }
+
+/* Quotes stay quiet and readable, with a clear inset and leading rule. */
+.bke-editor .bke-block[data-block-type="quote"] blockquote {
+    margin: 0.5em 0;
+    padding: 0.65em 1em;
+    border-inline-start: 3px solid var(--bke-accent, #0969da);
+    border-radius: 0 6px 6px 0;
+    background: var(--bke-quote-background, #f6f8fa);
+    color: var(--bke-foreground, #24292f);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+.bke-editor .bke-block[data-block-type="quote"] blockquote > :last-child { margin-bottom: 0; }

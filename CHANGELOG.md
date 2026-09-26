@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keep block conversion and caret placement synchronous, recognize typed horizontal rules, and recover a writable paragraph after deleting mixed content.
 
 ### Added
+- Style blockquotes with a subtle background, an accent rule, and comfortable spacing.
 - Show descriptive tooltips and keyboard or Markdown shortcut hints on every toolbar control.
 - Provide compact link-editing and editor-help panels with Russian and English labels, Markdown help, and accessible controls.
 - Format selected text as inline code with a dedicated toolbar button beside the code-block control.

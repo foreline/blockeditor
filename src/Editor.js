@@ -1,5 +1,7 @@
 'use strict';
 
+import { ToolbarHandlers } from './ToolbarHandlers.js';
+
 import {Toolbar} from "./Toolbar.js";
 import {log, logWarning} from "./utils/log.js";
 import {EditorEventEmitter, EVENTS} from "@/utils/eventEmitter.js";
@@ -165,7 +167,9 @@ export class Editor
                 debug: this.debug,
                 editorInstance: this,
                 icons: options.icons ?? {},
-                pinned: options.toolbar?.pinned ?? options.toolbar?.sticky ?? true
+                pinned: options.toolbar?.pinned ?? options.toolbar?.sticky ?? true,
+                locale: options.toolbar?.locale,
+                labels: options.toolbar?.labels
             };
             this.toolbar = new Toolbar(toolbarOptions);
         }
@@ -1486,6 +1490,9 @@ export class Editor
      */
     destroy() {
         log('destroy()', 'Editor.');
+
+        this.toolbar?.panels?.close();
+        if (this.toolbar) ToolbarHandlers.cleanup(this.toolbar.container);
 
         // Remove DOM event listeners
         if (this._boundHandlers && this.contentArea) {

@@ -113,7 +113,9 @@
    TOOLBAR CHROME — always ships
    ============================================================ */
 .bke-toolbar {
+    position: relative;
     display: flex;
+    flex-wrap: wrap;
     background: var(--bke-toolbar-background, #fff);
     color: #999 !important;
     border-bottom: 1px solid #ebebeb;
@@ -571,7 +573,7 @@
 }
 
 .bke-toolbar .bke-toolbar-pin {
-    margin-left: auto;
+    margin-left: 0;
     align-self: flex-start;
     flex-shrink: 0;
 }
@@ -587,3 +589,35 @@
 .bke-toolbar .bke-toolbar-pin:focus-visible {
     outline: 2px solid var(--bke-focus-color, Highlight);
 }
+
+/* Compact panels share the toolbar's width and stay inside narrow viewports. */
+.bke-toolbar .bke-toolbar-help { margin-left: auto; }
+.bke-toolbar-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 30;
+    box-sizing: border-box;
+    width: min(440px, 100%);
+    max-height: min(70vh, 620px);
+    overflow: auto;
+    padding: 16px;
+    border: 1px solid #c8cfd8;
+    border-radius: 8px;
+    background: var(--bke-toolbar-background, #fff);
+    color: #24292f;
+    box-shadow: 0 6px 24px #0002;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.bke-toolbar-panel h3, .bke-toolbar-panel h4 { font-size: 1em; font-weight: 600; margin: 0 0 12px; }
+.bke-toolbar-panel p { margin: 0 0 12px; }
+.bke-toolbar-panel label { display: block; width: 100%; }
+.bke-toolbar-panel input { display: block; box-sizing: border-box; width: 100%; margin: 6px 0 12px; padding: 8px; border: 1px solid #c8cfd8; border-radius: 4px; }
+.bke-toolbar-panel button { font: inherit; padding: 5px 8px; border-radius: 4px; }
+.bke-toolbar-panel .bke-panel-close { float: right; margin: -6px -6px 8px 8px; }
+.bke-toolbar-panel dl { display: grid; grid-template-columns: minmax(110px, 1fr) 1.5fr; gap: 6px 12px; }
+.bke-toolbar-panel dd { margin: 0; }
+.bke-toolbar-panel code { white-space: pre-wrap; }
+.bke-toolbar-panel .bke-panel-error { color: #b42318; }
+.bke-toolbar button:focus-visible { outline: 2px solid var(--bke-focus-color, Highlight); }

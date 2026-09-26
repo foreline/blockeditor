@@ -95,6 +95,8 @@ export const ToolbarHandlers = {
     * CODE
     */
     on('.bke-toolbar-code', (e) => { e.preventDefault(); toolbar.code(); });
+    on('.bke-toolbar-link', (e) => { e.preventDefault(); toolbar.panels.link(); });
+    on('.bke-toolbar-help', (e) => { e.preventDefault(); toolbar.panels.help(); });
     on('.bke-toolbar-inline', (e) => { e.preventDefault(); toolbar.inline(); });
 
     /*
@@ -114,7 +116,9 @@ export const ToolbarHandlers = {
     */
     on('.bke-toolbar-debug', ToolbarHandlers.createToolbarHandler('debug', () => toolbar.debug()));
     on('.bke-toolbar-pin', ToolbarHandlers.createToolbarHandler('pin', () => toolbar.togglePinned()));
-    container.querySelectorAll('.bke-toolbar-pin, .bke-toolbar-inline').forEach(button => {
+    container.querySelectorAll('.bke-toolbar-pin, .bke-toolbar-inline, .bke-toolbar-link, .bke-toolbar-help').forEach(button => {
+      // Mouse clicks must not discard the editing selection. Keyboard activation
+      // keeps normal button focus and uses the same click handler.
       ToolbarHandlers.addEventListenerWithTracking(button, 'mousedown', e => e.preventDefault(), container);
     });
   },

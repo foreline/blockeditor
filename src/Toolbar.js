@@ -2,6 +2,8 @@
 
 'use strict';
 
+import { ToolbarPanels } from './ToolbarPanels.js';
+import { toolbarMessages } from './config/toolbarMessages.js';
 import { ToolbarHandlers } from "./ToolbarHandlers.js";
 import { BlockFactory } from "./blocks/BlockFactory.js";
 import {log} from "./utils/log.js";
@@ -53,9 +55,12 @@ export class Toolbar
         this.editorInstance = editorInstance;
         this.customIcons = icons ?? {};
         this.pinned = options.pinned ?? true;
+        this.locale = options.locale || 'en';
+        this.messages = { ...(toolbarMessages[this.locale] || toolbarMessages.en), ...options.labels };
         
         this.createToolbar(container, config, debug, this.customIcons);
         ToolbarHandlers.init(this);
+        this.panels = new ToolbarPanels(this);
         
         // Emit toolbar initialization event
         eventEmitter.emit(EVENTS.EDITOR_INITIALIZED, {
@@ -63,6 +68,11 @@ export class Toolbar
             toolbarConfig: config,
             timestamp: Date.now()
         }, { source: 'toolbar.init' });
+    }
+
+    setButtonTooltip(button, label) {
+        button.title = label || '';
+        button.setAttribute('aria-label', button.title);
     }
 
     /** Keep the toolbar visible while scrolling within the editor. */
@@ -73,6 +83,7 @@ export class Toolbar
         if (button) {
             button.setAttribute('aria-pressed', String(this.pinned));
             button.title = this.pinned ? (this.messages?.unpin || 'Unpin toolbar') : (this.messages?.pin || 'Pin toolbar');
+            this.setButtonTooltip(button, button.title);
         }
     }
 
@@ -530,10 +541,10 @@ export class Toolbar
                 const isActive = this.editorInstance.debugMode;
                 if (isActive) {
                     debugBtn.classList.add('active');
-                    debugBtn.title = 'отключить режим отладки';
+                    this.setButtonTooltip(debugBtn, this.locale === 'ru' ? 'Отключить режим отладки' : 'Disable debug mode');
                 } else {
                     debugBtn.classList.remove('active');
-                    debugBtn.title = 'включить режим отладки';
+                    this.setButtonTooltip(debugBtn, this.locale === 'ru' ? 'Включить режим отладки' : 'Enable debug mode');
                 }
             }
         }
@@ -583,6 +594,7 @@ export class Toolbar
                 trigger.setAttribute('aria-expanded', 'false');
                 trigger.setAttribute('aria-controls', menuId);
                 trigger.innerHTML = renderIcon(section.icon, customIcons);
+                this.setButtonTooltip(trigger, section.title || (this.locale === 'ru' ? 'Заголовок или абзац' : 'Heading or paragraph'));
 
                 // Menu list (replaces Bootstrap .dropdown-menu)
                 const ul = document.createElement('ul');
@@ -596,12 +608,23 @@ export class Toolbar
                     const button = document.createElement('button');
                     button.className = item.class;
                     button.setAttribute('role', 'menuitem');
+                    button.type = 'button';
                     button.textContent = item.label || '';
                     if (item.icon) button.innerHTML = renderIcon(item.icon, customIcons) + ' ' + button.textContent;
-                    if (item.title) button.title = item.title;
+                    if (item.title) button.title = (item.titleKey && this.messages?.[item.titleKey]) || item.title;
+                    this.setButtonTooltip(button, button.title || item.label);
                     if (item.disabled) button.disabled = true;
                     li.appendChild(button);
                     ul.appendChild(li);
+                });
+
+                // A menu action must dismiss both native and fallback menus.
+                ul.addEventListener('click', (event) => {
+                    const button = event.target.closest('button');
+                    if (!button || button.disabled) return;
+                    if (supportsPopover) ul.hidePopover();
+                    ul.classList.remove('bke-dropdown-menu--open');
+                    trigger.setAttribute('aria-expanded', 'false');
                 });
 
                 if (supportsPopover) {
@@ -645,8 +668,11 @@ export class Toolbar
                 section.group.forEach(item => {
                     const button = document.createElement('button');
                     button.className = item.class;
+                    button.type = 'button';
+                    button.textContent = item.label || '';
                     if (item.icon) button.innerHTML = renderIcon(item.icon, customIcons);
-                    if (item.title) button.title = item.title;
+                    if (item.title) button.title = (item.titleKey && this.messages?.[item.titleKey]) || item.title;
+                    this.setButtonTooltip(button, button.title || item.label);
                     if (item.disabled) button.disabled = true;
                     group.appendChild(button);
                 });
@@ -662,17 +688,31 @@ export class Toolbar
             const debugButton = document.createElement('button');
             debugButton.className = 'bke-toolbar-debug active';
             debugButton.innerHTML = renderIcon('fa-bug', customIcons);
-            debugButton.title = 'отключить режим отладки';
+            this.setButtonTooltip(debugButton, this.locale === 'ru' ? 'Отключить режим отладки' : 'Disable debug mode');
             
             debugGroup.appendChild(debugButton);
             toolbar.appendChild(debugGroup);
         }
         
+        const helpButton = document.createElement('button');
+        helpButton.type = 'button';
+        helpButton.className = 'bke-toolbar-help';
+        helpButton.title = this.messages?.help || 'Editor help';
+        this.setButtonTooltip(helpButton, helpButton.title);
+        helpButton.setAttribute('aria-expanded', 'false');
+        helpButton.setAttribute('aria-haspopup', 'dialog');
+        helpButton.innerHTML = renderIcon('bke-help', customIcons);
+        toolbar.appendChild(helpButton);
         const pinButton = document.createElement('button');
         pinButton.type = 'button';
         pinButton.className = 'bke-toolbar-pin';
         pinButton.innerHTML = renderIcon('bke-pin', customIcons);
         toolbar.appendChild(pinButton);
+        const linkButton = toolbar.querySelector('.bke-toolbar-link');
+        if (linkButton) {
+            linkButton.setAttribute('aria-haspopup', 'dialog');
+            linkButton.setAttribute('aria-expanded', 'false');
+        }
         this.element = toolbar;
         this.setPinned(this.pinned ?? true);
         container.insertBefore(toolbar, container.firstChild);

@@ -49,8 +49,12 @@ declare module '@foreline/blockeditor' {
   }
 
   export interface ToolbarOptions {
-    /** Keep the toolbar visible while scrolling. Defaults to true. */
-    pinned?: boolean;
+    /** Language of built-in help, link panels, and pin controls. Default: en. */
+    locale?: 'en' | 'ru';
+    /** Override individual built-in labels without changing the locale. */
+    labels?: Record<string, string>;
+      /** Keep the toolbar visible while scrolling. Defaults to true. */
+      pinned?: boolean;
     groups?: string[];
     sticky?: boolean;
     hideOnFocus?: boolean;
@@ -133,19 +137,19 @@ declare module '@foreline/blockeditor' {
     static DELIMITER: string;
   }
 
-  export class Toolbar {
+    export class Toolbar {
     constructor(editor: Editor, options?: ToolbarOptions);
     
     show(): void;
     hide(): void;
     toggle(): void;
-    destroy(): void;
+      destroy(): void;
+      setPinned(pinned: boolean): void;
+      togglePinned(): void;
+      inline(): void;
+      readonly pinned: boolean;
     
     readonly element: HTMLElement;
-    setPinned(pinned: boolean): void;
-    togglePinned(): void;
-    inline(): void;
-    readonly pinned: boolean;
     readonly editor: Editor;
   }
 

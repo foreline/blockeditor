@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,6 +74,7 @@
         },
         {
             group: [
+                { class: 'bke-toolbar-link', icon: 'bke-link', title: 'Вставить или изменить ссылку' },
                 { class: 'bke-toolbar-table', icon: 'fa-table', title: 'вставить таблицу' },
                 { class: 'bke-toolbar-image', icon: 'fa-image', title: 'вставить изображение' }
             ]
@@ -101,6 +102,7 @@
             debug: true, // Enable debug mode
             toolbar: {
                 container: document.querySelector('.editor-container'),
+                locale: 'ru',
                 config: toolbarConfig
             },
             // initial markdown content

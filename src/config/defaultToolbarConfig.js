@@ -40,6 +40,7 @@ export const defaultToolbarConfig = [
     },
     {
         group: [
+            { class: 'bke-toolbar-link', icon: 'bke-link', titleKey: 'link', title: 'Insert or edit link' },
             { class: 'bke-toolbar-table', icon: 'fa-table', title: 'insert table' },
             { class: 'bke-toolbar-image', icon: 'fa-image', title: 'insert image' }
         ]

@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Format selected text as inline code with a dedicated toolbar button beside the code-block control.
 - Keep the toolbar pinned and visible by default, with a right-hand pin toggle and a pinned option for integrations.
 
+### Changed
+- Exclude generated test reports and build output from development-server watching to prevent reloads during browser tests.
+
 ## [v0.7.1] - 2026-09-06
 
 ### Fixed

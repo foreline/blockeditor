@@ -13,6 +13,11 @@ export default defineConfig(({ mode }) => {
         server: {
             port: 5173,
             open: true,
+            // Generated reports/builds must not reload pages under test or
+            // attach Windows file watchers to files being replaced by a build.
+            watch: {
+                ignored: ['**/coverage/**', '**/dist/**', '**/demo-dist/**', '**/test-results/**', '**/playwright-report/**'],
+            },
         },
     };
 

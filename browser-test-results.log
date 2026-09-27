@@ -1,0 +1,139 @@
+
+Running 71 tests using 2 workers
+
+(node:29748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:29748) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [chromium] › e2e\cross-block-delete.spec.js:67:5 › Cross-Block Deletion › Delete last two of three blocks › cursor should be inside a block after deletion (3.0s)
+  ok  2 [chromium] › e2e\cross-block-delete.spec.js:45:5 › Cross-Block Deletion › Delete last two of three blocks › should leave only the first block (3.1s)
+  ok  3 [chromium] › e2e\cross-block-delete.spec.js:98:5 › Cross-Block Deletion › Partial cross-block deletion preserves unselected content › should keep content before and after the selection (2.6s)
+  ok  4 [chromium] › e2e\cross-block-delete.spec.js:125:5 › Cross-Block Deletion › Partial cross-block deletion preserves unselected content › cursor should be at the merge point (2.7s)
+  ok  6 [chromium] › e2e\cross-block-delete.spec.js:183:3 › Cross-Block Deletion › deleting blocks 2–3 entirely via range should leave block 1 with cursor inside (3.1s)
+  ok  5 [chromium] › e2e\cross-block-delete.spec.js:153:5 › Cross-Block Deletion › Partial cross-block deletion preserves unselected content › typing after partial cross-block delete should insert at merge point (3.3s)
+  ok  7 [chromium] › e2e\cross-block-delete.spec.js:219:3 › Cross-Block Deletion › deleting all blocks via programmatic range should create a default block (2.6s)
+  ok  8 [chromium] › e2e\cross-block-delete.spec.js:244:3 › Cross-Block Deletion › partial deletion across two blocks merges correctly (2.5s)
+  ok  9 [chromium] › e2e\cross-block-delete.spec.js:272:3 › Cross-Block Deletion › no stray text nodes outside .block elements after cross-block deletion (3.1s)
+  ok 10 [chromium] › e2e\cross-block-delete.spec.js:304:3 › Cross-Block Deletion › editor should remain functional after cross-block deletion (3.3s)
+  ok 12 [chromium] › e2e\editor.spec.js:15:3 › BlockEditor � Initialization › should render editor container (1.1s)
+  ok 13 [chromium] › e2e\editor.spec.js:20:3 › BlockEditor � Initialization › should render toolbar (1.0s)
+  ok 11 [chromium] › e2e\cross-block-delete.spec.js:339:3 › Cross-Block Deletion › pressing Enter after cross-block deletion should create a new block (2.6s)
+  ok 14 [chromium] › e2e\editor.spec.js:25:3 › BlockEditor � Initialization › should have at least one editable block (1.2s)
+  ok 15 [chromium] › e2e\editor.spec.js:32:3 › BlockEditor � Initialization › should expose editor instance on window (1.1s)
+  ok 16 [chromium] › e2e\editor.spec.js:44:3 › BlockEditor � Text Input › should allow typing text (1.3s)
+  ok 17 [chromium] › e2e\editor.spec.js:51:3 › BlockEditor � Text Input › should create new block on Enter (1.8s)
+  ok 18 [chromium] › e2e\editor.spec.js:69:3 › BlockEditor � Text Input › should delete empty block on Backspace (2.0s)
+  ok 19 [chromium] › e2e\editor.spec.js:94:3 › BlockEditor � Markdown Triggers › heading trigger: # + space > H1 (1.6s)
+  ok 20 [chromium] › e2e\editor.spec.js:104:3 › BlockEditor � Markdown Triggers › heading trigger: ## + space > H2 (1.9s)
+  ok 21 [chromium] › e2e\editor.spec.js:114:3 › BlockEditor � Markdown Triggers › heading trigger: ### + space > H3 (1.8s)
+  ok 22 [chromium] › e2e\editor.spec.js:124:3 › BlockEditor � Markdown Triggers › unordered list trigger: - + space > UL (1.5s)
+  ok 23 [chromium] › e2e\editor.spec.js:134:3 › BlockEditor � Markdown Triggers › ordered list trigger: 1. + space > OL (1.4s)
+  -  24 [chromium] › e2e\editor.spec.js:144:3 › BlockEditor � Markdown Triggers › code block trigger: ``` + Enter > code block @bug
+  -  25 [chromium] › e2e\editor.spec.js:160:3 › BlockEditor � Markdown Triggers › quote trigger: > + space > blockquote @bug
+  ok 26 [chromium] › e2e\editor.spec.js:181:3 › BlockEditor � Toolbar Formatting › should apply bold formatting via toolbar (2.0s)
+  ok 27 [chromium] › e2e\editor.spec.js:201:3 › BlockEditor � Toolbar Formatting › should apply italic formatting via toolbar (2.0s)
+  ok 28 [chromium] › e2e\editor.spec.js:218:3 › BlockEditor � Toolbar Formatting › should apply underline formatting via toolbar (2.3s)
+  ok 29 [chromium] › e2e\editor.spec.js:235:3 › BlockEditor � Toolbar Formatting › should convert block to H1 via toolbar button (2.3s)
+  -  31 [chromium] › e2e\editor.spec.js:265:3 › BlockEditor � Toolbar Formatting › should convert block to code block via toolbar @bug
+  ok 30 [chromium] › e2e\editor.spec.js:250:3 › BlockEditor � Toolbar Formatting › should convert block to unordered list via toolbar (2.4s)
+  ok 32 [chromium] › e2e\editor.spec.js:290:3 › BlockEditor � Export › typed content should be visible in the DOM (2.5s)
+  ok 33 [chromium] › e2e\editor.spec.js:300:3 › BlockEditor � Export › heading content should be visible in the DOM (7.0s)
+  ok 34 [chromium] › e2e\editor.spec.js:311:3 › BlockEditor � Export › getMarkdown() exports typed text (6.8s)
+  ok 35 [chromium] › e2e\editor.spec.js:321:3 › BlockEditor � Export › getHtml() exports typed text (2.5s)
+  ok 36 [chromium] › e2e\editor.spec.js:331:3 › BlockEditor � Export › getMarkdown() exports headings (2.2s)
+  ok 37 [chromium] › e2e\editor.spec.js:343:3 › BlockEditor � Export › getHtml() exports headings (1.9s)
+  ok 38 [chromium] › e2e\editor.spec.js:362:3 › BlockEditor � Keyboard Shortcuts › Ctrl+B should apply bold (1.7s)
+  ok 39 [chromium] › e2e\editor.spec.js:378:3 › BlockEditor � Keyboard Shortcuts › Ctrl+I should apply italic (1.9s)
+  ok 40 [chromium] › e2e\editor.spec.js:394:3 › BlockEditor � Keyboard Shortcuts › Ctrl+U should apply underline (2.2s)
+  ok 42 [chromium] › e2e\editor.spec.js:444:3 › BlockEditor � Multiple Blocks › editor should always have at least one block (1.2s)
+  ok 41 [chromium] › e2e\editor.spec.js:417:3 › BlockEditor � Multiple Blocks › should handle multiple block types in sequence (3.1s)
+  ok 43 [chromium] › e2e\inline-markdown.spec.js:17:5 › BlockEditor � Inline Markdown Replacements › **text** becomes bold (1.5s)
+  ok 44 [chromium] › e2e\inline-markdown.spec.js:28:5 › BlockEditor � Inline Markdown Replacements › __text__ becomes bold (1.5s)
+  ok 45 [chromium] › e2e\inline-markdown.spec.js:41:5 › BlockEditor � Inline Markdown Replacements › *text* becomes italic (1.4s)
+  ok 46 [chromium] › e2e\inline-markdown.spec.js:52:5 › BlockEditor � Inline Markdown Replacements › _text_ becomes italic (1.4s)
+  ok 47 [chromium] › e2e\inline-markdown.spec.js:65:5 › BlockEditor � Inline Markdown Replacements › `text` becomes inline code (1.3s)
+  ok 48 [chromium] › e2e\inline-markdown.spec.js:78:5 › BlockEditor � Inline Markdown Replacements › ~~text~~ becomes strikethrough (1.3s)
+  ok 49 [chromium] › e2e\inline-markdown.spec.js:91:5 › BlockEditor � Inline Markdown Replacements › unclosed **text does not trigger bold (1.3s)
+  ok 50 [chromium] › e2e\inline-markdown.spec.js:101:5 › BlockEditor � Inline Markdown Replacements › snake_case_name does not trigger italic (1.3s)
+  ok 51 [chromium] › e2e\inline-markdown.spec.js:113:5 › BlockEditor � Inline Markdown Replacements › can continue typing after bold formatting (1.7s)
+Block order after test: [
+  {
+    "index": 0,
+    "type": "h1",
+    "text": "",
+    "className": "bke-block bke-block--h1"
+  },
+  {
+    "index": 1,
+    "type": "paragraph",
+    "text": "Some text in block 2",
+    "className": "bke-block bke-block--p"
+  },
+  {
+    "index": 2,
+    "type": "paragraph",
+    "text": "",
+    "className": "bke-block bke-block--p bke-block--active"
+  }
+]
+  ok 52 [chromium] › e2e\last-block-position.spec.js:48:3 › Last Block Detection � Heading then Enter › Block 3 should appear AFTER Block 2 (not between Block 1 and Block 2) (5.6s)
+H2 block order: [
+  {
+    "index": 0,
+    "type": "h2",
+    "text": ""
+  },
+  {
+    "index": 1,
+    "type": "paragraph",
+    "text": "Text after heading"
+  },
+  {
+    "index": 2,
+    "type": "paragraph",
+    "text": ""
+  }
+]
+  ok 53 [chromium] › e2e\last-block-position.spec.js:110:3 › Last Block Detection � Heading then Enter › Block order with H2 trigger should also be correct (5.3s)
+Fresh editor block order: [
+  {
+    "index": 0,
+    "type": "h1",
+    "text": ""
+  },
+  {
+    "index": 1,
+    "type": "paragraph",
+    "text": "Text in block 2"
+  },
+  {
+    "index": 2,
+    "type": "paragraph",
+    "text": ""
+  }
+]
+  ok 54 [chromium] › e2e\last-block-position.spec.js:148:3 › Last Block Detection � Heading then Enter › Block order without select-all-delete (fresh editor) should be correct (3.0s)
+  ok 55 [chromium] › e2e\select-all-delete.spec.js:48:3 › Select All + Delete � Block Recovery › should have exactly one block after Ctrl+A > Backspace on multi-block content (2.8s)
+  ok 56 [chromium] › e2e\select-all-delete.spec.js:58:3 › Select All + Delete � Block Recovery › should have a paragraph block after Ctrl+A > Backspace (3.0s)
+  ok 57 [chromium] › e2e\select-all-delete.spec.js:68:3 › Select All + Delete � Block Recovery › should have an empty block after Ctrl+A > Backspace (3.2s)
+  ok 58 [chromium] › e2e\select-all-delete.spec.js:79:3 › Select All + Delete � Block Recovery › should not have any content outside .block elements after Ctrl+A > Backspace (3.4s)
+  ok 59 [chromium] › e2e\select-all-delete.spec.js:113:3 › Select All + Delete � Enter Creates New Blocks › pressing Enter once after Ctrl+A > Backspace should create a second block (4.3s)
+  ok 60 [chromium] › e2e\select-all-delete.spec.js:126:3 › Select All + Delete � Enter Creates New Blocks › pressing Enter 3 times after Ctrl+A > Backspace should create 4 blocks (5.0s)
+  ok 61 [chromium] › e2e\select-all-delete.spec.js:141:3 › Select All + Delete � Enter Creates New Blocks › typing text after Ctrl+A > Backspace + Enter should appear in new block (4.7s)
+  ok 63 [chromium] › e2e\select-all-delete.spec.js:198:3 › Select All + Delete � Single Block Scenario › Ctrl+A > Backspace on a single block with text should leave one empty block (2.2s)
+  ok 62 [chromium] › e2e\select-all-delete.spec.js:153:3 › Select All + Delete � Enter Creates New Blocks › all blocks created after Ctrl+A > Backspace + Enter should be proper .block elements (4.5s)
+  ok 64 [chromium] › e2e\select-all-delete.spec.js:210:3 › Select All + Delete � Single Block Scenario › Enter after Ctrl+A > Backspace on single block should create a new block (2.9s)
+  ok 65 [chromium] › e2e\select-all-delete.spec.js:233:3 › Select All + Delete � Mixed Block Types › Ctrl+A > Backspace on heading + paragraph � heading contenteditable nesting @known-issue (3.6s)
+  ok 66 [chromium] › e2e\select-all-delete.spec.js:270:3 › Select All + Delete � Mixed Block Types › Enter after Ctrl+A > Backspace on mixed content � heading contenteditable nesting @known-issue (4.0s)
+  ok 67 [chromium] › e2e\select-all-delete.spec.js:308:3 › Select All + Delete � Rapid Enter Presses › rapid Enter presses immediately after Ctrl+A > Backspace should each create a block (3.5s)
+  ok 69 [chromium] › e2e\select-all-delete.spec.js:358:3 › Select All + Delete � Editor State Integrity › editor.currentBlock should point to a valid block after Ctrl+A > Backspace (3.8s)
+  ok 68 [chromium] › e2e\select-all-delete.spec.js:332:3 › Select All + Delete � Rapid Enter Presses › cursor should be in the last created block after rapid Enter presses (4.8s)
+  ok 70 [chromium] › e2e\select-all-delete.spec.js:372:3 › Select All + Delete � Editor State Integrity › editor container should have no detached block references after Ctrl+A > Backspace (3.1s)
+  ok 71 [chromium] › e2e\select-all-delete.spec.js:394:3 › Select All + Delete � Editor State Integrity › editor should remain functional after multiple Ctrl+A > Backspace cycles (5.5s)
+
+  3 skipped
+  68 passed (1.7m)

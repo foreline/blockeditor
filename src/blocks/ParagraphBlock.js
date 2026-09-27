@@ -117,7 +117,8 @@ export class ParagraphBlock extends BaseBlock
      */
     toHtml() {
         this.syncFromElement();
-        return `<p>${this._html || this._content}</p>`;
+        const html = this._html || this._content;
+        return /^<p(?:\s[^>]*)?>[\s\S]*<\/p>$/.test(html.trim()) ? html : `<p>${html}</p>`;
     }
 
     /**

@@ -6,6 +6,7 @@ import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
 import {SyntaxHighlighter} from "@/utils/syntaxHighlighter";
 import {Utils} from "@/Utils";
+import {Editor} from "@/Editor";
 
 /**
  * Code block
@@ -287,7 +288,8 @@ export class CodeBlock extends BaseBlock
         
         element.appendChild(pre);
         element.appendChild(languageSelector);
-        
+
+        this.element = element;
         return element;
     }
 
@@ -314,7 +316,7 @@ export class CodeBlock extends BaseBlock
             const option = document.createElement('option');
             option.value = lang.key;
             option.textContent = lang.name;
-            if (lang.key === this._language) {
+            if (lang.key === SyntaxHighlighter.normalizeLanguage(this._language)) {
                 option.selected = true;
             }
             select.appendChild(option);
@@ -324,6 +326,7 @@ export class CodeBlock extends BaseBlock
         select.addEventListener('change', (e) => {
             this.language = e.target.value;
             this.refreshHighlighting();
+            Editor.getInstanceFromElement(select)?.update();
         });
         
         container.appendChild(select);
@@ -383,12 +386,18 @@ export class CodeBlock extends BaseBlock
         if (!htmlString || typeof htmlString !== 'string') {
             return null;
         }
+
+        // HTML produced by Markdown parsers escapes code characters. Read it
+        // through the HTML parser so the block stores source text, not entities.
+        const documentFragment = new DOMParser().parseFromString(htmlString, 'text/html');
+        const parsedCode = documentFragment.querySelector('pre > code, code, pre');
+        const sourceText = parsedCode?.textContent?.trim() || '';
         
         // Handle <pre><code>content</code></pre> pattern
         let match = htmlString.match(/^<pre[^>]*><code([^>]*)>(.*?)<\/code><\/pre>/is);
         if (match) {
             const codeAttributes = match[1];
-            const content = match[2].trim();
+            const content = sourceText;
             
             // Extract language from class attribute
             let language = '';
@@ -414,7 +423,7 @@ export class CodeBlock extends BaseBlock
         match = htmlString.match(/^<code([^>]*)>(.*?)<\/code>/is);
         if (match) {
             const codeAttributes = match[1];
-            const content = match[2].trim();
+            const content = sourceText;
             
             // Extract language from class attribute
             let language = '';
@@ -438,7 +447,7 @@ export class CodeBlock extends BaseBlock
         match = htmlString.match(/^<pre([^>]*)>(.*?)<\/pre>/is);
         if (match) {
             const preAttributes = match[1];
-            const content = match[2].trim();
+            const content = sourceText;
             
             // Extract language from class attribute if present
             let language = '';

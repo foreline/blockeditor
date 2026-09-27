@@ -47,6 +47,53 @@ test('pinning preserves the caret and editing selection', async ({ page }) => {
   await expect(page.locator('.bke-block strong, .bke-block b')).toContainText('Hello');
 });
 
+test('code toolbar merges selected paragraphs and keeps text outside the selection', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    const area = window.editor.contentArea;
+    area.innerHTML = [
+      '<div class="bke-block bke-block--p" data-block-type="paragraph" contenteditable="true">Before alpha</div>',
+      '<div class="bke-block bke-block--p" data-block-type="paragraph" contenteditable="true">beta</div>',
+      '<div class="bke-block bke-block--p" data-block-type="paragraph" contenteditable="true">gamma After</div>'
+    ].join('');
+    const blocks = area.querySelectorAll('.bke-block');
+    const range = document.createRange();
+    range.setStart(blocks[0].firstChild, 7);
+    range.setEnd(blocks[2].firstChild, 5);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+
+  await page.locator('.bke-toolbar-code').click();
+  await expect(page.locator('.bke-content-area > .bke-block')).toHaveCount(3);
+  await expect(page.locator('.bke-content-area > .bke-block').first()).toHaveText('Before ');
+  await expect(page.locator('.bke-block--code code')).toHaveText('alpha\nbeta\ngamma');
+  await expect(page.locator('.bke-content-area > .bke-block').last()).toHaveText(' After');
+  expect(await page.evaluate(() => window.editor.getMarkdown())).toContain('```\nalpha\nbeta\ngamma\n```');
+});
+
+test('code toolbar converts entire selected paragraphs into one block', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => {
+    const area = window.editor.contentArea;
+    area.innerHTML = ['one', 'two', 'three'].map(text =>
+      `<div class="bke-block bke-block--p" data-block-type="paragraph" contenteditable="true">${text}</div>`
+    ).join('');
+    const blocks = area.querySelectorAll('.bke-block');
+    const range = document.createRange();
+    range.setStart(blocks[0].firstChild, 0);
+    range.setEnd(blocks[2].firstChild, 5);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  });
+
+  await page.locator('.bke-toolbar-code').click();
+  await expect(page.locator('.bke-content-area > .bke-block')).toHaveCount(1);
+  await expect(page.locator('.bke-block--code code')).toHaveText('one\ntwo\nthree');
+  expect(await page.evaluate(() => window.editor.getMarkdown())).toBe('```\none\ntwo\nthree\n```');
+});
+
 for (const entry of ['shortcut', 'toolbar']) {
   test(`numbered-list caret is after the number via ${entry} and Enter`, async ({ page }) => {
     await emptyEditor(page);

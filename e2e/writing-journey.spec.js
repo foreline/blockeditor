@@ -22,6 +22,29 @@ test.afterEach(async ({ page }) => {
   expect(page.__journeyErrors).toEqual([]);
 });
 
+test('source views wrap long lines and remain navigable in viewing mode', async ({ page }) => {
+  await page.keyboard.type('a'.repeat(300));
+  await page.evaluate(() => window.editor.setEditable(false));
+
+  for (const mode of ['markdown', 'html']) {
+    const button = page.locator(`.bke-toolbar-${mode}`);
+    await expect(button).toBeEnabled();
+    await button.click();
+    const source = page.locator(`.bke-editor-${mode}`);
+    await expect(source).toBeVisible();
+    const pre = source.locator('pre');
+    const code = source.locator('code');
+    await expect(pre).toHaveCSS('white-space', 'pre-wrap');
+    await expect(code).toHaveCSS('white-space', 'pre-wrap');
+    await expect(code).toHaveCSS('overflow-wrap', 'anywhere');
+    expect(await pre.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+  }
+
+  await expect(page.locator('.bke-toolbar-text')).toBeEnabled();
+  await page.locator('.bke-toolbar-text').click();
+  await expect(page.locator('.bke-content-area')).toBeVisible();
+});
+
 test('write, export, clear, and rebuild a mixed document', async ({ page }) => {
   await test.step('Write a heading and formatted paragraph', async () => {
     await page.keyboard.type('# Release notes');

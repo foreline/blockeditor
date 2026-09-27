@@ -40,6 +40,12 @@ declare module '@foreline/blockeditor' {
     debug?: boolean;
     autofocus?: boolean;
     readonly?: boolean;
+    /** Start in viewing mode when false. Can later be changed with setEditable(). */
+    editable?: boolean;
+    /** Return to viewing mode after focus leaves the editor. Defaults to false. */
+    viewOnBlur?: boolean;
+    /** Convert completed plain-text URLs to links. Defaults to true. */
+    autoLink?: boolean;
     minHeight?: string;
     maxHeight?: string;
     toolbar?: boolean | ToolbarOptions;
@@ -78,9 +84,12 @@ declare module '@foreline/blockeditor' {
     // Instance methods
     getMarkdown(): string;
     getHtml(): string;
+    readonly isEditable: boolean;
+    setEditable(editable: boolean): void;
     getBlocks(): Block[];
     setMarkdown(markdown: string): void;
     setHtml(html: string): void;
+    convertSelectedParagraphsToCode(): boolean;
     clear(): void;
     focus(): void;
     blur(): void;
@@ -88,6 +97,7 @@ declare module '@foreline/blockeditor' {
     
     // Event methods
     on(event: 'content.changed', callback: (data: ContentChangedPayload) => void): void;
+    on(event: 'editor.editable.changed', callback: (event: {data: {editable: boolean}}) => void): void;
     on(event: 'block.content.changed', callback: (data: BlockContentChangedPayload) => void): void;
     on(event: 'focus' | 'blur', callback: () => void): void;
     on(event: EditorEventName, callback: Function): void;

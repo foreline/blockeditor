@@ -128,7 +128,7 @@ export class QuoteBlock extends BaseBlock
      * @returns {QuoteBlock|null} - Block instance or null if can't parse
      */
     static parseFromHtml(htmlString) {
-        const match = htmlString.match(/^<blockquote[^>]*>(.*?)<\/blockquote>/i);
+        const match = htmlString.match(/^<blockquote[^>]*>([\s\S]*?)<\/blockquote>/i);
         if (!match) return null;
 
         const content = match[1].trim();

@@ -12,6 +12,7 @@ import {Utils} from "@/Utils.js";
 import {BlockFactory} from "@/blocks/BlockFactory.js";
 import {KeyHandler} from "@/KeyHandler.js";
 import {InlineMarkdownHandler} from "@/InlineMarkdownHandler.js";
+import {AutoLinker} from "./AutoLinker.js";
 import {DebugTooltip} from "@/DebugTooltip.js";
 import {EditorStateMachine} from "@/utils/EditorStateMachine.js";
 import {defaultToolbarConfig} from "./config/defaultToolbarConfig.js";
@@ -20,6 +21,7 @@ import {ContentSerializer, html2md as _html2md, md2html as _md2html} from "./Con
 import {PasteHandler} from "./PasteHandler.js";
 import {BlockConverter} from "./BlockConverter.js";
 import {BlockManager} from "./BlockManager.js";
+import {EditorHistory} from "./utils/EditorHistory.js";
 
 /**
  * Editor class
@@ -57,6 +59,10 @@ export class Editor
         this.rules = [];
         this.keybuffer = [];
         this._blockMap = new WeakMap();
+        this.autoLink = options.autoLink !== false;
+        this.viewOnBlur = options.viewOnBlur === true;
+        this._autoLinker = new AutoLinker(this);
+        this._viewEditableAttributes = new Map();
         this.debug = options.debug || false;
         this.debugMode = this.debug; // Current debug state (can be toggled)
         
@@ -87,9 +93,13 @@ export class Editor
         
         // Initialize the editor first
         this.init(options);
+        if (!this._readonly) {
+            this.history = new EditorHistory(() => this.getHtml(), html => this.restoreHistory(html));
+        }
         
         // Now initialize toolbar after instance is created
         this.initializeToolbar(options);
+        this.setEditable(!this._readonly && options.editable !== false, true);
         
         // Register this instance
         Editor._instances.set(this.instance, this);
@@ -237,7 +247,7 @@ export class Editor
         this.instance.appendChild(this.contentArea);
 
         let content = _initialContent;
-        let blocks = Parser.parse(content);
+        let blocks = this.autoLink ? Parser.parse(content) : Parser.parse(content, { autoLink: false });
         
         this.blocks = blocks;
         
@@ -255,6 +265,7 @@ export class Editor
             }
             this._blockMap.set(html, typedBlock);
         }
+        this.prepareLinks();
         
         this.setCurrentBlock(this.instance.querySelectorAll('.bke-block')[0]);
     
@@ -284,6 +295,53 @@ export class Editor
         if (this.debugMode) {
             this.debugTooltip.enable(this);
         }
+    }
+
+    get isEditable() {
+        return this._editable;
+    }
+
+    /** Keep rendered and newly inserted links safe to open outside the editor. */
+    prepareLinks() {
+        this.contentArea.querySelectorAll?.('a[href]').forEach(link => {
+            link.target = '_blank';
+            const rel = new Set((link.getAttribute('rel') || '').split(/\s+/).filter(Boolean));
+            rel.add('noopener');
+            rel.add('noreferrer');
+            link.setAttribute('rel', [...rel].join(' '));
+        });
+    }
+
+    /** Switch between interactive viewing and editing without rebuilding blocks. */
+    setEditable(editable, force = false) {
+        editable = Boolean(editable) && !this._readonly;
+        if (!force && this._editable === editable) return;
+        if (!editable && this.autoLink && this._autoLinker.linkifyAll(true) && !force) this.update();
+        this.prepareLinks();
+        this.toolbar?.panels?.close();
+        this.toolbar?.panels?.closeLinkPreview?.();
+        if (editable) {
+            this.contentArea.setAttribute('contenteditable', 'true');
+            this._viewEditableAttributes.forEach((value, element) => {
+                if (element.isConnected) element.setAttribute('contenteditable', value);
+            });
+            this._viewEditableAttributes.clear();
+            // Table cells are configured after mount, so they may not have been
+            // present when the initial viewing state captured editable fields.
+            this.contentArea.querySelectorAll?.('[data-block-type="table"] td, [data-block-type="table"] th')
+                .forEach(cell => cell.setAttribute('contenteditable', 'true'));
+        } else {
+            this.contentArea.removeAttribute('contenteditable');
+            this.contentArea.querySelectorAll('[contenteditable]').forEach(element => {
+                this._viewEditableAttributes.set(element, element.getAttribute('contenteditable'));
+                element.setAttribute('contenteditable', 'false');
+            });
+        }
+        this._editable = editable;
+        this.instance.setAttribute('aria-readonly', String(!editable));
+        this.instance.classList.toggle('bke-view-mode', !editable);
+        this.toolbar?.setViewing(!editable);
+        if (!force) this.eventEmitter.emit(EVENTS.EDITOR_EDITABLE_CHANGED, {editable}, {source: 'editor.setEditable'});
     }
     
     /**
@@ -452,6 +510,20 @@ export class Editor
         this._boundHandlers = {};
 
         this._boundHandlers.keydown = (e) => {
+            if (this._editable === false) return;
+            if (e.key === 'Escape' && this.viewOnBlur) {
+                if (this.toolbar?.panels?.linkPreview) this.toolbar.panels.closeLinkPreview();
+                else this.setEditable(false);
+                e.preventDefault();
+                return;
+            }
+            if ((e.ctrlKey || e.metaKey) && ['z', 'y'].includes(e.key.toLowerCase()) &&
+                !e.target.closest('input, textarea, select, button')) {
+                e.preventDefault();
+                if (e.key.toLowerCase() === 'y' || e.shiftKey) this.redo();
+                else this.undo();
+                return;
+            }
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a' &&
                 !e.target.closest('input, textarea, select, button')) {
                 // Nested editing hosts otherwise limit Select All to one block.
@@ -477,7 +549,9 @@ export class Editor
         this.contentArea.addEventListener('keydown', this._boundHandlers.keydown);
     
         this._boundHandlers.keyup = (e) => {
+            if (this._editable === false) return;
             this.keyHandler.handleKeyPress(e);
+            if (e.key === 'Enter' && this.autoLink && this._autoLinker.linkifyAll(true)) this.update();
         };
         this.contentArea.addEventListener('keyup', this._boundHandlers.keyup);
         
@@ -494,15 +568,28 @@ export class Editor
         //   3. Remove empty/orphaned blocks
         //   4. Guarantee at least one block always exists
         //   5. Place the cursor exactly at the merge point
-        this._boundHandlers.beforeinput = (e) => this._handleCrossBlockDelete(e);
+        this._boundHandlers.beforeinput = (e) => {
+            if (this._editable === false) return;
+            if (e.inputType === 'historyUndo' || e.inputType === 'historyRedo') {
+                e.preventDefault();
+                e.inputType === 'historyUndo' ? this.undo() : this.redo();
+                return;
+            }
+            this._handleCrossBlockDelete(e);
+        };
         this.contentArea.addEventListener('beforeinput', this._boundHandlers.beforeinput);
 
         // PASTE TEXT/HTML Event handler
-        this._boundHandlers.paste = (e) => this._pasteHandler.handle(e);
+        this._boundHandlers.paste = (e) => {
+            if (this._editable === false) return;
+            this._pasteHandler.handle(e);
+            if (this.autoLink && this._autoLinker.linkifyAll(true)) this.update();
+        };
         this.contentArea.addEventListener('paste', this._boundHandlers.paste);
         
         // INPUT Event handler - catch content changes for block conversion
         this._boundHandlers.input = (e) => {
+            if (this._editable === false) return;
             // Only handle input events for this editor instance
             if (!e.target.closest(`#${this.instance.id}`)) {
                 return;
@@ -593,6 +680,9 @@ export class Editor
                     if (this._inlineMarkdownHandler.checkAndApply(block)) {
                         this.update();
                     }
+                    if (this.autoLink && this._autoLinker.linkifyBlock(block)) {
+                        this.update();
+                    }
                 }
             }
         };
@@ -612,11 +702,57 @@ export class Editor
                 block = e.target.closest('ul, ol, div').closest('.bke-block');
             }
             
-            if ( block ) {
+            const link = e.target.closest('a[href]');
+            if (!this._editable) {
+                if (link || e.target.closest('button, input, select, label') ||
+                    window.getSelection()?.toString()) return;
+                const clickedBlock = block;
+                block ||= [...this.contentArea.querySelectorAll('.bke-block')].at(-1);
+                if (!block) return;
+                const caret = document.caretRangeFromPoint?.(e.clientX, e.clientY) || null;
+                this.setEditable(true);
+                const target = e.target.closest('td, th, li, [contenteditable="true"]');
+                (target?.isContentEditable ? target : this.contentArea).focus?.({preventScroll: true});
+                if (caret && this.contentArea.contains(caret.startContainer) &&
+                    (clickedBlock || block.contains(caret.startContainer))) {
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(caret);
+                } else if (!clickedBlock) {
+                    const range = document.createRange();
+                    range.selectNodeContents(block);
+                    range.collapse(false);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
                 this.setCurrentBlock(block);
+                return;
+            }
+            if (block) this.setCurrentBlock(block);
+            if (this._editable && link && this.contentArea.contains(link) && window.getSelection()?.isCollapsed) {
+                this.toolbar?.panels?.showLinkPreview(link);
+            } else {
+                this.toolbar?.panels?.closeLinkPreview?.();
             }
         };
         this.contentArea.addEventListener('click', this._boundHandlers.click);
+
+        this._boundHandlers.focusout = (e) => {
+            if (this._editable && this.autoLink && !this.contentArea.contains(e.relatedTarget) &&
+                this._autoLinker.linkifyAll(true)) this.update();
+        };
+        this.contentArea.addEventListener('focusout', this._boundHandlers.focusout);
+
+        this._onModeFocusOut = () => {
+            if (!this.viewOnBlur || !this._editable) return;
+            setTimeout(() => {
+                if (this._editable && this.instance && !this.instance.contains(document.activeElement)) {
+                    this.setEditable(false);
+                }
+            }, 0);
+        };
+        this.instance.addEventListener('focusout', this._onModeFocusOut);
 
         // Handle focus events for keyboard navigation (only when not caused by mouse interaction)
         this._boundHandlers.focusin = (e) => {
@@ -907,6 +1043,8 @@ export class Editor
     update()
     {
         log('update()', 'Editor.');
+        this.prepareLinks();
+        if (!this._stateMachine.isBusy()) this.history?.record();
         
         // Cancel any pending update to avoid multiple rapid calls
         if (this._updateTimeout) {
@@ -1361,10 +1499,33 @@ export class Editor
      * @param {Function} fn - The function to execute inside the transaction
      * @returns {*} The return value of fn
      */
+    undo() { return this.history?.move(-1) ?? false; }
+
+    redo() { return this.history?.move(1) ?? false; }
+
+    restoreHistory(html) {
+        this.transaction(() => {
+            this.contentArea.innerHTML = '';
+            this._blockMap = new WeakMap();
+            this.blocks = Parser.parseHtml(html);
+            if (!this.blocks.length) this.blocks = [new Block()];
+            for (const block of this.blocks) {
+                const element = Parser.html(block);
+                this.contentArea.appendChild(element);
+                const typed = block.getBlockInstance ? block.getBlockInstance() : block;
+                if (typed && typed.element !== undefined) typed.element = element;
+                this._blockMap.set(element, typed);
+            }
+            this.setCurrentBlock(this.contentArea.querySelector('.bke-block'));
+            this.focus();
+        });
+    }
+
     transaction(fn) {
         log('transaction()', 'Editor.');
 
         const isOutermost = this._stateMachine._transactionDepth === 0;
+        if (isOutermost) this.history?.record();
 
         // Cancel any pending debounced update so it doesn't fire mid-transaction
         if (isOutermost && this._updateTimeout) {
@@ -1462,6 +1623,11 @@ export class Editor
         return this._blockConverter.convertCurrentOrCreate(targetBlockType, options, this.currentBlock);
     }
 
+    convertSelectedParagraphsToCode()
+    {
+        return this._blockConverter.convertSelectedParagraphsToCode();
+    }
+
     /**
      * Generate appropriate trigger text for a given block type
      * @param {string} blockType
@@ -1492,6 +1658,7 @@ export class Editor
         log('destroy()', 'Editor.');
 
         this.toolbar?.panels?.close();
+        this.toolbar?.panels?.closeLinkPreview?.();
         if (this.toolbar) ToolbarHandlers.cleanup(this.toolbar.container);
 
         // Remove DOM event listeners
@@ -1501,6 +1668,7 @@ export class Editor
             });
             this._boundHandlers = null;
         }
+        if (this._onModeFocusOut) this.instance?.removeEventListener('focusout', this._onModeFocusOut);
 
         // Cleanup event emitter
         this.eventEmitter?.cleanup?.();

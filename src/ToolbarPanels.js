@@ -56,7 +56,93 @@ export class ToolbarPanels {
         }
     }
 
+    closeLinkPreview() {
+        if (!this.linkPreview) return;
+        this.linkPreview.remove();
+        document.removeEventListener('pointerdown', this.onPreviewOutside);
+        this.linkPreview = null;
+        this.onPreviewOutside = null;
+    }
+
+    /** A link in editable text retains its caret behavior and offers explicit actions. */
+    showLinkPreview(anchor) {
+        const editor = this.toolbar.editorInstance;
+        if (!editor?.isEditable || !editor.contentArea.contains(anchor)) return;
+        const url = anchor.getAttribute('href');
+        if (!ToolbarPanels.isSafeUrl(url)) return;
+        this.closeLinkPreview();
+
+        const preview = document.createElement('div');
+        preview.className = 'bke-link-preview';
+        preview.setAttribute('role', 'dialog');
+        preview.setAttribute('aria-label', this.toolbar.messages.linkPreview);
+
+        const header = document.createElement('div');
+        header.className = 'bke-link-preview__header';
+        const heading = document.createElement('span');
+        heading.textContent = this.toolbar.messages.linkPreview;
+        const close = this.button('×', () => this.closeLinkPreview());
+        close.className = 'bke-link-preview__close';
+        close.setAttribute('aria-label', this.toolbar.messages.close);
+        header.append(heading, close);
+
+        const open = document.createElement('a');
+        open.className = 'bke-link-preview__url';
+        open.href = url;
+        open.target = '_blank';
+        open.rel = 'noopener noreferrer';
+        open.title = url;
+        open.setAttribute('aria-label', this.toolbar.messages.openLink);
+        const address = document.createElement('span');
+        address.textContent = url;
+        const external = document.createElement('span');
+        external.className = 'bke-link-preview__external';
+        external.setAttribute('aria-hidden', 'true');
+        external.textContent = '↗';
+        open.append(address, external);
+
+        const actions = document.createElement('div');
+        actions.className = 'bke-link-preview__actions';
+        const edit = this.button(this.toolbar.messages.editLink, () => {
+            const range = document.createRange();
+            range.selectNodeContents(anchor);
+            this.closeLinkPreview();
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            this.savedRange = range.cloneRange();
+            this.link();
+        });
+        const remove = this.button(this.toolbar.messages.remove, () => {
+            this.closeLinkPreview();
+            editor.transaction(() => anchor.replaceWith(...Array.from(anchor.childNodes)));
+        });
+        edit.className = 'bke-link-preview__edit';
+        remove.className = 'bke-link-preview__remove';
+        actions.append(edit, remove);
+        preview.append(header, open, actions);
+        preview.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                this.closeLinkPreview();
+                anchor.focus({preventScroll: true});
+            }
+        });
+        editor.instance.appendChild(preview);
+        const rect = anchor.getBoundingClientRect();
+        const width = preview.getBoundingClientRect().width;
+        const height = preview.getBoundingClientRect().height;
+        preview.style.left = `${Math.max(8, Math.min(rect.left, window.innerWidth - width - 8))}px`;
+        preview.style.top = `${Math.max(8, rect.bottom + height + 8 <= window.innerHeight ? rect.bottom + 6 : rect.top - height - 6)}px`;
+        this.linkPreview = preview;
+        this.onPreviewOutside = event => {
+            if (!preview.contains(event.target) && !anchor.contains(event.target)) this.closeLinkPreview();
+        };
+        document.addEventListener('pointerdown', this.onPreviewOutside);
+    }
+
     open(kind) {
+        this.closeLinkPreview();
         this.captureSelection();
         if (this.panel && this.kind === kind) { this.close(true); return null; }
         this.close();

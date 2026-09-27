@@ -33,6 +33,13 @@
     text-shadow: none;
 }
 .bke-editor pre > code[class*="language-"] { font-size: 1em; }
+.bke-editor .bke-editor-markdown pre[class*="language-"],
+.bke-editor .bke-editor-html pre[class*="language-"],
+.bke-editor .bke-editor-markdown pre > code[class*="language-"],
+.bke-editor .bke-editor-html pre > code[class*="language-"] {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
 .bke-editor pre[class*="language-"] {
     padding: 1em;
     margin: 0.5em 0;

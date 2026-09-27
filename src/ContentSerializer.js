@@ -45,7 +45,7 @@ export function md2html(md)
             return '';
         }
 
-        const converter = new showdown.Converter({ ghCompatibleHeaderId: false, headerIds: false });
+        const converter = new showdown.Converter({ ghCompatibleHeaderId: false, headerIds: false, tables: true, tasklists: true });
 
         let html = converter.makeHtml(md);
 
@@ -217,8 +217,10 @@ export class ContentSerializer
                 const heading = blockEl.querySelector('h1,h2,h3,h4,h5,h6');
                 return heading ? heading.outerHTML : `<${blockType}>${blockEl.textContent || ''}</${blockType}>`;
             }
-            case 'p': case 'paragraph':
-                return `<p>${blockEl.innerHTML}</p>`;
+            case 'p': case 'paragraph': {
+                const html = blockEl.innerHTML.trim();
+                return /^<p(?:\s[^>]*)?>[\s\S]*<\/p>$/.test(html) ? html : `<p>${html}</p>`;
+            }
             case 'ul': case 'ol': {
                 const list = blockEl.querySelector(blockType === 'ol' ? 'ol' : 'ul');
                 return list ? list.outerHTML : '';

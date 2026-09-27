@@ -65,6 +65,9 @@ const editor = new Editor({
     debug: false,              // Enable debug mode
     autofocus: true,          // Auto-focus on creation
     readonly: false,          // Make editor read-only
+    editable: true,           // Start in edit mode; false starts in view mode
+    viewOnBlur: false,        // Return to view mode when focus leaves (default: false)
+    autoLink: true,           // Link completed URLs on typing/paste/load (default)
     minHeight: '200px',       // Minimum height
     maxHeight: '500px',       // Maximum height
     toolbar: true,            // Enable default toolbar (true/false or config object)
@@ -72,6 +75,16 @@ const editor = new Editor({
     html: '<h1>Hello World</h1>' // Initial HTML content
 });
 ```
+
+Use `editor.setEditable(false)` to let readers select text and follow links. The
+toolbar stays visible with its buttons disabled. Clicking ordinary editor text
+resumes editing without remounting; link clicks still open the destination in a
+new tab. Set `viewOnBlur: true` to return to view mode when focus leaves the
+editor. Listen to `editor.editable.changed` for mode changes.
+`editor.isEditable` reports the current mode. `readonly: true` is a fixed
+read-only instance; it cannot be switched into editing. In edit mode, clicking
+a link opens a small menu to open, edit, or remove it. Set `autoLink: false` to
+leave plain URLs as text; explicit Markdown links still render normally.
 
 ### Toolbar Configuration
 

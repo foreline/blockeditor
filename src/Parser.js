@@ -142,7 +142,7 @@ export class Parser
      * @param {string} markdownString
      * @returns {array<Block>} blocks
      */
-    static parse(markdownString) {
+    static parse(markdownString, { autoLink = true } = {}) {
         log('parse()', 'Parser.'); console.log({markdownString});
 
         if (!markdownString || markdownString.trim() === '') {
@@ -158,7 +158,7 @@ export class Parser
             headerIds: false,
             tasklists: false, // Disabled to prevent conflicts with custom task list processing
             tables: true,
-            simplifiedAutoLink: true,
+            simplifiedAutoLink: autoLink,
             literalMidWordUnderscores: true,
             strikethrough: true,
             emoji: true

@@ -169,6 +169,83 @@ export class BlockConverter
         return editor.createNewBlock(targetType, options);
     }
 
+    /** Convert a selection spanning paragraph blocks into one code block. */
+    convertSelectedParagraphsToCode()
+    {
+        const editor = this.editor;
+        const selection = window.getSelection();
+        if (!selection?.rangeCount || selection.isCollapsed) return false;
+
+        const range = selection.getRangeAt(0);
+        const blockFor = node => (node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement)?.closest('.bke-block');
+        const first = blockFor(range.startContainer);
+        const last = blockFor(range.endContainer);
+        if (!first || !last || first === last ||
+            !editor.contentArea.contains(first) || !editor.contentArea.contains(last) ||
+            first.parentElement !== editor.contentArea || last.parentElement !== editor.contentArea) return false;
+
+        const blocks = [...editor.contentArea.children];
+        const selected = blocks.slice(blocks.indexOf(first), blocks.indexOf(last) + 1);
+        if (selected.length < 2 || selected.some(block =>
+            !block.classList.contains('bke-block') ||
+            !['p', 'paragraph'].includes(block.getAttribute('data-block-type')))) return false;
+
+        const text = selected.map(block => {
+            const part = document.createRange();
+            part.selectNodeContents(block);
+            if (block === first) part.setStart(range.startContainer, range.startOffset);
+            if (block === last) part.setEnd(range.endContainer, range.endOffset);
+            return part.toString();
+        }).join('\n');
+
+        const before = document.createRange();
+        before.selectNodeContents(first);
+        before.setEnd(range.startContainer, range.startOffset);
+        const after = document.createRange();
+        after.selectNodeContents(last);
+        after.setStart(range.endContainer, range.endOffset);
+        const prefix = before.cloneContents();
+        const suffix = after.cloneContents();
+        const codeBlock = BlockFactory.createBlock(BlockType.CODE);
+        if (!codeBlock) return false;
+
+        editor.transaction(() => {
+            const remainder = fragment => {
+                if (!fragment.textContent) return null;
+                const paragraph = first.cloneNode(false);
+                paragraph.removeAttribute('data-block-id');
+                paragraph.classList.remove('bke-block--active');
+                paragraph.appendChild(fragment);
+                return paragraph;
+            };
+            const leading = remainder(prefix);
+            const trailing = remainder(suffix);
+            if (leading) {
+                first.before(leading);
+                const paragraph = BlockFactory.createBlock(BlockType.PARAGRAPH);
+                paragraph.element = leading;
+                editor._blockMap.set(leading, paragraph);
+            }
+            if (trailing) {
+                last.after(trailing);
+                const paragraph = BlockFactory.createBlock(BlockType.PARAGRAPH);
+                paragraph.element = trailing;
+                editor._blockMap.set(trailing, paragraph);
+            }
+
+            first.textContent = text;
+            codeBlock.applyTransformation(first, editor);
+            // applyTransformation trims trigger text; a selection is literal code.
+            first.querySelector('code').textContent = text;
+            codeBlock.element = first;
+            editor._blockMap.set(first, codeBlock);
+            selected.slice(1).forEach(block => block.remove());
+            editor.setCurrentBlock(first);
+            editor.updateToolbarButtonStates?.();
+        });
+        return true;
+    }
+
     /**
      * Generate a trigger string for the given block type by prepending its markdown trigger
      * to existing content.

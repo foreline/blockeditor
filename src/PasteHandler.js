@@ -85,6 +85,17 @@ export class PasteHandler
                 this._insertInlineContent(finalHtml, selection);
             }
         } else {
+            // Parse a Markdown document as a whole: line-by-line conversion loses
+            // fence boundaries, list numbering, tables, and multiline quotes.
+            if (/\n/.test(text) && /^\s*(?:```|~~~|>|\|.*\||[-*+]\s|\d+\.\s)/m.test(text)) {
+                const blocks = Parser.parseHtml(sanitizePasteHtml(md2html(text)));
+                this.editor.transaction(() => this._insertMultipleBlocks(blocks));
+                this.editor.eventEmitter.emit(EVENTS.USER_PASTE, {
+                    text, blocksCount: blocks.length, timestamp: Date.now()
+                }, { source: 'user.paste' });
+                this.editor.update();
+                return;
+            }
             const lines = text.split('\n').filter(line => line.trim() !== '');
 
             if (lines.length > 1) {

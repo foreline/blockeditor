@@ -51,7 +51,7 @@ console.log('Hello World');
       expect(blocks.length).toBeGreaterThan(5); // We expect at least 6 blocks
       expect(blocks[0]).toBeInstanceOf(HeadingBlock);
       expect(blocks[1]).toBeInstanceOf(ParagraphBlock);
-      expect(blocks[2]).toBeInstanceOf(ParagraphBlock); // QuoteBlock might parse as paragraph currently
+      expect(blocks[2]).toBeInstanceOf(QuoteBlock);
       expect(blocks[3]).toBeInstanceOf(TaskListBlock);
       expect(blocks[4]).toBeInstanceOf(UnorderedListBlock);
       expect(blocks[5]).toBeInstanceOf(OrderedListBlock);

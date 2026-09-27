@@ -216,12 +216,12 @@ export class TableBlock extends BaseBlock
     setupCellEditing(tableBlock) {
         const table = tableBlock.querySelector('table');
         if (!table) return;
+        const viewing = tableBlock.closest('.bke-editor')?.getAttribute('aria-readonly') === 'true';
         
         // Ensure all cells are properly set up for editing
         const cells = table.querySelectorAll('td, th');
         cells.forEach(cell => {
-            // Ensure contentEditable is set
-            cell.contentEditable = true;
+            cell.contentEditable = !viewing;
             
             // Add tabindex to make cells focusable
             cell.tabIndex = 0;
@@ -232,7 +232,7 @@ export class TableBlock extends BaseBlock
         
         // Focus on first cell if it exists
         const firstCell = table.querySelector('td, th');
-        if (firstCell) {
+        if (firstCell && !viewing) {
             firstCell.focus();
         }
     }

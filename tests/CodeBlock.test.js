@@ -2,6 +2,7 @@
 import { BaseBlock } from '@/blocks/BaseBlock.js';
 import { BlockType } from '@/BlockType.js';
 import { Toolbar } from '@/Toolbar.js';
+import { Editor } from '@/Editor.js';
 
 // Mock the Toolbar module
 jest.mock('@/Toolbar.js', () => ({
@@ -206,6 +207,24 @@ describe('CodeBlock', () => {
   });
 
   describe('Language property', () => {
+    test('changing the language updates the owning editor for autosave', () => {
+      const block = new CodeBlock('const value = 1;');
+      const element = block.renderToElement();
+      const select = element.querySelector('select');
+      const update = jest.fn();
+      const editorLookup = jest.spyOn(Editor, 'getInstanceFromElement').mockReturnValue({update});
+
+      select.value = 'javascript';
+      const changeHandler = select.addEventListener.mock.calls.find(([event]) => event === 'change')[1];
+      changeHandler({target: select});
+
+      expect(block.language).toBe('javascript');
+      expect(element.querySelector('code').classList.contains('language-javascript')).toBe(true);
+      expect(editorLookup).toHaveBeenCalledWith(select);
+      expect(update).toHaveBeenCalledTimes(1);
+      editorLookup.mockRestore();
+    });
+
     test('constructor accepts language parameter', () => {
       const block = new CodeBlock('console.log("test");', '', false, 'javascript');
       expect(block._language).toBe('javascript');
@@ -407,6 +426,20 @@ describe('CodeBlock', () => {
   });
 
   describe('parseFromHtml', () => {
+    test('decodes escaped code characters before highlighting and saving', () => {
+      const html = '<pre><code class="php language-php">$notes = $repository-&gt;findDeleted(); &amp; &lt;tag&gt;</code></pre>';
+      const block = CodeBlock.parseFromHtml(html);
+
+      expect(block.content).toBe('$notes = $repository->findDeleted(); & <tag>');
+      expect(block.toMarkdown()).toBe('```php\n$notes = $repository->findDeleted(); & <tag>\n```');
+    });
+
+    test('preserves escaped markup that is part of the source code', () => {
+      const block = CodeBlock.parseFromHtml('<pre><code>&lt;span class="keyword"&gt;example&lt;/span&gt;</code></pre>');
+
+      expect(block.content).toBe('<span class="keyword">example</span>');
+    });
+
     test('parses pre-code combination', () => {
       const html = '<pre><code>console.log("test");</code></pre>';
       const block = CodeBlock.parseFromHtml(html);
@@ -710,7 +743,7 @@ describe('CodeBlock', () => {
       const block = CodeBlock.parseFromHtml(html);
       
       expect(block).toBeInstanceOf(CodeBlock);
-      expect(block.content).toBe('<span class="keyword">function</span> test() {}');
+      expect(block.content).toBe('function test() {}');
     });
   });
 });

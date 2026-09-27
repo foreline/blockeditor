@@ -18,6 +18,7 @@ WYSIWYG editor built with JavaScript, featuring a comprehensive toolbar and bloc
 - **Block type system**: Support for paragraphs, headings (H1-H6), lists (ul/ol), checklists, tables, images, and special blocks.
 - **Interactive checklists**: Task lists with clickable checkboxes supporting markdown syntax `- [ ]` and `- [x]`.
 - **Inline code control**: Select text and click the `<>` toolbar button; click again within inline code to remove it. This preserves the surrounding paragraph and supports native undo.
+- **Viewing and links**: `setEditable(false)` keeps the toolbar visible but disabled; click text to edit, and use `viewOnBlur: true` to return to viewing when focus leaves. All links open in a new tab. URLs become links by default; set `autoLink: false` to leave plain URLs untouched. In edit mode, clicking a link shows open, edit, and remove actions.
 - **Responsive pasted images**: HTML images and clipboard image files fit the editor width. Image blocks resize proportionally from their bottom-right handle.
 - **Table support**: Markdown tables with Tab navigation, cell editing, and dynamic row creation.
 - **Image support**: Drag & drop image upload, URL insertion, and resizable images with markdown syntax `![alt](src)`.

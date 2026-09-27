@@ -96,20 +96,43 @@ export class Toolbar
         this.setPinned(!this.pinned);
     }
 
+    /** Disable editing actions in viewing mode while keeping source views accessible. */
+    setViewing(viewing) {
+        if (this.viewing === viewing) return;
+        this.viewing = viewing;
+        if (viewing) {
+            this._viewDisabledButtons = new Map();
+            this.element.querySelectorAll('button').forEach(button => {
+                if (button.matches('.bke-toolbar-text, .bke-toolbar-markdown, .bke-toolbar-html')) return;
+                this._viewDisabledButtons.set(button, button.disabled);
+                button.disabled = true;
+            });
+        } else {
+            this._viewDisabledButtons?.forEach((disabled, button) => {
+                if (button.isConnected) button.disabled = disabled;
+            });
+            this._viewDisabledButtons = null;
+            const blockType = this.editorInstance?.currentBlock?.getAttribute('data-block-type');
+            if (blockType) this.updateButtonStates(blockType);
+        }
+    }
+
     /*
      * UNDO | REDO
      */
     undo()
     {
         log('undo()', 'Toolbar.');
-        document.execCommand('undo');
+        if (this.editorInstance?.undo) this.editorInstance.undo();
+        else document.execCommand('undo');
         this.after();
     }
     
     redo()
     {
         log('redo()', 'Toolbar.');
-        document.execCommand('redo');
+        if (this.editorInstance?.redo) this.editorInstance.redo();
+        else document.execCommand('redo');
         this.after();
     }
     
@@ -279,6 +302,11 @@ export class Toolbar
     code()
     {
         log('code()', 'Toolbar.');
+
+        if (this.editorInstance?.convertSelectedParagraphsToCode?.()) {
+            this.after();
+            return;
+        }
         
         if (this.editorInstance) {
             const result = this.editorInstance.convertCurrentBlockOrCreate('code');
@@ -733,6 +761,8 @@ export class Toolbar
     {
         log('updateButtonStates()', 'Toolbar.', { blockType });
 
+        if (this.viewing) return;
+
         if (!blockType) return;
 
         const blockClass = BlockFactory.getBlockClass(blockType);
@@ -756,6 +786,8 @@ export class Toolbar
     resetButtonStates()
     {
         log('resetButtonStates()', 'Toolbar.');
+
+        if (this.viewing) return;
 
         this.container.querySelectorAll('button').forEach(button => {
             const isViewButton = button.classList.contains('bke-toolbar-text') ||

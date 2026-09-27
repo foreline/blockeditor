@@ -116,7 +116,7 @@ export const ToolbarHandlers = {
     */
     on('.bke-toolbar-debug', ToolbarHandlers.createToolbarHandler('debug', () => toolbar.debug()));
     on('.bke-toolbar-pin', ToolbarHandlers.createToolbarHandler('pin', () => toolbar.togglePinned()));
-    container.querySelectorAll('.bke-toolbar-pin, .bke-toolbar-inline, .bke-toolbar-link, .bke-toolbar-help').forEach(button => {
+    container.querySelectorAll('.bke-toolbar-pin, .bke-toolbar-inline, .bke-toolbar-link, .bke-toolbar-help, .bke-toolbar-code').forEach(button => {
       // Mouse clicks must not discard the editing selection. Keyboard activation
       // keeps normal button focus and uses the same click handler.
       ToolbarHandlers.addEventListenerWithTracking(button, 'mousedown', e => e.preventDefault(), container);

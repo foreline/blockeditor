@@ -9,6 +9,46 @@ import {Editor} from "@/Editor";
  */
 export class ListBlock extends BaseBlock
 {
+    /** Backspace at the start of a list item removes its list boundary. */
+    handleBackspaceKey(event) {
+        const selection = window.getSelection();
+        if (!selection?.rangeCount || !selection.isCollapsed) return false;
+        const range = selection.getRangeAt(0);
+        const anchor = range.startContainer.nodeType === Node.TEXT_NODE
+            ? range.startContainer.parentElement : range.startContainer;
+        const item = anchor.closest?.('li');
+        const block = item?.closest('.bke-block');
+        const editor = block && Editor.getInstanceFromElement(block);
+        if (!editor || !item) return false;
+        const prefix = range.cloneRange();
+        prefix.selectNodeContents(item);
+        prefix.setEnd(range.startContainer, range.startOffset);
+        if (prefix.toString().length) return false;
+
+        const previous = item.previousElementSibling;
+        event.preventDefault();
+        editor.transaction(() => {
+            if (previous) {
+                const offset = previous.textContent.length;
+                if (!offset) previous.replaceChildren();
+                while (item.firstChild) previous.appendChild(item.firstChild);
+                item.remove();
+                previous.focus();
+                editor.cursor.placeCursorAtOffset(previous, offset);
+            } else {
+                const paragraph = editor.createParagraphBlock(item.innerHTML);
+                paragraph.setAttribute('contenteditable', 'true');
+                block.before(paragraph);
+                item.remove();
+                if (!block.querySelector('li')) block.remove();
+                editor.setCurrentBlock(paragraph);
+                paragraph.focus();
+                editor.placeCursorAtStart(paragraph);
+            }
+        });
+        return true;
+    }
+
     /**
      * Handle Enter key press for list blocks
      * @param {KeyboardEvent} event

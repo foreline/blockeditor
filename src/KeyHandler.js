@@ -407,12 +407,53 @@ export class KeyHandler
         // language selector option text as content.
         let text;
         const blockType = currentBlock.dataset?.blockType;
-        // Task items are separate editing hosts. Handle their boundaries before
-        // the whole-block empty check, including a lone empty task.
-        if (blockType === 'sq') {
+        // List items are separate editing hosts, including a lone empty item.
+        if (['ul', 'ol', 'sq'].includes(blockType)) {
             const block = BlockFactory.createBlock(blockType);
             if (block.handleBackspaceKey?.(e)) this.editorInstance.update();
             return;
+        }
+
+        const selection = window.getSelection();
+        const range = selection?.rangeCount ? selection.getRangeAt(0) : null;
+        if (range?.collapsed && typeof range.cloneRange === 'function' && ['p', 'paragraph'].includes(blockType) &&
+            KeyHandler.isCursorAtStartOfBlock(currentBlock, range)) {
+            const previous = currentBlock.previousElementSibling;
+            if (previous?.classList.contains('bke-block')) {
+                const previousType = previous.dataset?.blockType;
+                if (['delimiter', 'image'].includes(previousType)) {
+                    e.preventDefault();
+                    this.editorInstance.transaction(() => previous.remove());
+                    return;
+                }
+                let destination = null;
+                if (['ul', 'ol', 'sq'].includes(previousType)) {
+                    const item = previous.querySelector('li:last-child');
+                    destination = previousType === 'sq'
+                        ? item?.querySelector('span[contenteditable="true"]') : item;
+                } else if (previousType === 'table') {
+                    const cells = previous.querySelectorAll('td, th');
+                    destination = cells[cells.length - 1];
+                } else if (['p', 'paragraph', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'quote', 'code'].includes(previousType)) {
+                    destination = previousType === 'code'
+                        ? previous.querySelector('code[contenteditable="true"]')
+                        : this.editorInstance.findEditableElementInBlock(previous);
+                }
+                if (destination) {
+                    e.preventDefault();
+                    this.editorInstance.transaction(() => {
+                        const offset = destination.textContent.length;
+                        if (!offset) destination.replaceChildren();
+                        if (previousType === 'code') destination.appendChild(document.createTextNode(currentBlock.textContent));
+                        else while (currentBlock.firstChild) destination.appendChild(currentBlock.firstChild);
+                        currentBlock.remove();
+                        this.editorInstance.setCurrentBlock(previous);
+                        destination.focus();
+                        this.editorInstance.cursor.placeCursorAtOffset(destination, offset);
+                    });
+                    return;
+                }
+            }
         }
         if (blockType === 'code') {
             const code = currentBlock.querySelector('code');

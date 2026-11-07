@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.9.0] - 2026-11-07
+
+### Added
+- feat(editor): improve lists and block boundaries (v0.9.0)
+
 ## [v0.7.2] - 2026-09-26
 
 ### Fixed

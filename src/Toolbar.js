@@ -256,6 +256,7 @@ export class Toolbar
     ul()
     {
         log('ul()', 'Toolbar.');
+        if (this.editorInstance?.convertSelectedParagraphsToList?.('ul')) { this.after(); return; }
         
         if (!this.editorInstance?.convertCurrentBlockOrCreate('ul')) {
             document.execCommand('insertUnorderedList');
@@ -270,6 +271,7 @@ export class Toolbar
     ol()
     {
         log('ol()', 'Toolbar.');
+        if (this.editorInstance?.convertSelectedParagraphsToList?.('ol')) { this.after(); return; }
         
         if (!this.editorInstance?.convertCurrentBlockOrCreate('ol')) {
             document.execCommand('insertOrderedList');
@@ -284,6 +286,7 @@ export class Toolbar
     sq()
     {
         log('sq()', 'Toolbar.');
+        if (this.editorInstance?.convertSelectedParagraphsToList?.('sq')) { this.after(); return; }
         
         if (!this.editorInstance?.convertCurrentBlockOrCreate('sq')) {
             const currentBlock = this.editorInstance?.currentBlock;

@@ -1,3 +1,8 @@
+## v0.9.0 (2026-11-07)
+
+- Convert selected paragraphs into lists and preserve caret position when merging list items or adjacent blocks.
+- Keep an editing position around horizontal rules; validate with 1021 unit tests and 36 focused browser scenarios.
+
 ## v0.8.0 (2026-09-27)
 - Improve viewing, links, undo history, paste handling, and multi-paragraph code conversion.
 - Remove the toolbar's bottom border and bottom padding.

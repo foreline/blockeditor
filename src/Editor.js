@@ -265,6 +265,7 @@ export class Editor
             }
             this._blockMap.set(html, typedBlock);
         }
+        if (!this._readonly) this.ensureLeadingParagraph();
         this.prepareLinks();
         
         this.setCurrentBlock(this.instance.querySelectorAll('.bke-block')[0]);
@@ -1023,6 +1024,20 @@ export class Editor
         return this._blockManager.createParagraphBlock(html);
     }
 
+    /** Leave an editing position above a document that starts with a rule. */
+    ensureLeadingParagraph() {
+        const first = this.contentArea?.querySelector?.('.bke-block');
+        if (first?.dataset?.blockType !== 'delimiter') return null;
+        const paragraph = this.createParagraphBlock('');
+        if (!paragraph) return null;
+        paragraph.setAttribute('contenteditable', 'true');
+        first.before(paragraph);
+        const typed = BlockFactory.createBlock(BlockType.PARAGRAPH);
+        typed.element = paragraph;
+        this._blockMap.set(paragraph, typed);
+        return paragraph;
+    }
+
     insertInlineContent(html, selection) {
         log('insertInlineContent()', 'Editor.');
         return this._pasteHandler._insertInlineContent(html, selection);
@@ -1626,6 +1641,11 @@ export class Editor
     convertSelectedParagraphsToCode()
     {
         return this._blockConverter.convertSelectedParagraphsToCode();
+    }
+
+    convertSelectedParagraphsToList(targetBlockType)
+    {
+        return this._blockConverter.convertSelectedParagraphsToList(targetBlockType);
     }
 
     /**

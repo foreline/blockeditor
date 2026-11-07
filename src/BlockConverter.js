@@ -53,6 +53,7 @@ export class BlockConverter
         if (converted && targetBlockType === BlockType.DELIMITER && this.editor.currentBlock === blockElement) {
             // A horizontal rule cannot host a caret. Continue typing below it,
             // after the conversion has finished its state transition.
+            this.editor.ensureLeadingParagraph();
             this.editor.addDefaultBlock();
         }
         return converted;
@@ -167,6 +168,58 @@ export class BlockConverter
 
         // For non-paragraph blocks of a different type, create a new block after current
         return editor.createNewBlock(targetType, options);
+    }
+
+    /** Turn the paragraph blocks touched by a selection into one list. */
+    convertSelectedParagraphsToList(targetType)
+    {
+        const editor = this.editor;
+        const selection = window.getSelection();
+        if (!selection?.rangeCount || selection.isCollapsed) return false;
+        const range = selection.getRangeAt(0);
+        const blockFor = node => (node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement)?.closest?.('.bke-block');
+        const first = blockFor(range.startContainer);
+        const last = blockFor(range.endContainer);
+        if (!first || !last || first === last || first.parentElement !== editor.contentArea ||
+            last.parentElement !== editor.contentArea) return false;
+
+        const blocks = [...editor.contentArea.children];
+        const selected = blocks.slice(blocks.indexOf(first), blocks.indexOf(last) + 1);
+        if (selected.length < 2 || selected.some(block =>
+            !block.classList.contains('bke-block') ||
+            !['p', 'paragraph'].includes(block.getAttribute('data-block-type')))) return false;
+        const listBlock = BlockFactory.createBlock(targetType);
+        if (!listBlock) return false;
+        const contents = selected.map(block => [...block.childNodes].map(node => node.cloneNode(true)));
+
+        editor.transaction(() => {
+            first.textContent = '';
+            listBlock.applyTransformation(first, editor);
+            const list = first.querySelector('ul, ol');
+            list.replaceChildren();
+            contents.forEach(nodes => {
+                const item = targetType === BlockType.SQ
+                    ? listBlock.createTaskListItem('', false)
+                    : document.createElement('li');
+                const editable = targetType === BlockType.SQ
+                    ? item.querySelector('span[contenteditable="true"]') : item;
+                if (targetType !== BlockType.SQ) editable.contentEditable = true;
+                editable.replaceChildren(...nodes);
+                if (!editable.hasChildNodes()) editable.appendChild(document.createElement('br'));
+                list.appendChild(item);
+            });
+            selected.slice(1).forEach(block => block.remove());
+            listBlock.element = first;
+            editor._blockMap.set(first, listBlock);
+            editor.setCurrentBlock(first);
+            const lastItem = list.lastElementChild;
+            const editable = targetType === BlockType.SQ
+                ? lastItem.querySelector('span[contenteditable="true"]') : lastItem;
+            editable.focus();
+            editor.placeCursorAtEnd(editable);
+            editor.updateToolbarButtonStates?.();
+        });
+        return true;
     }
 
     /** Convert a selection spanning paragraph blocks into one code block. */

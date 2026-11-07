@@ -69,12 +69,12 @@ for (const key of ['Backspace', 'Delete']) {
   });
 }
 
-test('Backspace beside media retains a place to type', async ({ page }) => {
+test('Backspace after a rule removes it and retains a place to type', async ({ page }) => {
   await clear(page);
   await page.keyboard.type('---');
   await page.keyboard.press('Backspace');
   await page.keyboard.type('After rule');
-  await expect(page.locator('hr')).toHaveCount(1);
+  await expect(page.locator('hr')).toHaveCount(0);
   await expect(page.locator('.bke-block').last()).toHaveText('After rule');
 });
 

@@ -3,6 +3,7 @@
 'use strict';
 
 import { ToolbarPanels } from './ToolbarPanels.js';
+import { ResponsiveToolbar } from './ResponsiveToolbar.js';
 import { toolbarHint } from './config/toolbarHints.js';
 import { toolbarMessages } from './config/toolbarMessages.js';
 import { ToolbarHandlers } from "./ToolbarHandlers.js";
@@ -11,6 +12,8 @@ import {log} from "./utils/log.js";
 import {eventEmitter, EVENTS} from "@/utils/eventEmitter.js";
 import { ICONS } from "./icons.js";
 import { SyntaxHighlighter } from "./utils/syntaxHighlighter.js";
+
+let nextDropdownId = 0;
 
 /**
  * Render an icon for use inside a toolbar button.
@@ -62,6 +65,7 @@ export class Toolbar
         this.createToolbar(container, config, debug, this.customIcons);
         ToolbarHandlers.init(this);
         this.panels = new ToolbarPanels(this);
+        this.responsive = new ResponsiveToolbar(this);
         
         // Emit toolbar initialization event
         eventEmitter.emit(EVENTS.EDITOR_INITIALIZED, {
@@ -103,7 +107,7 @@ export class Toolbar
         if (viewing) {
             this._viewDisabledButtons = new Map();
             this.element.querySelectorAll('button').forEach(button => {
-                if (button.matches('.bke-toolbar-text, .bke-toolbar-markdown, .bke-toolbar-html')) return;
+                if (button.matches('.bke-toolbar-text, .bke-toolbar-markdown, .bke-toolbar-html, .bke-group-toggle')) return;
                 this._viewDisabledButtons.set(button, button.disabled);
                 button.disabled = true;
             });
@@ -614,7 +618,9 @@ export class Toolbar
             const group = document.createElement('div');
             group.className = 'bke-toolbar-group';
             if (section.dropdown) {
-                const menuId = `editor-dropdown-${section.id}`;
+                group.classList.add('bke-toolbar-group--dropdown');
+                const triggerId = `${section.id || 'bke-dropdown'}-${++nextDropdownId}`;
+                const menuId = `editor-dropdown-${triggerId}`;
                 const supportsPopover = typeof HTMLElement !== 'undefined' && 'popover' in HTMLElement.prototype;
 
                 // Wrapper div (replaces Bootstrap .dropdown)
@@ -624,12 +630,13 @@ export class Toolbar
                 // Trigger button (replaces Bootstrap .btn.dropdown-toggle)
                 const trigger = document.createElement('button');
                 trigger.type = 'button';
-                trigger.id = section.id;
+                trigger.id = triggerId;
                 trigger.className = 'bke-toolbar-btn';
                 trigger.setAttribute('aria-haspopup', 'true');
                 trigger.setAttribute('aria-expanded', 'false');
                 trigger.setAttribute('aria-controls', menuId);
-                trigger.innerHTML = renderIcon(section.icon, customIcons);
+                trigger.innerHTML = '<span class="bke-dropdown-action" aria-hidden="true">' + renderIcon(section.icon, customIcons) +
+                    '</span><span class="bke-dropdown-chevron" aria-hidden="true">' + renderIcon('bke-chevron-down', customIcons) + '</span>';
                 this.setButtonTooltip(trigger, section.title || (this.locale === 'ru' ? 'Заголовок или абзац' : 'Heading or paragraph'));
 
                 // Menu list (replaces Bootstrap .dropdown-menu)
@@ -637,7 +644,7 @@ export class Toolbar
                 ul.id = menuId;
                 ul.className = 'bke-dropdown-menu';
                 ul.setAttribute('role', 'menu');
-                ul.setAttribute('aria-labelledby', section.id);
+                ul.setAttribute('aria-labelledby', triggerId);
 
                 section.group.forEach(item => {
                     const li = document.createElement('li');

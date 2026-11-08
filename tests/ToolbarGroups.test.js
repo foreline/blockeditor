@@ -51,7 +51,7 @@ describe('Toolbar Groups', () => {
             const element = {
                 tagName: tagName.toUpperCase(),
                 className: '',
-                classList: { toggle: jest.fn() },
+                classList: { toggle: jest.fn(), add: jest.fn() },
                 querySelector: jest.fn().mockReturnValue(null),
                 innerHTML: '',
                 textContent: '',
@@ -142,11 +142,15 @@ describe('Toolbar Groups', () => {
             el.className === 'bke-toolbar-btn'
         );
         expect(dropdownButton).toBeDefined();
-        expect(dropdownButton.id).toBe('dropdownMenuHeader');
+        expect(dropdownButton.id).toMatch(/^dropdownMenuHeader-\d+$/);
+        expect(dropdownButton.innerHTML).toContain('bke-dropdown-action');
+        expect(dropdownButton.innerHTML).toContain('bke-dropdown-chevron');
 
         // Should create dropdown menu
         const dropdownMenu = mockCreatedElements.find(el => el.className === 'bke-dropdown-menu');
         expect(dropdownMenu).toBeDefined();
+        expect(dropdownButton.setAttribute).toHaveBeenCalledWith('aria-controls', dropdownMenu.id);
+        expect(dropdownMenu.setAttribute).toHaveBeenCalledWith('aria-labelledby', dropdownButton.id);
 
         // Should create list items
         const listItems = mockCreatedElements.filter(el => el.tagName === 'LI');

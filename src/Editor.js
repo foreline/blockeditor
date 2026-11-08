@@ -1680,6 +1680,7 @@ export class Editor
         this.toolbar?.panels?.close();
         this.toolbar?.panels?.closeLinkPreview?.();
         if (this.toolbar) ToolbarHandlers.cleanup(this.toolbar.container);
+        this.toolbar?.responsive?.destroy();
 
         // Remove DOM event listeners
         if (this._boundHandlers && this.contentArea) {

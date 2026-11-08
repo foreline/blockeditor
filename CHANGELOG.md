@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.10.0] - 2026-11-08
+
+### Added
+- Collapse toolbar groups into split buttons according to container width, with accessible action menus, preserved text selection, and automatic expansion on resize.
+
+### Fixed
+- Match heading dropdown spacing and chevrons to compact groups; keep dropdown IDs unique across editors.
+- Align help and pin controls with the toolbar row in both pinned states.
+
 ## [v0.9.0] - 2026-11-07
 
 ### Added

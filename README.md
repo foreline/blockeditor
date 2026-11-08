@@ -12,6 +12,7 @@ WYSIWYG editor built with JavaScript, featuring a comprehensive toolbar and bloc
 - **Content export**: Export editor content as markdown (`Editor.getMarkdown()`) or HTML (`Editor.getHtml()`).
 - **BlockInterface contract**: Consistent behavior across all block types with standardized methods.
 - **Comprehensive toolbar**: Text formatting, lists, blockquotes, and code blocks. Pinned by default, with a right-hand pin toggle.
+- **Responsive toolbar groups**: When the editor container cannot fit the full toolbar, each multi-button group becomes a split button: its first action stays visible and the arrow opens the remaining actions. Groups expand again when space returns. No viewport breakpoint or configuration is needed; menus support keyboard navigation and preserve the editing selection. At very small widths, compact groups wrap without horizontal scrolling. Try `responsive-toolbar.html` on the development server.
 - **Markdown support**: Full markdown parsing and conversion using Showdown.
 - **Advanced key handling**: Smart Enter/Backspace behavior for different block types.
 - **Clipboard integration**: Paste support with markdown conversion and XSS protection.

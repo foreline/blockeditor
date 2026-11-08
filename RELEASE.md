@@ -1,3 +1,8 @@
+## v0.10.0 (2026-11-08)
+
+- Adapt toolbar groups to container width with compact, borderless split buttons and keyboard-accessible menus.
+- Unify the heading dropdown appearance and center the pin and help controls vertically.
+
 ## v0.9.0 (2026-11-07)
 
 - Convert selected paragraphs into lists and preserve caret position when merging list items or adjacent blocks.

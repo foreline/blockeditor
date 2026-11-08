@@ -8,7 +8,8 @@
         body { margin: 24px; font: 16px/1.5 system-ui; background: #f5f7fa; color: #253044; }
         h1 { font-size: 24px; }
         .demo-frame { width: 1100px; max-width: 100%; box-sizing: border-box; margin-block: 20px; padding: 16px; border: 1px solid #d8dfe8; border-radius: 8px; background: white; }
-        .secondary { width: 420px; }
+        #frame { font: 14px/1.4 Arial, sans-serif; }
+        .secondary { width: 420px; font: 18px/1.6 Georgia, serif; }
         select { padding: 6px; font: inherit; }
     </style>
 </head>
@@ -16,15 +17,18 @@
     <h1>Адаптивная панель BlockEditor</h1>
     <p>Меняйте ширину контейнера, выделяйте текст и пробуйте команды из меню.</p>
     <label>Ширина редактора <select id="width"><option value="1100">1100 px</option><option value="600">600 px</option><option value="360">360 px</option></select></label>
+    <label><input id="readonly" type="checkbox"> Только просмотр</label>
     <div class="demo-frame" id="frame"><div id="primary"></div></div>
     <h2>Второй редактор</h2>
     <div class="demo-frame secondary"><div id="secondary"></div></div>
+    <label>Проверка буфера обмена: вставьте скопированный код<br><textarea id="clipboard-check" rows="4" cols="65"></textarea></label>
     <script type="module">
         import './src/css/editor.css';
-        import './src/css/content-defaults.css';
+        import './src/css/prism-theme.css';
         import { Editor } from './src/Editor.js';
-        Editor.mount(document.getElementById('primary'), {text: 'Выделите этот текст для проверки форматирования.', toolbar: {locale: 'ru'}, debug: false});
-        Editor.mount(document.getElementById('secondary'), {text: 'Независимый редактор в узком контейнере.', toolbar: {locale: 'ru'}, debug: false});
+        const primary = Editor.mount(document.getElementById('primary'), {text: 'Текст наследует Arial 14 px от контейнера.\n\n```bash\nprintf "Проверка <значения>\\n"\necho "second & third"\n```', toolbar: {locale: 'ru'}, debug: false});
+        Editor.mount(document.getElementById('secondary'), {text: 'Этот редактор наследует Georgia 18 px.\n\n```\necho "Другой блок"\n```', toolbar: {locale: 'ru'}, debug: false});
+        document.getElementById('readonly').addEventListener('change', event => primary.setEditable(!event.target.checked));
         document.getElementById('width').addEventListener('change', event => {
             document.getElementById('frame').style.width = `${event.target.value}px`;
         });

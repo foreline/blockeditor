@@ -70,7 +70,7 @@
 
 /* Button base reset — scoped to editor chrome */
 .bke-editor button {
-    font-family: inherit;
+    font: inherit;
     cursor: pointer;
     background: none;
     border: none;
@@ -86,22 +86,19 @@
    EDITOR ROOT — custom properties and base styles
    ============================================================ */
 .bke-editor {
-    --bke-font-family: inherit;
-    --bke-font-size: 1rem;
-    --bke-line-height: 1.5;
     --bke-placeholder-color: var(--bke-muted);
     --bke-focus-color: Highlight;
     --bke-list-marker-width: 1.25em;
     --bke-list-marker-gap: 0.5em;
 
     /* Legacy aliases — deprecated, kept for backward compatibility */
-    --editor-font-size: var(--bke-font-size);
-    --editor-line-height: var(--bke-line-height);
+    --editor-font-size: var(--bke-font-size, 1em);
+    --editor-line-height: var(--bke-line-height, 1.5);
 
     outline: none;
-    font-family: var(--bke-font-family);
-    font-size: var(--bke-font-size);
-    line-height: var(--bke-line-height);
+    font-family: var(--bke-font-family, inherit);
+    font-size: var(--bke-font-size, inherit);
+    line-height: var(--bke-line-height, inherit);
 }
 
 /* Suppress default focus outlines on all contenteditable children */
@@ -143,7 +140,7 @@
     border: 1px dashed transparent;
     position: relative;
     margin-bottom: 0.2em;
-    min-height: calc(1em * var(--editor-line-height));
+    min-height: 1lh;
 }
 
 /* ============================================================
@@ -322,7 +319,7 @@
     border: none;
     cursor: pointer;
     color: var(--bke-foreground);
-    font-size: 0.9rem;
+    font-size: 0.9em;
     white-space: nowrap;
 }
 
@@ -382,10 +379,11 @@
 
 .bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item input[type="checkbox"] {
     font-size: inherit;
+    line-height: inherit;
     width: 1em;
     height: 1em;
     /* Center on the first text line, including when the task wraps or is empty. */
-    margin: calc((1em * var(--bke-line-height) - 1em) / 2) 0 0 !important;
+    margin: calc((1lh - 1em) / 2) 0 0 !important;
     margin-inline-start: calc((var(--bke-list-marker-width) - 1em) / 2) !important;
     margin-inline-end: calc(var(--bke-list-marker-gap) + (var(--bke-list-marker-width) - 1em) / 2) !important;
     flex-shrink: 0 !important;
@@ -402,7 +400,7 @@
 .bke-editor .bke-block[data-block-type="sq"] .bke-task-list-item > span[contenteditable] {
     flex: 1;
     min-width: 0;
-    min-height: calc(1em * var(--bke-line-height));
+    min-height: 1lh;
     outline: none;
 }
 
@@ -529,28 +527,35 @@
 }
 
 .bke-editor .bke-block[data-block-type="code"] .bke-language-selector {
-    position: absolute;
-    top: 8px;
-    right: 8px;
     background: var(--bke-surface);
     border: 1px solid var(--bke-border);
     border-radius: 4px;
     padding: 2px 6px;
-    font-size: 12px;
+    font-size: inherit;
     color: var(--bke-muted);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    z-index: 10;
 }
 
-.bke-editor .bke-block[data-block-type="code"]:hover .bke-language-selector {
-    opacity: 1;
+.bke-code-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    padding-block: 4px;
+    font-size: 0.85em;
 }
+.bke-editor .bke-code-copy {
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: var(--bke-muted);
+}
+.bke-editor .bke-code-copy:hover { background: var(--bke-hover); }
+.bke-editor .bke-code-copy:focus-visible { outline: 2px solid var(--bke-focus-color); }
 
 .bke-editor .bke-block[data-block-type="code"] .bke-language-selector select {
     background: none;
     border: none;
-    font-size: 12px;
+    font: inherit;
     color: var(--bke-muted);
     padding: 0;
     margin: 0;

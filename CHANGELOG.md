@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.11.0] - 2026-11-08
+
+### Added
+- Copy each code block as plain text, preserving whitespace, with accessible success/error feedback in editing and viewing modes.
+
+### Fixed
+- Inherit the host font family, size and line height by default; retain explicit typography overrides.
+- Place language and copy controls above code so they do not cover long commands.
+
 ## [v0.10.0] - 2026-11-08
 
 ### Added

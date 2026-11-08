@@ -18,7 +18,8 @@
     }
 }
 .bke-editor code[class*="language-"],
-.bke-editor pre[class*="language-"] {
+.bke-editor pre[class*="language-"],
+.bke-editor .bke-block[data-block-type="code"] pre {
     color: var(--bke-code-foreground, #24292f);
     font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", monospace;
     direction: ltr;
@@ -40,7 +41,8 @@
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
-.bke-editor pre[class*="language-"] {
+.bke-editor pre[class*="language-"],
+.bke-editor .bke-block[data-block-type="code"] pre {
     padding: 1em;
     margin: 0.5em 0;
     overflow: auto;

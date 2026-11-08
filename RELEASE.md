@@ -1,3 +1,8 @@
+## v0.11.0 (2026-11-08)
+
+- Inherit host typography and keep code controls clear of command text.
+- Copy individual code blocks in edit or viewing mode with success/error feedback.
+
 ## v0.10.0 (2026-11-08)
 
 - Adapt toolbar groups to container width with compact, borderless split buttons and keyboard-accessible menus.

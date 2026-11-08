@@ -1,6 +1,7 @@
 'use strict';
 
 import {getCodeText} from '@/utils/codeText.js';
+import {createCodeCopyButton} from '@/utils/codeCopyButton.js';
 
 import {BaseBlock} from "@/blocks/BaseBlock";
 import {BlockType} from "@/BlockType";
@@ -177,9 +178,7 @@ export class CodeBlock extends BaseBlock
         pre.appendChild(code);
         targetElement.appendChild(pre);
         
-        // Create and append language selector
-        const languageSelector = this.createLanguageSelector();
-        targetElement.appendChild(languageSelector);
+        targetElement.insertBefore(this.createCodeActions(code), pre);
         
         // Focus the code element
         requestAnimationFrame(() => {
@@ -283,20 +282,28 @@ export class CodeBlock extends BaseBlock
         
         pre.appendChild(code);
         
-        // Create language selector
-        const languageSelector = this.createLanguageSelector();
-        
+        element.appendChild(this.createCodeActions(code));
         element.appendChild(pre);
-        element.appendChild(languageSelector);
 
         this.element = element;
         return element;
     }
 
     /**
-     * Create language selector dropdown
-     * @returns {HTMLElement} - Language selector element
+     * Keep code controls outside editable and exported code content.
+     * @param {HTMLElement} code - Source of the current code text.
+     * @returns {HTMLElement} Non-editable action row.
      */
+    createCodeActions(code) {
+        const actions = document.createElement('div');
+        actions.className = 'bke-code-actions';
+        actions.setAttribute('contenteditable', 'false');
+        actions.appendChild(this.createLanguageSelector());
+        actions.appendChild(createCodeCopyButton(() => getCodeText(code)));
+        return actions;
+    }
+
+    /** Language selector remains separate from the non-editable copy action. */
     createLanguageSelector() {
         const container = document.createElement('div');
         container.classList.add('bke-language-selector');

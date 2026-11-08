@@ -44,6 +44,21 @@ const editor = new Editor({
 
 See [LIBRARY.md](./LIBRARY.md) for complete documentation.
 
+### Inherited typography and copying code
+
+Normal text inherits the enclosing element's font family, size, and line height.
+Optional `--bke-font-family`, `--bke-font-size`, and `--bke-line-height` overrides
+remain supported. Standalone `content-defaults.css` is optional and supplies its
+own heading/code styling; omit it when using the host application's typography.
+The Prism theme retains monospace code styling.
+
+Each code block has a **Copy code** button in a separate action row, also available
+in viewing mode. It copies the current code as plain text with its whitespace,
+without language labels, highlighting markup, or Markdown fences. The button
+reports success or failure; browsers require a secure context (HTTPS or localhost)
+and clipboard access. Labels follow the document's `lang` (`ru` or English).
+Controls are excluded from Markdown and HTML exports.
+
 ### Automatic light and dark themes
 
 The editor follows the browser/OS `prefers-color-scheme` setting, including changes made while it is open. Toolbar controls, panels, tables, quotations, inline code, and code/source views use matching colors. Import `content-defaults.css` for the quotation inset and other standalone content styling, and `prism-theme.css` for syntax highlighting in both themes. These styles are scoped to the editor.

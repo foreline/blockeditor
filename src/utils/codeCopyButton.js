@@ -25,14 +25,17 @@ export function createCodeCopyButton(getText) {
             await navigator.clipboard.writeText(getText());
             button.textContent = labels.copied;
             button.title = labels.copied;
+            button.dataset.copyState = 'copied';
         } catch {
             button.textContent = labels.failed;
             button.title = labels.help;
+            button.dataset.copyState = 'failed';
         } finally {
             button.disabled = false;
             timer = setTimeout(() => {
                 button.textContent = labels.copy;
                 button.title = labels.copy;
+                delete button.dataset.copyState;
             }, 2500);
         }
     });

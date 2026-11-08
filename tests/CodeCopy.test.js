@@ -25,9 +25,11 @@ test('copies current code, preserving whitespace, line wrappers and HTML charact
     await Promise.resolve();
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('echo <value>\n\tsecond & third\n');
     expect(button.textContent).toBe('Copied');
+    expect(button.dataset.copyState).toBe('copied');
     expect(button.disabled).toBe(false);
     jest.runOnlyPendingTimers();
     expect(button.textContent).toBe('Copy code');
+    expect(button.dataset.copyState).toBeUndefined();
 });
 
 test('clipboard rejection is visible, does not claim success, and permits retry', async () => {
@@ -35,6 +37,7 @@ test('clipboard rejection is visible, does not claim success, and permits retry'
     navigator.clipboard.writeText.mockRejectedValueOnce(new Error('denied'));
     button.click(); await Promise.resolve();
     expect(button.textContent).toBe('Could not copy');
+    expect(button.dataset.copyState).toBe('failed');
     expect(button.disabled).toBe(false);
     button.click(); await Promise.resolve();
     expect(button.textContent).toBe('Copied');

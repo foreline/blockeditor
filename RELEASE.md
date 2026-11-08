@@ -1,3 +1,8 @@
+## v0.11.1 (2026-11-08)
+
+- Place compact copy icons inside code blocks, preserving accessible feedback and command padding.
+- Keep viewing-mode controls from occupying an extra line and hide them in print.
+
 ## v0.11.0 (2026-11-08)
 
 - Inherit host typography and keep code controls clear of command text.

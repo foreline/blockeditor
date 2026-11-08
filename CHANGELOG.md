@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.11.1] - 2026-11-08
+
+### Fixed
+- Place the code copy icon inside its block without an extra row in viewing mode; preserve accessible success and failure feedback.
+
 ## [v0.11.0] - 2026-11-08
 
 ### Added

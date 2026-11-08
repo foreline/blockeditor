@@ -536,6 +536,7 @@
 }
 
 .bke-code-actions {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -545,10 +546,36 @@
     font-size: 0.85em;
 }
 .bke-editor .bke-code-copy {
-    padding: 3px 8px;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 6px;
+    z-index: 1;
+    width: 28px;
+    height: 28px;
+    padding: 6px;
+    border: 0;
     border-radius: 4px;
+    background: var(--bke-surface);
     color: var(--bke-muted);
+    /* Keep the localized accessible name and live feedback, show only the icon. */
+    font-size: 0;
+    cursor: pointer;
 }
+.bke-editor .bke-code-copy::before {
+    content: '';
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='M9 8h11v13H9zM5 16H3V3h11v2'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.bke-editor .bke-code-copy[data-copy-state="copied"]::before {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='m5 12 4 4L19 6'/%3E%3C/svg%3E");
+}
+.bke-editor .bke-code-copy[data-copy-state="failed"] { color: #c43b3b; }
+.bke-editor .bke-block[data-block-type="code"] > pre { padding-right: 44px; }
+.bke-editor.bke-view-mode .bke-code-actions { padding: 0; height: 0; }
+@media print { .bke-editor .bke-code-copy { display: none; } }
 .bke-editor .bke-code-copy:hover { background: var(--bke-hover); }
 .bke-editor .bke-code-copy:focus-visible { outline: 2px solid var(--bke-focus-color); }
 
